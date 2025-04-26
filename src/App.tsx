@@ -20,6 +20,7 @@ import TestCaseDetail from './pages/TestCaseDetail';
 import TestRunDetail from './pages/TestRunDetail';
 import NewTestCase from './pages/NewTestCase';
 import CreateTestSuite from './pages/CreateTestSuite';
+import ServerAgent from './pages/ServerAgent';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                   <Route path="test-runs/create" element={<CreateTestSuite />} />
                   <Route path="test-runs/:id" element={<TestRunDetail />} />
                   <Route path="reports" element={<Reports />} />
+                  <Route path="server-agent" element={<ServerAgent />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />

@@ -22,6 +22,7 @@ import {
   Assessment as AssessmentIcon,
   Settings as SettingsIcon,
   HelpOutline as HelpIcon,
+  Computer as ComputerIcon,
 } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import { Project } from '../types';
@@ -42,6 +43,7 @@ const Sidebar: React.FC = () => {
     { text: 'Test Cases', icon: <AssignmentIcon />, path: '/test-cases' },
     { text: 'Test Runs', icon: <PlayArrowIcon />, path: '/test-runs' },
     { text: 'Reports', icon: <AssessmentIcon />, path: '/reports' },
+    { text: 'Server Agent', icon: <ComputerIcon />, path: '/server-agent' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
 
@@ -75,9 +77,9 @@ const Sidebar: React.FC = () => {
           </Select>
         </FormControl>
       </Box>
-      
+
       <Divider />
-      
+
       <List component="nav" sx={{ flexGrow: 1 }}>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
@@ -106,9 +108,9 @@ const Sidebar: React.FC = () => {
           </ListItem>
         ))}
       </List>
-      
+
       <Divider />
-      
+
       <List>
         <ListItem disablePadding>
           <ListItemButton
