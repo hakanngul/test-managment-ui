@@ -28,11 +28,11 @@ export const api = {
   // Users
   getUsers: () => fetchData<any[]>('users'),
   getUserById: (id: string) => fetchData<any>(`users/${id}`),
-  
+
   // Projects
   getProjects: () => fetchData<any[]>('projects'),
   getProjectById: (id: string) => fetchData<any>(`projects/${id}`),
-  
+
   // Test Cases
   getTestCases: () => fetchData<any[]>('testCases'),
   getTestCaseById: (id: string) => fetchData<any>(`testCases/${id}`),
@@ -47,7 +47,7 @@ export const api = {
   deleteTestCase: (id: string) => fetchData<void>(`testCases/${id}`, {
     method: 'DELETE',
   }),
-  
+
   // Test Suites
   getTestSuites: () => fetchData<any[]>('testSuites'),
   getTestSuiteById: (id: string) => fetchData<any>(`testSuites/${id}`),
@@ -62,7 +62,7 @@ export const api = {
   deleteTestSuite: (id: string) => fetchData<void>(`testSuites/${id}`, {
     method: 'DELETE',
   }),
-  
+
   // Test Runs
   getTestRuns: () => fetchData<any[]>('testRuns'),
   getTestRunById: (id: string) => fetchData<any>(`testRuns/${id}`),
@@ -77,14 +77,14 @@ export const api = {
   deleteTestRun: (id: string) => fetchData<void>(`testRuns/${id}`, {
     method: 'DELETE',
   }),
-  
+
   // Server Agent
   getServerAgentStatus: () => fetchData<any>('serverAgent'),
   updateServerAgentStatus: (data: any) => fetchData<any>('serverAgent', {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
-  
+
   // Notifications
   getNotifications: () => fetchData<any[]>('notifications'),
   markNotificationAsRead: (id: string) => {
@@ -93,6 +93,15 @@ export const api = {
       body: JSON.stringify({ read: true }),
     });
   },
+
+  // Dashboard Data
+  getCategories: () => fetchData<string[]>('testCategories'),
+  getPriorities: () => fetchData<string[]>('testPriorities'),
+  getStatuses: () => fetchData<string[]>('testStatuses'),
+  getEnvironments: () => fetchData<string[]>('testEnvironments'),
+  getFeatures: () => fetchData<string[]>('testFeatures'),
+  getExecutionTimeData: () => fetchData<number[]>('executionTimeData'),
+  getTestCountsByDay: () => fetchData<any[]>('testCountsByDay'),
 };
 
 export default api;

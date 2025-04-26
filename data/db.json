@@ -493,5 +493,62 @@
       "read": true,
       "createdAt": "2023-04-05T09:15:00Z"
     }
+  ],
+  "testCategories": ["UI", "API", "Integration", "Unit", "Performance", "Security", "Accessibility"],
+  "testPriorities": ["Critical", "High", "Medium", "Low"],
+  "testStatuses": ["Passed", "Failed", "Pending", "Blocked"],
+  "testEnvironments": ["Development", "Staging", "Production", "QA"],
+  "testFeatures": ["Authentication", "Search", "Checkout", "User Profile", "Admin Panel", "Reporting", "Notifications"],
+  "executionTimeData": [2.5, 3.1, 2.8, 3.4, 2.9, 2.7, 3.2],
+  "testCountsByDay": [
+    {
+      "day": "Mon",
+      "passed": 12,
+      "failed": 3,
+      "pending": 2,
+      "blocked": 1
+    },
+    {
+      "day": "Tue",
+      "passed": 15,
+      "failed": 2,
+      "pending": 3,
+      "blocked": 0
+    },
+    {
+      "day": "Wed",
+      "passed": 10,
+      "failed": 5,
+      "pending": 2,
+      "blocked": 2
+    },
+    {
+      "day": "Thu",
+      "passed": 18,
+      "failed": 1,
+      "pending": 1,
+      "blocked": 0
+    },
+    {
+      "day": "Fri",
+      "passed": 14,
+      "failed": 4,
+      "pending": 3,
+      "blocked": 1
+    },
+    {
+      "day": "Sat",
+      "passed": 8,
+      "failed": 2,
+      "pending": 1,
+      "blocked": 0
+    },
+    {
+      "day": "Sun",
+      "passed": 6,
+      "failed": 1,
+      "pending": 0,
+      "blocked": 0
+    }
   ]
 }

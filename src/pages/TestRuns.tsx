@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -32,80 +32,28 @@ import {
   Block as BlockIcon,
   HourglassEmpty as PendingIcon,
 } from '@mui/icons-material';
+import { useTestSuites } from '../hooks/useApi';
 
-// Mock test suites data based on the image
-const MOCK_TEST_SUITES = [
-  {
-    id: '1',
-    name: 'Sprint 23 - Regression',
-    dateRange: 'Apr 22, 2023 - Apr 25, 2023',
-    status: 'in_progress',
-    progress: 65,
-    assignee: 'John Doe',
-    results: {
-      passed: 32,
-      failed: 8,
-      blocked: 3,
-      pending: 9
-    }
-  },
-  {
-    id: '2',
-    name: 'Sprint 22 - Smoke Test',
-    dateRange: 'Apr 15, 2023 - Apr 18, 2023',
-    status: 'passed',
-    progress: 100,
-    assignee: 'Jane Smith',
-    results: {
-      passed: 45,
-      failed: 0,
-      blocked: 0,
-      pending: 0
-    }
-  },
-  {
-    id: '3',
-    name: 'Payment Gateway Integration',
-    dateRange: 'Apr 10, 2023 - Apr 15, 2023',
-    status: 'failed',
-    progress: 100,
-    assignee: 'Mike Johnson',
-    results: {
-      passed: 18,
-      failed: 12,
-      blocked: 5,
-      pending: 0
-    }
-  },
-  {
-    id: '4',
-    name: 'User Profile Features',
-    dateRange: 'Apr 5, 2023 - Apr 9, 2023',
-    status: 'passed',
-    progress: 100,
-    assignee: 'Sarah Williams',
-    results: {
-      passed: 37,
-      failed: 2,
-      blocked: 1,
-      pending: 0
-    }
-  },
-  {
-    id: '5',
-    name: 'Mobile Compatibility',
-    dateRange: 'Apr 26, 2023 - Apr 30, 2023',
-    status: 'pending',
-    progress: 0,
-    assignee: 'Robert Brown',
-    results: {
-      passed: 0,
-      failed: 0,
-      blocked: 0,
-      pending: 28
-    }
-  }
-];
+// Default empty test suites array
+const defaultTestSuites: any[] = [];
+
+interface TestSuite {
+  id: string;
+  name: string;
+  dateRange?: string;
+  status: string;
+  progress: number;
+  assignee: string;
+  results: {
+    passed: number;
+    failed: number;
+    blocked: number;
+    pending: number;
+  };
+  startDate?: string;
+  endDate?: string;
+  createdAt?: string;
+}
 
 const TestRuns: React.FC = () => {
   const navigate = useNavigate();
@@ -118,8 +66,34 @@ const TestRuns: React.FC = () => {
     assignee: '',
   });
 
+  // Fetch test suites from API
+  const { data: testSuites, loading: isLoading } = useTestSuites();
+  const [formattedTestSuites, setFormattedTestSuites] = useState<TestSuite[]>([]);
+
+  // Format test suites data
+  useEffect(() => {
+    if (testSuites) {
+      const formatted = testSuites.map((suite: any) => {
+        // Calculate date range from startDate and endDate
+        let dateRange = '';
+        if (suite.startDate && suite.endDate) {
+          const start = new Date(suite.startDate);
+          const end = new Date(suite.endDate);
+          dateRange = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+        }
+
+        return {
+          ...suite,
+          dateRange: suite.dateRange || dateRange
+        };
+      });
+
+      setFormattedTestSuites(formatted);
+    }
+  }, [testSuites]);
+
   // Filter test suites based on search query
-  const filteredTestSuites = MOCK_TEST_SUITES.filter(suite =>
+  const filteredTestSuites = formattedTestSuites.filter(suite =>
     suite.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     suite.assignee.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -164,6 +138,7 @@ const TestRuns: React.FC = () => {
     }
   };
 
+  // Get color for result type
   const getResultColor = (type: string) => {
     switch (type) {
       case 'passed': return 'success.main';
@@ -208,9 +183,34 @@ const TestRuns: React.FC = () => {
         </Button>
       </Box>
 
+      {/* Loading State */}
+      {isLoading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <Typography>Loading test suites...</Typography>
+        </Box>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && filteredTestSuites.length === 0 && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 4 }}>
+          <Typography variant="h6" gutterBottom>No test suites found</Typography>
+          <Typography color="text.secondary" align="center">
+            {searchQuery ? 'Try adjusting your search query' : 'Create a new test suite to get started'}
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            onClick={handleOpenNewRunDialog}
+          >
+            Create Test Suite
+          </Button>
+        </Box>
+      )}
+
       {/* Test Suite Cards */}
       <Stack spacing={2}>
-        {filteredTestSuites.map((suite) => (
+        {!isLoading && filteredTestSuites.map((suite) => (
           <Card
             key={suite.id}
             sx={{
