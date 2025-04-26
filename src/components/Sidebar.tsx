@@ -40,10 +40,10 @@ const Sidebar: React.FC = () => {
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: 'Server Agent', icon: <ComputerIcon />, path: '/server-agent' },
     { text: 'Test Cases', icon: <AssignmentIcon />, path: '/test-cases' },
     { text: 'Test Runs', icon: <PlayArrowIcon />, path: '/test-runs' },
     { text: 'Reports', icon: <AssessmentIcon />, path: '/reports' },
-    { text: 'Server Agent', icon: <ComputerIcon />, path: '/server-agent' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
 

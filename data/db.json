@@ -1,0 +1,497 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "role": "admin",
+      "avatar": "https://i.pravatar.cc/150?img=1"
+    },
+    {
+      "id": "2",
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "role": "manager",
+      "avatar": "https://i.pravatar.cc/150?img=2"
+    },
+    {
+      "id": "3",
+      "name": "Mike Johnson",
+      "email": "mike.johnson@example.com",
+      "role": "tester",
+      "avatar": "https://i.pravatar.cc/150?img=3"
+    },
+    {
+      "id": "4",
+      "name": "Sarah Williams",
+      "email": "sarah.williams@example.com",
+      "role": "tester",
+      "avatar": "https://i.pravatar.cc/150?img=4"
+    },
+    {
+      "id": "5",
+      "name": "Robert Brown",
+      "email": "robert.brown@example.com",
+      "role": "viewer",
+      "avatar": "https://i.pravatar.cc/150?img=5"
+    }
+  ],
+  "projects": [
+    {
+      "id": "1",
+      "name": "E-Commerce Platform",
+      "description": "Online shopping platform with user authentication, product catalog, and checkout functionality.",
+      "createdAt": "2023-01-15T10:00:00Z",
+      "updatedAt": "2023-04-20T14:30:00Z",
+      "members": ["1", "2", "3"]
+    },
+    {
+      "id": "2",
+      "name": "CRM System",
+      "description": "Customer relationship management system for sales and support teams.",
+      "createdAt": "2023-02-10T09:15:00Z",
+      "updatedAt": "2023-04-18T11:45:00Z",
+      "members": ["1", "2", "4", "5"]
+    },
+    {
+      "id": "3",
+      "name": "Mobile Banking App",
+      "description": "Secure banking application for mobile devices with transaction history and bill payments.",
+      "createdAt": "2023-03-05T13:20:00Z",
+      "updatedAt": "2023-04-15T16:10:00Z",
+      "members": ["1", "3", "4"]
+    }
+  ],
+  "testCases": [
+    {
+      "id": "tc-1",
+      "title": "User Login: Valid Credentials",
+      "description": "Verify that users can log in with valid credentials.",
+      "status": "active",
+      "priority": "high",
+      "createdBy": "1",
+      "createdAt": "2023-03-10T09:00:00Z",
+      "updatedAt": "2023-04-15T14:30:00Z",
+      "steps": [
+        {
+          "id": "step-1-1",
+          "order": 1,
+          "description": "Navigate to login page",
+          "expectedResult": "Login page is displayed with username and password fields",
+          "type": "manual"
+        },
+        {
+          "id": "step-1-2",
+          "order": 2,
+          "description": "Enter valid username and password",
+          "expectedResult": "Credentials are accepted without errors",
+          "type": "manual"
+        },
+        {
+          "id": "step-1-3",
+          "order": 3,
+          "description": "Click login button",
+          "expectedResult": "User is redirected to dashboard",
+          "type": "manual"
+        }
+      ],
+      "tags": ["authentication", "regression", "smoke"],
+      "projectId": "1"
+    },
+    {
+      "id": "tc-2",
+      "title": "User Login: Invalid Credentials",
+      "description": "Verify that appropriate error message is displayed when invalid credentials are entered.",
+      "status": "active",
+      "priority": "high",
+      "createdBy": "1",
+      "createdAt": "2023-03-10T09:15:00Z",
+      "updatedAt": "2023-04-15T14:35:00Z",
+      "steps": [
+        {
+          "id": "step-2-1",
+          "order": 1,
+          "description": "Navigate to login page",
+          "expectedResult": "Login page is displayed with username and password fields",
+          "type": "manual"
+        },
+        {
+          "id": "step-2-2",
+          "order": 2,
+          "description": "Enter invalid username and password",
+          "expectedResult": "Credentials are rejected",
+          "type": "manual"
+        },
+        {
+          "id": "step-2-3",
+          "order": 3,
+          "description": "Click login button",
+          "expectedResult": "Error message is displayed indicating invalid credentials",
+          "type": "manual"
+        }
+      ],
+      "tags": ["authentication", "negative", "regression"],
+      "projectId": "1"
+    },
+    {
+      "id": "tc-3",
+      "title": "Product Search: Basic Search",
+      "description": "Verify that users can search for products using the search bar.",
+      "status": "active",
+      "priority": "medium",
+      "createdBy": "3",
+      "createdAt": "2023-03-12T10:30:00Z",
+      "updatedAt": "2023-04-16T11:20:00Z",
+      "steps": [
+        {
+          "id": "step-3-1",
+          "order": 1,
+          "description": "Navigate to home page",
+          "expectedResult": "Home page is displayed with search bar",
+          "type": "manual"
+        },
+        {
+          "id": "step-3-2",
+          "order": 2,
+          "description": "Enter product name in search bar",
+          "expectedResult": "Search query is accepted",
+          "type": "manual"
+        },
+        {
+          "id": "step-3-3",
+          "order": 3,
+          "description": "Press enter or click search button",
+          "expectedResult": "Search results page is displayed with matching products",
+          "type": "manual"
+        }
+      ],
+      "tags": ["search", "ui", "regression"],
+      "projectId": "1"
+    },
+    {
+      "id": "tc-4",
+      "title": "Checkout Process: Complete Purchase",
+      "description": "Verify that users can complete a purchase through the checkout process.",
+      "status": "active",
+      "priority": "critical",
+      "createdBy": "2",
+      "createdAt": "2023-03-15T14:00:00Z",
+      "updatedAt": "2023-04-17T09:45:00Z",
+      "steps": [
+        {
+          "id": "step-4-1",
+          "order": 1,
+          "description": "Add items to cart",
+          "expectedResult": "Items are added to cart with correct quantities and prices",
+          "type": "manual"
+        },
+        {
+          "id": "step-4-2",
+          "order": 2,
+          "description": "Navigate to checkout page",
+          "expectedResult": "Checkout page is displayed with order summary",
+          "type": "manual"
+        },
+        {
+          "id": "step-4-3",
+          "order": 3,
+          "description": "Enter shipping information",
+          "expectedResult": "Shipping information is accepted",
+          "type": "manual"
+        },
+        {
+          "id": "step-4-4",
+          "order": 4,
+          "description": "Enter payment information",
+          "expectedResult": "Payment information is accepted",
+          "type": "manual"
+        },
+        {
+          "id": "step-4-5",
+          "order": 5,
+          "description": "Confirm order",
+          "expectedResult": "Order confirmation page is displayed with order number",
+          "type": "manual"
+        }
+      ],
+      "tags": ["checkout", "payment", "regression", "smoke"],
+      "projectId": "1"
+    },
+    {
+      "id": "tc-5",
+      "title": "Customer Record: Create New",
+      "description": "Verify that users can create a new customer record in the CRM system.",
+      "status": "active",
+      "priority": "high",
+      "createdBy": "4",
+      "createdAt": "2023-03-18T11:30:00Z",
+      "updatedAt": "2023-04-18T13:15:00Z",
+      "steps": [
+        {
+          "id": "step-5-1",
+          "order": 1,
+          "description": "Navigate to Customers section",
+          "expectedResult": "Customers list page is displayed",
+          "type": "manual"
+        },
+        {
+          "id": "step-5-2",
+          "order": 2,
+          "description": "Click 'Add New Customer' button",
+          "expectedResult": "New customer form is displayed",
+          "type": "manual"
+        },
+        {
+          "id": "step-5-3",
+          "order": 3,
+          "description": "Fill in customer details",
+          "expectedResult": "All fields accept input correctly",
+          "type": "manual"
+        },
+        {
+          "id": "step-5-4",
+          "order": 4,
+          "description": "Click 'Save' button",
+          "expectedResult": "Customer is created and appears in the customer list",
+          "type": "manual"
+        }
+      ],
+      "tags": ["crm", "customer", "regression"],
+      "projectId": "2"
+    }
+  ],
+  "testSuites": [
+    {
+      "id": "1",
+      "name": "Sprint 23 - Regression",
+      "description": "Regression test suite for Sprint 23 release",
+      "dateRange": "Apr 22, 2023 - Apr 25, 2023",
+      "status": "in_progress",
+      "progress": 65,
+      "assignee": "John Doe",
+      "results": {
+        "passed": 32,
+        "failed": 8,
+        "blocked": 3,
+        "pending": 9
+      },
+      "testCases": ["tc-1", "tc-2", "tc-3", "tc-4"],
+      "createdAt": "2023-04-20T10:00:00Z",
+      "environment": "staging"
+    },
+    {
+      "id": "2",
+      "name": "Sprint 22 - Smoke Test",
+      "description": "Smoke test suite for Sprint 22 release",
+      "dateRange": "Apr 15, 2023 - Apr 18, 2023",
+      "status": "passed",
+      "progress": 100,
+      "assignee": "Jane Smith",
+      "results": {
+        "passed": 45,
+        "failed": 0,
+        "blocked": 0,
+        "pending": 0
+      },
+      "testCases": ["tc-1", "tc-3", "tc-4"],
+      "createdAt": "2023-04-14T09:30:00Z",
+      "environment": "staging"
+    },
+    {
+      "id": "3",
+      "name": "Payment Gateway Integration",
+      "description": "Test suite for payment gateway integration",
+      "dateRange": "Apr 10, 2023 - Apr 15, 2023",
+      "status": "failed",
+      "progress": 100,
+      "assignee": "Mike Johnson",
+      "results": {
+        "passed": 18,
+        "failed": 12,
+        "blocked": 5,
+        "pending": 0
+      },
+      "testCases": ["tc-4"],
+      "createdAt": "2023-04-09T14:15:00Z",
+      "environment": "development"
+    },
+    {
+      "id": "4",
+      "name": "User Profile Features",
+      "description": "Test suite for user profile features",
+      "dateRange": "Apr 5, 2023 - Apr 9, 2023",
+      "status": "passed",
+      "progress": 100,
+      "assignee": "Sarah Williams",
+      "results": {
+        "passed": 37,
+        "failed": 2,
+        "blocked": 1,
+        "pending": 0
+      },
+      "testCases": ["tc-1", "tc-2"],
+      "createdAt": "2023-04-04T11:45:00Z",
+      "environment": "staging"
+    },
+    {
+      "id": "5",
+      "name": "Mobile Compatibility",
+      "description": "Test suite for mobile compatibility",
+      "dateRange": "Apr 26, 2023 - Apr 30, 2023",
+      "status": "pending",
+      "progress": 0,
+      "assignee": "Robert Brown",
+      "results": {
+        "passed": 0,
+        "failed": 0,
+        "blocked": 0,
+        "pending": 28
+      },
+      "testCases": ["tc-1", "tc-2", "tc-3", "tc-4", "tc-5"],
+      "createdAt": "2023-04-25T08:30:00Z",
+      "environment": "development"
+    }
+  ],
+  "testRuns": [
+    {
+      "id": "run-1",
+      "name": "Regression Suite Run - April 22",
+      "status": "running",
+      "startTime": "2023-04-22T09:00:00Z",
+      "endTime": null,
+      "environment": "staging",
+      "browser": "chrome",
+      "device": "desktop",
+      "testCaseIds": ["tc-1", "tc-2", "tc-3", "tc-4"],
+      "results": [
+        {
+          "id": "result-1-1",
+          "testCaseId": "tc-1",
+          "status": "passed",
+          "duration": 45000
+        },
+        {
+          "id": "result-1-2",
+          "testCaseId": "tc-2",
+          "status": "passed",
+          "duration": 38000
+        },
+        {
+          "id": "result-1-3",
+          "testCaseId": "tc-3",
+          "status": "failed",
+          "duration": 62000,
+          "errorMessage": "Element not found: search-button"
+        }
+      ],
+      "createdBy": "1",
+      "createdAt": "2023-04-22T08:45:00Z"
+    },
+    {
+      "id": "run-2",
+      "name": "Smoke Test Run - April 15",
+      "status": "completed",
+      "startTime": "2023-04-15T10:00:00Z",
+      "endTime": "2023-04-15T10:45:00Z",
+      "environment": "staging",
+      "browser": "chrome",
+      "device": "desktop",
+      "testCaseIds": ["tc-1", "tc-3", "tc-4"],
+      "results": [
+        {
+          "id": "result-2-1",
+          "testCaseId": "tc-1",
+          "status": "passed",
+          "duration": 42000
+        },
+        {
+          "id": "result-2-2",
+          "testCaseId": "tc-3",
+          "status": "passed",
+          "duration": 35000
+        },
+        {
+          "id": "result-2-3",
+          "testCaseId": "tc-4",
+          "status": "passed",
+          "duration": 120000
+        }
+      ],
+      "createdBy": "2",
+      "createdAt": "2023-04-15T09:45:00Z"
+    },
+    {
+      "id": "run-3",
+      "name": "Payment Gateway Test Run - April 10",
+      "status": "failed",
+      "startTime": "2023-04-10T14:00:00Z",
+      "endTime": "2023-04-10T14:30:00Z",
+      "environment": "development",
+      "browser": "firefox",
+      "device": "desktop",
+      "testCaseIds": ["tc-4"],
+      "results": [
+        {
+          "id": "result-3-1",
+          "testCaseId": "tc-4",
+          "status": "failed",
+          "duration": 95000,
+          "errorMessage": "Payment gateway timeout after 90 seconds"
+        }
+      ],
+      "createdBy": "3",
+      "createdAt": "2023-04-10T13:45:00Z"
+    }
+  ],
+  "serverAgent": {
+    "systemResources": {
+      "lastUpdated": "2023-04-27T01:50:14Z",
+      "cpuUsage": 14.6,
+      "memoryUsage": 0.4
+    },
+    "agentStatus": {
+      "total": 0,
+      "available": 0,
+      "busy": 0,
+      "limit": 1
+    },
+    "queueStatus": {
+      "queued": 0,
+      "processing": 0,
+      "total": 0
+    },
+    "activeAgents": [],
+    "queuedRequests": [],
+    "processedRequests": []
+  },
+  "notifications": [
+    {
+      "id": "1",
+      "type": "info",
+      "message": "New test suite created: Sprint 23 - Regression",
+      "read": false,
+      "createdAt": "2023-04-20T10:05:00Z"
+    },
+    {
+      "id": "2",
+      "type": "success",
+      "message": "Test run completed: Smoke Test Run - April 15",
+      "read": true,
+      "createdAt": "2023-04-15T10:50:00Z"
+    },
+    {
+      "id": "3",
+      "type": "error",
+      "message": "Test run failed: Payment Gateway Test Run - April 10",
+      "read": false,
+      "createdAt": "2023-04-10T14:35:00Z"
+    },
+    {
+      "id": "4",
+      "type": "warning",
+      "message": "Server agent CPU usage above 80%",
+      "read": true,
+      "createdAt": "2023-04-05T09:15:00Z"
+    }
+  ]
+}
