@@ -550,5 +550,12 @@
       "pending": 0,
       "blocked": 0
     }
+  ],
+  "availableTags": [
+    "regression", "smoke", "integration", "api", "ui", "performance", "security",
+    "functional", "usability", "accessibility", "compatibility", "load", "stress"
+  ],
+  "availableActions": [
+    "click", "type", "wait", "select", "assert", "navigate", "hover", "scroll", "drag", "upload", "custom"
   ]
 }

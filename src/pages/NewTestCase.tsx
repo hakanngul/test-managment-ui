@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -23,6 +23,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  SelectChangeEvent,
+  CircularProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -32,18 +34,19 @@ import {
   DragIndicator as DragIndicatorIcon,
 } from '@mui/icons-material';
 import { TestCase, TestStep } from '../types';
-
-// Available tags for autocomplete
-const availableTags = [
-  'regression', 'smoke', 'integration', 'api', 'ui', 'performance', 'security',
-  'functional', 'usability', 'accessibility', 'compatibility', 'load', 'stress'
-];
+import api from '../services/api';
 
 const NewTestCase: React.FC = () => {
   const navigate = useNavigate();
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
-  
+
+  // API data state
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [availableActions, setAvailableActions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+
   // Form state
   const [formData, setFormData] = useState<Partial<TestCase>>({
     title: '',
@@ -53,20 +56,47 @@ const NewTestCase: React.FC = () => {
     steps: [],
     tags: [],
   });
-  
+
   // Validation state
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   // Step editing state
   const [currentStep, setCurrentStep] = useState<Partial<TestStep>>({
     order: 1,
+    action: 'click',
+    target: '',
+    value: '',
     description: '',
     expectedResult: '',
     type: 'manual',
   });
-  
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [tagsResponse, actionsResponse] = await Promise.all([
+          api.getAvailableTags(),
+          api.getAvailableActions()
+        ]);
+
+        setAvailableTags(tagsResponse);
+        setAvailableActions(actionsResponse);
+        setApiError(null);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setApiError('Failed to load data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   // Handle form field changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }> | SelectChangeEvent<string>) => {
     const { name, value } = e.target;
     if (name) {
       setFormData({
@@ -74,7 +104,7 @@ const NewTestCase: React.FC = () => {
         [name]: value,
       });
       setUnsavedChanges(true);
-      
+
       // Clear error when field is updated
       if (errors[name]) {
         setErrors({
@@ -84,7 +114,7 @@ const NewTestCase: React.FC = () => {
       }
     }
   };
-  
+
   // Handle tag changes
   const handleTagsChange = (_event: React.SyntheticEvent, newValue: string[]) => {
     setFormData({
@@ -93,9 +123,9 @@ const NewTestCase: React.FC = () => {
     });
     setUnsavedChanges(true);
   };
-  
+
   // Handle step field changes
-  const handleStepChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  const handleStepChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }> | SelectChangeEvent<string>) => {
     const { name, value } = e.target;
     if (name) {
       setCurrentStep({
@@ -104,105 +134,111 @@ const NewTestCase: React.FC = () => {
       });
     }
   };
-  
+
   // Add a new step
   const handleAddStep = () => {
-    if (!currentStep.description || !currentStep.expectedResult) {
+    if (!currentStep.target || !currentStep.expectedResult) {
       setErrors({
         ...errors,
-        stepDescription: !currentStep.description ? 'Step description is required' : '',
+        stepTarget: !currentStep.target ? 'Target is required' : '',
         stepExpectedResult: !currentStep.expectedResult ? 'Expected result is required' : '',
       });
       return;
     }
-    
+
     const newStep: TestStep = {
       id: `step-${Date.now()}`,
       order: formData.steps?.length ? formData.steps.length + 1 : 1,
+      action: currentStep.action as 'click' | 'type' | 'wait' | 'select' | 'assert' | 'navigate' | 'hover' | 'scroll' | 'drag' | 'upload' | 'custom',
+      target: currentStep.target || '',
+      value: currentStep.value || '',
       description: currentStep.description || '',
       expectedResult: currentStep.expectedResult || '',
       type: currentStep.type as 'manual' | 'automated',
     };
-    
+
     setFormData({
       ...formData,
       steps: [...(formData.steps || []), newStep],
     });
-    
+
     // Reset current step
     setCurrentStep({
       order: (formData.steps?.length || 0) + 2,
+      action: 'click',
+      target: '',
+      value: '',
       description: '',
       expectedResult: '',
       type: 'manual',
     });
-    
+
     // Clear step errors
     setErrors({
       ...errors,
-      stepDescription: '',
+      stepTarget: '',
       stepExpectedResult: '',
     });
-    
+
     setUnsavedChanges(true);
   };
-  
+
   // Remove a step
   const handleRemoveStep = (stepId: string) => {
     const updatedSteps = formData.steps?.filter(step => step.id !== stepId) || [];
-    
+
     // Reorder remaining steps
     const reorderedSteps = updatedSteps.map((step, index) => ({
       ...step,
       order: index + 1,
     }));
-    
+
     setFormData({
       ...formData,
       steps: reorderedSteps,
     });
-    
+
     setUnsavedChanges(true);
   };
-  
+
   // Validate form before submission
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.title) {
       newErrors.title = 'Title is required';
     }
-    
+
     if (!formData.description) {
       newErrors.description = 'Description is required';
     }
-    
+
     if (!formData.steps || formData.steps.length === 0) {
       newErrors.steps = 'At least one step is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     // In a real application, you would send the data to an API
     console.log('Submitting test case:', formData);
-    
+
     // Mock successful submission
     setTimeout(() => {
       // Navigate back to test cases list
       navigate('/test-cases');
     }, 1000);
   };
-  
+
   // Handle cancel
   const handleCancel = () => {
     if (unsavedChanges) {
@@ -211,13 +247,13 @@ const NewTestCase: React.FC = () => {
       navigate('/test-cases');
     }
   };
-  
+
   // Handle discard changes
   const handleDiscardChanges = () => {
     setShowDiscardDialog(false);
     navigate('/test-cases');
   };
-  
+
   return (
     <Box>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -242,9 +278,22 @@ const NewTestCase: React.FC = () => {
           </Button>
         </Box>
       </Box>
-      
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
+
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {apiError && (
+        <Box sx={{ my: 2, p: 2, bgcolor: 'error.light', borderRadius: 1 }}>
+          <Typography color="error">{apiError}</Typography>
+        </Box>
+      )}
+
+      {!loading && !apiError && (
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={3}>
           {/* Basic Information */}
           <Grid item xs={12}>
             <Card sx={{ mb: 3, borderRadius: 2 }}>
@@ -335,6 +384,9 @@ const NewTestCase: React.FC = () => {
                           />
                         ))
                       }
+                      loading={loading}
+                      loadingText="Loading tags..."
+                      noOptionsText="No tags available"
                       freeSolo
                     />
                   </Grid>
@@ -342,7 +394,7 @@ const NewTestCase: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          
+
           {/* Test Steps */}
           <Grid item xs={12}>
             <Card sx={{ mb: 3, borderRadius: 2 }}>
@@ -350,13 +402,13 @@ const NewTestCase: React.FC = () => {
                 <Typography variant="h6" gutterBottom>
                   Test Steps
                 </Typography>
-                
+
                 {errors.steps && (
                   <FormHelperText error sx={{ mb: 2 }}>
                     {errors.steps}
                   </FormHelperText>
                 )}
-                
+
                 {/* Existing Steps */}
                 {formData.steps && formData.steps.length > 0 && (
                   <Paper variant="outlined" sx={{ mb: 3, p: 0 }}>
@@ -370,22 +422,52 @@ const NewTestCase: React.FC = () => {
                                 Step {step.order}
                               </Typography>
                               <Box sx={{ flexGrow: 1 }} />
-                              <IconButton 
-                                size="small" 
+                              <IconButton
+                                size="small"
                                 color="error"
                                 onClick={() => handleRemoveStep(step.id)}
                               >
                                 <DeleteIcon />
                               </IconButton>
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} sm={4}>
                               <Typography variant="body2" color="text.secondary">
-                                Description:
+                                Action:
                               </Typography>
-                              <Typography variant="body1" paragraph>
-                                {step.description}
+                              <Chip
+                                label={step.action.charAt(0).toUpperCase() + step.action.slice(1)}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                                sx={{ mt: 0.5 }}
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={4}>
+                              <Typography variant="body2" color="text.secondary">
+                                Target:
+                              </Typography>
+                              <Typography variant="body1" sx={{ wordBreak: 'break-all' }}>
+                                {step.target}
                               </Typography>
                             </Grid>
+                            <Grid item xs={12} sm={4}>
+                              <Typography variant="body2" color="text.secondary">
+                                Value:
+                              </Typography>
+                              <Typography variant="body1" sx={{ wordBreak: 'break-all' }}>
+                                {step.value || '-'}
+                              </Typography>
+                            </Grid>
+                            {step.description && (
+                              <Grid item xs={12}>
+                                <Typography variant="body2" color="text.secondary">
+                                  Description:
+                                </Typography>
+                                <Typography variant="body1" paragraph>
+                                  {step.description}
+                                </Typography>
+                              </Grid>
+                            )}
                             <Grid item xs={12}>
                               <Typography variant="body2" color="text.secondary">
                                 Expected Result:
@@ -395,8 +477,8 @@ const NewTestCase: React.FC = () => {
                               </Typography>
                             </Grid>
                             <Grid item xs={12}>
-                              <Chip 
-                                label={step.type === 'manual' ? 'Manual' : 'Automated'} 
+                              <Chip
+                                label={step.type === 'manual' ? 'Manual' : 'Automated'}
                                 size="small"
                                 color={step.type === 'manual' ? 'default' : 'primary'}
                                 variant="outlined"
@@ -404,46 +486,57 @@ const NewTestCase: React.FC = () => {
                             </Grid>
                           </Grid>
                         </Box>
-                        {index < formData.steps.length - 1 && <Divider />}
+                        {index < (formData.steps?.length || 0) - 1 && <Divider />}
                       </React.Fragment>
                     ))}
                   </Paper>
                 )}
-                
+
                 {/* Add New Step */}
                 <Paper variant="outlined" sx={{ p: 2 }}>
                   <Typography variant="subtitle1" gutterBottom>
                     Add New Step
                   </Typography>
                   <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={6}>
+                      <FormControl fullWidth>
+                        <InputLabel id="step-action-label">Action</InputLabel>
+                        <Select
+                          labelId="step-action-label"
+                          name="action"
+                          value={currentStep.action || 'click'}
+                          label="Action"
+                          onChange={handleStepChange}
+                        >
+                          {availableActions.map((action) => (
+                            <MenuItem key={action} value={action}>
+                              {action.charAt(0).toUpperCase() + action.slice(1)}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
                       <TextField
-                        name="description"
-                        label="Step Description"
+                        name="target"
+                        label="Target"
                         fullWidth
                         required
-                        multiline
-                        rows={2}
-                        value={currentStep.description}
+                        value={currentStep.target}
                         onChange={handleStepChange}
-                        error={!!errors.stepDescription}
-                        helperText={errors.stepDescription}
-                        placeholder="Describe what action to take in this step"
+                        error={!!errors.stepTarget}
+                        helperText={errors.stepTarget}
+                        placeholder="CSS Selector, XPath, or element ID"
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
-                        name="expectedResult"
-                        label="Expected Result"
+                        name="value"
+                        label="Value"
                         fullWidth
-                        required
-                        multiline
-                        rows={2}
-                        value={currentStep.expectedResult}
+                        value={currentStep.value}
                         onChange={handleStepChange}
-                        error={!!errors.stepExpectedResult}
-                        helperText={errors.stepExpectedResult}
-                        placeholder="Describe what should happen after the action is taken"
+                        placeholder="Value to use with the action (if needed)"
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -462,6 +555,33 @@ const NewTestCase: React.FC = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={12}>
+                      <TextField
+                        name="description"
+                        label="Step Description"
+                        fullWidth
+                        multiline
+                        rows={2}
+                        value={currentStep.description}
+                        onChange={handleStepChange}
+                        placeholder="Additional details about this step (optional)"
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        name="expectedResult"
+                        label="Expected Result"
+                        fullWidth
+                        required
+                        multiline
+                        rows={2}
+                        value={currentStep.expectedResult}
+                        onChange={handleStepChange}
+                        error={!!errors.stepExpectedResult}
+                        helperText={errors.stepExpectedResult}
+                        placeholder="Describe what should happen after the action is taken"
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
                       <Button
                         variant="outlined"
                         startIcon={<AddIcon />}
@@ -475,7 +595,7 @@ const NewTestCase: React.FC = () => {
               </CardContent>
             </Card>
           </Grid>
-          
+
           {/* Submit Buttons */}
           <Grid item xs={12}>
             <Stack direction="row" spacing={2} justifyContent="flex-end">
@@ -497,7 +617,8 @@ const NewTestCase: React.FC = () => {
           </Grid>
         </Grid>
       </form>
-      
+      )}
+
       {/* Discard Changes Dialog */}
       <Dialog
         open={showDiscardDialog}

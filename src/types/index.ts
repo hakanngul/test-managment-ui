@@ -23,6 +23,9 @@ export interface TestCase {
 export interface TestStep {
   id: string;
   order: number;
+  action: 'click' | 'type' | 'wait' | 'select' | 'assert' | 'navigate' | 'hover' | 'scroll' | 'drag' | 'upload' | 'custom';
+  target: string;
+  value?: string;
   description: string;
   expectedResult: string;
   type: 'manual' | 'automated';

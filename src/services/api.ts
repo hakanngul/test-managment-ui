@@ -102,6 +102,10 @@ export const api = {
   getFeatures: () => fetchData<string[]>('testFeatures'),
   getExecutionTimeData: () => fetchData<number[]>('executionTimeData'),
   getTestCountsByDay: () => fetchData<any[]>('testCountsByDay'),
+
+  // Test Case Form Data
+  getAvailableTags: () => fetchData<string[]>('availableTags'),
+  getAvailableActions: () => fetchData<string[]>('availableActions'),
 };
 
 export default api;
