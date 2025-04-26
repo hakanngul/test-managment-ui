@@ -18,6 +18,8 @@ import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import TestCaseDetail from './pages/TestCaseDetail';
 import TestRunDetail from './pages/TestRunDetail';
+import NewTestCase from './pages/NewTestCase';
+import CreateTestSuite from './pages/CreateTestSuite';
 
 function App() {
   return (
@@ -33,8 +35,10 @@ function App() {
                   <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="test-cases" element={<TestCases />} />
+                  <Route path="test-cases/new" element={<NewTestCase />} />
                   <Route path="test-cases/:id" element={<TestCaseDetail />} />
                   <Route path="test-runs" element={<TestRuns />} />
+                  <Route path="test-runs/create" element={<CreateTestSuite />} />
                   <Route path="test-runs/:id" element={<TestRunDetail />} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="settings" element={<Settings />} />
