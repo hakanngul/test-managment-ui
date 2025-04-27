@@ -49,6 +49,7 @@ export * from './enums/TestSuiteEnums';
 export * from './enums/TestRunEnums';
 export * from './enums/AgentEnums';
 export * from './enums/TestResultEnums';
+export * from './enums/ProcessedRequestEnums';
 
 // Export all interfaces
 export * from './interfaces/TestCase';
@@ -59,6 +60,7 @@ export * from './interfaces/Agent';
 export * from './interfaces/TestResult';
 export * from './interfaces/TestStepResult';
 export * from './interfaces/TestReportData';
+export * from './interfaces/ProcessedRequest';
 
 // Export all utils
 export * from './utils/TestCaseUtils';
@@ -100,3 +102,16 @@ export * from './utils/TestStepResultUtils';
 
 // Export TestReportData utils
 export * from './utils/TestReportDataUtils';
+
+// Export ProcessedRequest utils with explicit re-exports for conflicting functions
+export {
+  toProcessedRequest,
+  fromProcessedRequest,
+  calculateDurationMs,
+  formatDuration,
+  createDefaultProcessedRequestError,
+  createDefaultProcessedRequestPerformance,
+  createDefaultProcessedRequestEnvironment,
+  createDefaultProcessedRequestResources,
+  createDefaultProcessedRequestLogs
+} from './utils/ProcessedRequestUtils';

@@ -29,6 +29,9 @@ export const toServerAgent = (data: any): ServerAgent => {
       total: data.agentStatus?.total || 0,
       available: data.agentStatus?.available || 0,
       busy: data.agentStatus?.busy || 0,
+      offline: data.agentStatus?.offline || 0,
+      error: data.agentStatus?.error || 0,
+      maintenance: data.agentStatus?.maintenance || 0,
       limit: data.agentStatus?.limit || 1
     },
     queueStatus: {
