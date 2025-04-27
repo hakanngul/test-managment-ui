@@ -48,6 +48,7 @@ export * from './enums/TestStepEnums';
 export * from './enums/TestSuiteEnums';
 export * from './enums/TestRunEnums';
 export * from './enums/AgentEnums';
+export * from './enums/TestResultEnums';
 
 // Export all interfaces
 export * from './interfaces/TestCase';
@@ -55,10 +56,47 @@ export * from './interfaces/TestStep';
 export * from './interfaces/TestSuite';
 export * from './interfaces/TestRun';
 export * from './interfaces/Agent';
+export * from './interfaces/TestResult';
+export * from './interfaces/TestStepResult';
+export * from './interfaces/TestReportData';
 
 // Export all utils
 export * from './utils/TestCaseUtils';
 export * from './utils/TestStepUtils';
 export * from './utils/TestSuiteUtils';
 export * from './utils/TestRunUtils';
-export * from './utils/AgentUtils';
+
+// Export Agent utils with explicit re-exports for conflicting functions
+export {
+  toAgent,
+  fromAgent,
+  calculateAgentStatusSummary,
+  calculateAgentPerformanceSummary,
+  createDefaultBrowserInfo,
+  createDefaultSystemInfo,
+  createDefaultNetworkInfo as createDefaultAgentNetworkInfo,
+  createDefaultPerformanceMetrics as createDefaultAgentPerformanceMetrics,
+  createDefaultSecurityInfo,
+  createDefaultLoggingInfo,
+  createDefaultHealthCheck,
+  createDefaultCapabilities
+} from './utils/AgentUtils';
+
+// Export TestResult utils with explicit re-exports for conflicting functions
+export {
+  toTestResult,
+  fromTestResult,
+  calculateTestResultDuration,
+  calculateTestResultStatus,
+  createDefaultErrorDetails,
+  createDefaultEnvironmentInfo,
+  createDefaultTestPerformanceMetrics,
+  createDefaultTestNetworkInfo,
+  createDefaultRetryInfo
+} from './utils/TestResultUtils';
+
+// Export TestStepResult utils
+export * from './utils/TestStepResultUtils';
+
+// Export TestReportData utils
+export * from './utils/TestReportDataUtils';
