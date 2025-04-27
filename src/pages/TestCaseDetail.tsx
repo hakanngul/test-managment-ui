@@ -33,7 +33,7 @@ import {
 } from '@mui/icons-material';
 import { TestCase } from '../types';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import api from '../services/api';
+import api from '../services_old/api';
 
 const TestCaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();

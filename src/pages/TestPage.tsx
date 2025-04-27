@@ -45,7 +45,7 @@ import {
 } from '@mui/icons-material';
 import Chart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
-import api from '../services/api';
+import api from '../services_old/api';
 import { TestCase, TestStep } from '../types';
 
 // Sample test steps for demonstration
