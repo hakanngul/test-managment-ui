@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -23,6 +23,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   PlayArrow as PlayIcon,
@@ -34,51 +36,115 @@ import {
   Cancel as CancelIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
+import api from '../services/api';
+
+interface TestResult {
+  id: string;
+  testCaseId: string;
+  status: string;
+  duration: number;
+  errorMessage?: string;
+}
+
+interface TestRun {
+  id: string;
+  name: string;
+  status: string;
+  startTime: string;
+  endTime: string | null;
+  environment: string;
+  browser: string;
+  device: string;
+  testCaseIds: string[];
+  results: TestResult[];
+  createdBy: string;
+  createdAt: string;
+  // Calculated fields
+  progress?: number;
+  totalTests?: number;
+  passed?: number;
+  failed?: number;
+  skipped?: number;
+  running?: number;
+  duration?: string;
+  triggeredBy?: string;
+}
 
 const TestRunDetail: React.FC = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [testRun, setTestRun] = useState<TestRun | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data for the test run
-  const testRun = {
-    id,
-    name: 'Regression Test Suite',
-    status: 'running',
-    progress: 65,
-    startTime: new Date(Date.now() - 1800000).toISOString(), // 30 minutes ago
-    environment: 'staging',
-    browser: 'Chrome',
-    device: 'Desktop',
-    totalTests: 50,
-    passed: 30,
-    failed: 3,
-    skipped: 2,
-    running: 15,
-    duration: '30:15',
-    triggeredBy: 'John Doe',
-    results: [
-      {
-        id: '1',
-        name: 'User Login Test',
-        status: 'passed',
-        duration: '00:45',
-        timestamp: new Date(Date.now() - 1500000).toISOString(),
-      },
-      {
-        id: '2',
-        name: 'Product Search',
-        status: 'failed',
-        duration: '01:15',
-        error: 'Expected element to be visible',
-        timestamp: new Date(Date.now() - 1200000).toISOString(),
-      },
-      {
-        id: '3',
-        name: 'Checkout Process',
-        status: 'running',
-        timestamp: new Date(Date.now() - 900000).toISOString(),
-      },
-    ],
+  // Fetch test run data from API
+  useEffect(() => {
+    const fetchTestRun = async () => {
+      if (!id) return;
+
+      try {
+        setLoading(true);
+        const data = await api.getTestRunById(id);
+
+        // Calculate additional fields
+        const enhancedData = {
+          ...data,
+          progress: calculateProgress(data),
+          totalTests: data.testCaseIds.length,
+          passed: data.results.filter((r: TestResult) => r.status === 'passed').length,
+          failed: data.results.filter((r: TestResult) => r.status === 'failed').length,
+          skipped: 0, // Assuming no skipped tests in the API data
+          running: data.status === 'running' ?
+            data.testCaseIds.length - data.results.length : 0,
+          duration: calculateDuration(data),
+          triggeredBy: await getUserName(data.createdBy),
+        };
+
+        setTestRun(enhancedData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching test run:', err);
+        setError('Failed to load test run. Please try again later.');
+        setTestRun(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestRun();
+  }, [id]);
+
+  // Helper function to calculate progress
+  const calculateProgress = (data: TestRun): number => {
+    if (data.status === 'completed') return 100;
+    if (data.status === 'failed') return 100;
+    if (data.testCaseIds.length === 0) return 0;
+    return Math.round((data.results.length / data.testCaseIds.length) * 100);
+  };
+
+  // Helper function to calculate duration
+  const calculateDuration = (data: TestRun): string => {
+    if (!data.startTime) return '00:00';
+
+    const start = new Date(data.startTime).getTime();
+    const end = data.endTime ? new Date(data.endTime).getTime() : Date.now();
+    const durationMs = end - start;
+
+    const minutes = Math.floor(durationMs / 60000);
+    const seconds = Math.floor((durationMs % 60000) / 1000);
+
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Helper function to get user name
+  const getUserName = async (userId: string): Promise<string> => {
+    try {
+      const user = await api.getUserById(userId);
+      return user.name;
+    } catch (err) {
+      console.error('Error fetching user:', err);
+      return 'Unknown User';
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -110,6 +176,54 @@ const TestRunDetail: React.FC = () => {
     });
   };
 
+  // Handle loading state
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <Alert severity="error" sx={{ mt: 2 }}>
+        {error}
+      </Alert>
+    );
+  }
+
+  // Handle no test run found
+  if (!testRun) {
+    return (
+      <Box sx={{ mt: 2 }}>
+        <Alert severity="warning">Test run not found</Alert>
+        <Button
+          variant="contained"
+          sx={{ mt: 2 }}
+          onClick={() => navigate('/test-runs')}
+        >
+          Back to Test Runs
+        </Button>
+      </Box>
+    );
+  }
+
+  // Get test case names for results
+  const getTestCaseName = (testCaseId: string): string => {
+    // In a real application, you would fetch the test case name from the API
+    // For now, we'll just use the ID
+    return `Test Case ${testCaseId.replace('tc-', '')}`;
+  };
+
+  // Format milliseconds to minutes:seconds
+  const formatDurationFromMs = (ms: number): string => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <Box>
       <Breadcrumbs sx={{ mb: 2 }}>
@@ -125,7 +239,7 @@ const TestRunDetail: React.FC = () => {
             {testRun.name}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Started {formatDate(testRun.startTime)} by {testRun.triggeredBy}
+            Started {formatDate(testRun.startTime)} by {testRun.triggeredBy || 'Unknown User'}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -168,16 +282,16 @@ const TestRunDetail: React.FC = () => {
                     sx={{ mr: 2 }}
                   />
                   <Typography variant="body2" color="text.secondary">
-                    {testRun.progress}% Complete
+                    {testRun.progress || 0}% Complete
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary">
-                  Duration: {testRun.duration}
+                  Duration: {testRun.duration || '00:00'}
                 </Typography>
               </Box>
-              <LinearProgress 
-                variant="determinate" 
-                value={testRun.progress} 
+              <LinearProgress
+                variant="determinate"
+                value={testRun.progress || 0}
                 sx={{ height: 8, borderRadius: 4 }}
               />
             </CardContent>
@@ -192,7 +306,7 @@ const TestRunDetail: React.FC = () => {
                 Total Tests
               </Typography>
               <Typography variant="h4" component="div">
-                {testRun.totalTests}
+                {testRun.totalTests || 0}
               </Typography>
             </CardContent>
           </Card>
@@ -204,7 +318,7 @@ const TestRunDetail: React.FC = () => {
                 Passed
               </Typography>
               <Typography variant="h4" component="div" color="success.main">
-                {testRun.passed}
+                {testRun.passed || 0}
               </Typography>
             </CardContent>
           </Card>
@@ -216,7 +330,7 @@ const TestRunDetail: React.FC = () => {
                 Failed
               </Typography>
               <Typography variant="h4" component="div" color="error.main">
-                {testRun.failed}
+                {testRun.failed || 0}
               </Typography>
             </CardContent>
           </Card>
@@ -228,7 +342,7 @@ const TestRunDetail: React.FC = () => {
                 Skipped
               </Typography>
               <Typography variant="h4" component="div" color="warning.main">
-                {testRun.skipped}
+                {testRun.skipped || 0}
               </Typography>
             </CardContent>
           </Card>
@@ -243,21 +357,21 @@ const TestRunDetail: React.FC = () => {
               </Typography>
               <List dense>
                 <ListItem>
-                  <ListItemText 
+                  <ListItemText
                     primary="Environment"
                     secondary={testRun.environment}
                   />
                 </ListItem>
                 <Divider component="li" />
                 <ListItem>
-                  <ListItemText 
+                  <ListItemText
                     primary="Browser"
                     secondary={testRun.browser}
                   />
                 </ListItem>
                 <Divider component="li" />
                 <ListItem>
-                  <ListItemText 
+                  <ListItemText
                     primary="Device"
                     secondary={testRun.device}
                   />
@@ -281,8 +395,7 @@ const TestRunDetail: React.FC = () => {
                       <TableCell>Test Case</TableCell>
                       <TableCell>Status</TableCell>
                       <TableCell>Duration</TableCell>
-                      <TableCell>Timestamp</TableCell>
-                      <TableCell align="right">Actions</TableCell>
+                      <TableCell>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -290,11 +403,11 @@ const TestRunDetail: React.FC = () => {
                       <TableRow key={result.id}>
                         <TableCell>
                           <Typography variant="body2">
-                            {result.name}
+                            {getTestCaseName(result.testCaseId)}
                           </Typography>
-                          {result.error && (
+                          {result.errorMessage && (
                             <Typography variant="caption" color="error">
-                              Error: {result.error}
+                              Error: {result.errorMessage}
                             </Typography>
                           )}
                         </TableCell>
@@ -306,8 +419,7 @@ const TestRunDetail: React.FC = () => {
                             color={getStatusColor(result.status)}
                           />
                         </TableCell>
-                        <TableCell>{result.duration || '-'}</TableCell>
-                        <TableCell>{formatDate(result.timestamp)}</TableCell>
+                        <TableCell>{formatDurationFromMs(result.duration)}</TableCell>
                         <TableCell align="right">
                           <IconButton size="small">
                             <BugIcon fontSize="small" />
