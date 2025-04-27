@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -19,6 +19,8 @@ import {
   Link,
   Tabs,
   Tab,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -32,90 +34,77 @@ import {
 } from '@mui/icons-material';
 import { TestCase } from '../types';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-
-// Mock test case data
-const MOCK_TEST_CASES: Record<string, TestCase> = {};
-
-// Generate some test cases
-Array.from({ length: 50 }).forEach((_, index) => {
-  const id = `tc-${index + 1}`;
-  MOCK_TEST_CASES[id] = {
-    id,
-    title: `Test Case ${index + 1}: ${[
-      'User Login',
-      'Product Search',
-      'Checkout Process',
-      'Account Creation',
-      'Password Reset',
-      'Order History',
-      'Payment Processing',
-      'Item Filtering',
-      'Admin Dashboard',
-      'User Profile',
-    ][index % 10]}`,
-    description: `This test verifies ${[
-      'user authentication functionality',
-      'product search results accuracy',
-      'the complete checkout process',
-      'new account creation workflow',
-      'the password reset functionality',
-      'customer order history display',
-      'credit card transaction processing',
-      'product filtering and sorting',
-      'admin dashboard functionality',
-      'user profile update process',
-    ][index % 10]}. It ensures that all components work as expected and validation logic is properly implemented.`,
-    status: ['active', 'draft', 'archived'][Math.floor(Math.random() * 3)] as 'active' | 'draft' | 'archived',
-    priority: ['low', 'medium', 'high', 'critical'][Math.floor(Math.random() * 4)] as 'low' | 'medium' | 'high' | 'critical',
-    createdBy: '1',
-    createdAt: new Date(Date.now() - Math.floor(Math.random() * 90) * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString(),
-    steps: Array.from({ length: Math.floor(Math.random() * 5) + 3 }).map((_, i) => ({
-      id: `step-${index}-${i}`,
-      order: i + 1,
-      description: [
-        'Navigate to the login page',
-        'Enter email and password',
-        'Click the login button',
-        'Verify successful login',
-        'Navigate to user profile',
-        'Update user information',
-        'Save changes',
-        'Verify updated information is displayed',
-        'Attempt to submit form with invalid data',
-        'Verify error messages are displayed correctly',
-      ][i % 10],
-      expectedResult: [
-        'Login page is displayed correctly',
-        'Input fields accept text correctly',
-        'Form is submitted',
-        'User is redirected to dashboard',
-        'Profile page loads with correct user data',
-        'Form accepts changes',
-        'Success message is displayed',
-        'Updated information appears in the profile',
-        'Form submission is prevented',
-        'Error messages indicate validation failures',
-      ][i % 10],
-      type: i % 3 === 0 ? 'automated' : 'manual',
-      code: i % 3 === 0 ? 'await page.goto("/login");\nawait page.fill("#email", "test@example.com");\nawait page.fill("#password", "password");\nawait page.click("#login-button");' : undefined,
-    })),
-    tags: Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(
-      (_, i) => ['regression', 'smoke', 'integration', 'api', 'ui', 'performance', 'security'][Math.floor(Math.random() * 7)]
-    ),
-    projectId: '1',
-  };
-});
+import api from '../services/api';
 
 const TestCaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [testCase, setTestCase] = useState<TestCase | null>(id ? MOCK_TEST_CASES[id] : null);
+  const [testCase, setTestCase] = useState<TestCase | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
+  // Fetch test case data from API
+  useEffect(() => {
+    const fetchTestCase = async () => {
+      if (!id) return;
+
+      try {
+        setLoading(true);
+        // Fetch all mock test cases
+        const allTestCases = await api.getMockTestCases();
+        // Find the specific test case by ID
+        const testCaseData = allTestCases.find(tc => tc.id === id);
+
+        if (testCaseData) {
+          setTestCase(testCaseData);
+          setError(null);
+        } else {
+          setError(`Test case with ID ${id} not found.`);
+          setTestCase(null);
+        }
+      } catch (err) {
+        console.error('Error fetching test case:', err);
+        setError('Failed to load test case. Please try again later.');
+        setTestCase(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestCase();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert severity="error" sx={{ mt: 2 }}>
+        {error}
+      </Alert>
+    );
+  }
+
   if (!testCase) {
-    return <Typography>Test case not found</Typography>;
+    return (
+      <Box sx={{ mt: 2 }}>
+        <Alert severity="warning">Test case not found</Alert>
+        <Button
+          variant="contained"
+          sx={{ mt: 2 }}
+          onClick={() => navigate('/test-cases')}
+        >
+          Back to Test Cases
+        </Button>
+      </Box>
+    );
   }
 
   const getPriorityColor = (priority: string) => {
@@ -139,9 +128,9 @@ const TestCaseDetail: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -167,11 +156,22 @@ const TestCaseDetail: React.FC = () => {
     });
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
-  const handleEditToggle = () => {
+  const handleEditToggle = async () => {
+    if (editMode && testCase) {
+      // In a real application, you would save changes to the API
+      // For now, we'll just toggle edit mode without making API calls
+      // since we're using mock data
+      console.log('Saving changes to test case:', testCase);
+
+      // Note: In a real application with a proper backend, you would use:
+      // await api.updateTestCase(testCase.id, testCase);
+      // const updatedTestCase = await api.getTestCaseById(testCase.id);
+      // setTestCase(updatedTestCase);
+    }
     setEditMode(!editMode);
   };
 
@@ -220,8 +220,8 @@ const TestCaseDetail: React.FC = () => {
         </Box>
       </Box>
 
-      <Tabs 
-        value={tabValue} 
+      <Tabs
+        value={tabValue}
         onChange={handleTabChange}
         sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
       >
@@ -263,14 +263,14 @@ const TestCaseDetail: React.FC = () => {
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {testCase.tags.map((tag, index) => (
-                    <Chip 
+                    <Chip
                       key={index}
                       label={tag}
                       onDelete={editMode ? () => {} : undefined}
                     />
                   ))}
                   {editMode && (
-                    <Chip 
+                    <Chip
                       icon={<AddIcon />}
                       label="Add Tag"
                       variant="outlined"
@@ -325,7 +325,7 @@ const TestCaseDetail: React.FC = () => {
                     ))}
                   </TextField>
                 ) : (
-                  <Chip 
+                  <Chip
                     label={testCase.status.charAt(0).toUpperCase() + testCase.status.slice(1)}
                     color={getStatusColor(testCase.status)}
                   />
@@ -352,7 +352,7 @@ const TestCaseDetail: React.FC = () => {
                     ))}
                   </TextField>
                 ) : (
-                  <Chip 
+                  <Chip
                     label={testCase.priority.charAt(0).toUpperCase() + testCase.priority.slice(1)}
                     color={getPriorityColor(testCase.priority)}
                   />
@@ -404,10 +404,10 @@ const TestCaseDetail: React.FC = () => {
                   <Typography variant="body2">Last Execution</Typography>
                   <Typography variant="body2" fontWeight="medium">2 days ago</Typography>
                 </Box>
-                <Button 
-                  variant="outlined" 
-                  fullWidth 
-                  size="small" 
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  size="small"
                   sx={{ mt: 1 }}
                   onClick={() => navigate('/test-runs')}
                 >
@@ -427,8 +427,8 @@ const TestCaseDetail: React.FC = () => {
                 Test Steps
               </Typography>
               {editMode && (
-                <Button 
-                  variant="outlined" 
+                <Button
+                  variant="outlined"
                   startIcon={<AddIcon />}
                   size="small"
                 >
@@ -436,7 +436,7 @@ const TestCaseDetail: React.FC = () => {
                 </Button>
               )}
             </Box>
-            
+
             <DragDropContext onDragEnd={handleOnDragEnd}>
               <Droppable droppableId="steps">
                 {(provided) => (
@@ -453,11 +453,11 @@ const TestCaseDetail: React.FC = () => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                           >
-                            <Paper 
-                              elevation={1} 
-                              sx={{ 
-                                mb: 2, 
-                                p: 2, 
+                            <Paper
+                              elevation={1}
+                              sx={{
+                                mb: 2,
+                                p: 2,
                                 borderRadius: 2,
                                 border: '1px solid',
                                 borderColor: 'divider',
@@ -471,7 +471,7 @@ const TestCaseDetail: React.FC = () => {
                                     </div>
                                   </Grid>
                                 )}
-                                
+
                                 <Grid item xs={editMode ? 11 : 12}>
                                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -493,7 +493,7 @@ const TestCaseDetail: React.FC = () => {
                                       </Box>
                                     )}
                                   </Box>
-                                  
+
                                   <Grid container spacing={2}>
                                     <Grid item xs={12} md={6}>
                                       <Typography variant="subtitle2" color="text.secondary" gutterBottom>
@@ -536,7 +536,7 @@ const TestCaseDetail: React.FC = () => {
                                       )}
                                     </Grid>
                                   </Grid>
-                                  
+
                                   {step.type === 'automated' && (
                                     <Box sx={{ mt: 2 }}>
                                       <Accordion elevation={0} sx={{ bgcolor: 'grey.50' }}>
@@ -560,9 +560,9 @@ const TestCaseDetail: React.FC = () => {
                                               sx={{ fontFamily: 'monospace' }}
                                             />
                                           ) : (
-                                            <Box 
-                                              sx={{ 
-                                                bgcolor: 'grey.900', 
+                                            <Box
+                                              sx={{
+                                                bgcolor: 'grey.900',
                                                 color: 'grey.100',
                                                 p: 2,
                                                 borderRadius: 1,
@@ -665,8 +665,8 @@ const TestCaseDetail: React.FC = () => {
               <Typography variant="h6">
                 Related Issues
               </Typography>
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 startIcon={<AddIcon />}
                 size="small"
               >
@@ -678,8 +678,8 @@ const TestCaseDetail: React.FC = () => {
               <Typography variant="body1" color="text.secondary">
                 No issues are linked to this test case.
               </Typography>
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 startIcon={<AddIcon />}
                 sx={{ mt: 2 }}
               >
