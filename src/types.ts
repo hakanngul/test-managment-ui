@@ -20,6 +20,8 @@ export interface TestStep {
   description?: string;
   expectedResult: string;
   type: TestStepType;
+  screenshot?: boolean;
+  code?: string;
 }
 
 // Test case interface

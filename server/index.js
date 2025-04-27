@@ -397,7 +397,7 @@ app.delete('/api/testCases/:id', async (req, res) => {
       return res.status(404).json({ error: `Test case with ID ${id} not found.` });
     }
 
-    res.status(204).send();
+    res.status(200).json({ success: true });
   } catch (error) {
     console.error('Error deleting test case:', error);
     res.status(500).json({ error: error.message });

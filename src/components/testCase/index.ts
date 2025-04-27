@@ -7,3 +7,4 @@ export { default as TestStepForm } from './TestStepForm';
 export { default as DiscardChangesDialog } from './DiscardChangesDialog';
 export { default as LoadingIndicator } from './LoadingIndicator';
 export { default as ErrorDisplay } from './ErrorDisplay';
+export { default as TestCaseImport } from './TestCaseImport';

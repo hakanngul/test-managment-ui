@@ -48,19 +48,12 @@ export const api = {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
-  deleteTestCase: (id: string) => fetchData<void>(`testCases/${id}`, {
+  deleteTestCase: (id: string) => fetchData<{success: boolean}>(`testCases/${id}`, {
     method: 'DELETE',
   }),
   createTestCase: (data: any) => fetchData<any>('testCases', {
     method: 'POST',
     body: JSON.stringify(data),
-  }),
-  updateTestCase: (id: string, data: any) => fetchData<any>(`testCases/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  }),
-  deleteTestCase: (id: string) => fetchData<void>(`testCases/${id}`, {
-    method: 'DELETE',
   }),
 
   // Test Suites

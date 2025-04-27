@@ -185,9 +185,16 @@ const TestCaseDetail: React.FC = () => {
 
     if (window.confirm(`Are you sure you want to delete the test case "${testCase.title}"?`)) {
       try {
-        await api.deleteTestCase(testCase.id);
-        console.log('Test case deleted successfully');
-        navigate('/test-cases');
+        const response = await api.deleteTestCase(testCase.id);
+        console.log('Test case deleted successfully:', response);
+
+        // Başarılı silme işleminden sonra test-cases sayfasına yönlendir
+        if (response && response.success) {
+          navigate('/test-cases');
+        } else {
+          // Yanıt başarılı değilse hata göster
+          setError('Failed to delete test case. Unexpected response from server.');
+        }
       } catch (error) {
         console.error('Error deleting test case:', error);
         setError('Failed to delete test case. Please try again later.');

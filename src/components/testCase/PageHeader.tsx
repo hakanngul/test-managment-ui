@@ -6,15 +6,17 @@ interface PageHeaderProps {
   title: string;
   onCancel: () => void;
   onSave: (e: React.FormEvent) => void;
+  actions?: React.ReactNode;
 }
 
-const PageHeader: React.FC<PageHeaderProps> = ({ title, onCancel, onSave }) => {
+const PageHeader: React.FC<PageHeaderProps> = ({ title, onCancel, onSave, actions }) => {
   return (
     <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <Typography variant="h4" component="h1" fontWeight="500">
         {title}
       </Typography>
       <Box sx={{ display: 'flex', gap: 2 }}>
+        {actions}
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}

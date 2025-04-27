@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Grid, Stack, Button, SelectChangeEvent } from '@mui/material';
-import { Save as SaveIcon } from '@mui/icons-material';
+import { Box, Grid, Stack, Button, SelectChangeEvent, Tooltip } from '@mui/material';
+import {
+  Save as SaveIcon,
+  FileUpload as ImportIcon
+} from '@mui/icons-material';
 import { TestCase, TestStep } from '../types';
 import api from '../services/api';
 import {
@@ -11,12 +14,14 @@ import {
   DiscardChangesDialog,
   LoadingIndicator,
   ErrorDisplay,
+  TestCaseImport
 } from '../components/testCase';
 
 const NewTestCase: React.FC = () => {
   const navigate = useNavigate();
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
 
   // API data state
   const [availableTags, setAvailableTags] = useState<string[]>([]);
@@ -46,6 +51,8 @@ const NewTestCase: React.FC = () => {
     description: '',
     expectedResult: '',
     type: 'manual',
+    screenshot: false,
+    code: ''
   });
 
   // Fetch data from API
@@ -142,6 +149,8 @@ const NewTestCase: React.FC = () => {
       description: currentStep.description || '',
       expectedResult: currentStep.expectedResult || '',
       type: currentStep.type as 'manual' | 'automated',
+      screenshot: currentStep.screenshot || false,
+      code: currentStep.code || ''
     };
 
     setFormData({
@@ -158,6 +167,8 @@ const NewTestCase: React.FC = () => {
       description: '',
       expectedResult: '',
       type: 'manual',
+      screenshot: false,
+      code: ''
     });
 
     // Clear step errors
@@ -260,12 +271,55 @@ const NewTestCase: React.FC = () => {
     navigate('/test-cases');
   };
 
+  // Handle import test case
+  const handleImportTestCase = (importedTestCase: Partial<TestCase>) => {
+    // Mevcut form verilerini güncelle
+    setFormData({
+      ...importedTestCase,
+      // Eğer import edilen test case'de olmayan varsayılan değerleri koru
+      status: importedTestCase.status || 'draft',
+      priority: importedTestCase.priority || 'medium',
+      tags: importedTestCase.tags || [],
+    });
+
+    // Adımları düzenle ve ID'leri yeniden oluştur
+    if (importedTestCase.steps && importedTestCase.steps.length > 0) {
+      const updatedSteps = importedTestCase.steps.map((step, index) => ({
+        ...step,
+        id: `step-${Date.now()}-${index}`,
+        order: index + 1,
+        // Eksik alanları varsayılan değerlerle doldur
+        screenshot: step.screenshot !== undefined ? step.screenshot : false,
+        code: step.code || '',
+      }));
+
+      setFormData(prevData => ({
+        ...prevData,
+        steps: updatedSteps,
+      }));
+    }
+
+    setUnsavedChanges(true);
+  };
+
   return (
     <Box>
       <PageHeader
         title="Create New Test Case"
         onCancel={handleCancel}
         onSave={handleSubmit}
+        actions={
+          <Tooltip title="Test Case İçe Aktar">
+            <Button
+              variant="outlined"
+              startIcon={<ImportIcon />}
+              onClick={() => setShowImportDialog(true)}
+              sx={{ mr: 1 }}
+            >
+              İçe Aktar
+            </Button>
+          </Tooltip>
+        }
       />
 
       {loading && <LoadingIndicator />}
@@ -327,6 +381,12 @@ const NewTestCase: React.FC = () => {
         open={showDiscardDialog}
         onClose={() => setShowDiscardDialog(false)}
         onDiscard={handleDiscardChanges}
+      />
+
+      <TestCaseImport
+        open={showImportDialog}
+        onClose={() => setShowImportDialog(false)}
+        onImport={handleImportTestCase}
       />
     </Box>
   );
