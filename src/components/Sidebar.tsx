@@ -45,6 +45,7 @@ const Sidebar: React.FC = () => {
     { text: 'Test Runs', icon: <PlayArrowIcon />, path: '/test-runs' },
     { text: 'Reports', icon: <AssessmentIcon />, path: '/reports' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+    { text: 'Test Page', icon: <HelpIcon />, path: '/test-page' },
   ];
 
   const handleNavigation = (path: string) => {

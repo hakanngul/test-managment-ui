@@ -21,6 +21,7 @@ import TestRunDetail from './pages/TestRunDetail';
 import NewTestCase from './pages/NewTestCase';
 import CreateTestSuite from './pages/CreateTestSuite';
 import ServerAgent from './pages/ServerAgent';
+import TestPage from './pages/TestPage';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
                   <Route path="reports" element={<Reports />} />
                   <Route path="server-agent" element={<ServerAgent />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="test-page" element={<TestPage />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
