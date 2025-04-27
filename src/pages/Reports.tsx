@@ -120,21 +120,55 @@ const Reports: React.FC = () => {
         ]);
 
         // Update state with fetched data
-        setTestExecutionData(executionData);
-        setTestDurationData(durationData);
-        setTestResults(results);
-        setDetailedResults(detailedResultsData);
-        setStatusDistributionData(statusDistribution);
-        setDurationByStatusData(durationByStatus);
-        setCoverageData(coverage);
-        setCoverageTrendData(coverageTrend);
-        setCoverageByTypeData(coverageByType);
-        setUncoveredLinesData(uncoveredLines);
-        setPerformanceMetrics(performance);
-        setLoadTimeData(loadTime);
-        setResponseTimeData(responseTime);
-        setResourceUsageData(resourceUsage);
-        setBrowserComparisonData(browserComparison);
+        // For array data, ensure we have an array
+        setTestResults(Array.isArray(results) ? results : []);
+        setDetailedResults(Array.isArray(detailedResultsData) ? detailedResultsData : []);
+        setPerformanceMetrics(Array.isArray(performance) ? performance : []);
+
+        // For object data with options and series, ensure we have valid structure
+        setTestExecutionData(executionData && executionData.options && executionData.series ?
+          executionData : { options: {}, series: [] });
+
+        setTestDurationData(durationData && durationData.options && durationData.series ?
+          durationData : { options: {}, series: [] });
+
+        setStatusDistributionData(statusDistribution && statusDistribution.options && statusDistribution.series ?
+          statusDistribution : { options: {}, series: [] });
+
+        setDurationByStatusData(durationByStatus && durationByStatus.options && durationByStatus.series ?
+          durationByStatus : { options: {}, series: [] });
+
+        setCoverageData(coverage && coverage.summary ?
+          coverage : {
+            summary: {
+              lines: { total: 0, covered: 0, percentage: 0 },
+              branches: { total: 0, covered: 0, percentage: 0 },
+              functions: { total: 0, covered: 0, percentage: 0 },
+              statements: { total: 0, covered: 0, percentage: 0 }
+            },
+            files: []
+          });
+
+        setCoverageTrendData(coverageTrend && coverageTrend.options && coverageTrend.series ?
+          coverageTrend : { options: {}, series: [] });
+
+        setCoverageByTypeData(coverageByType && coverageByType.options && coverageByType.series ?
+          coverageByType : { options: {}, series: [] });
+
+        setUncoveredLinesData(uncoveredLines && uncoveredLines.options && uncoveredLines.series ?
+          uncoveredLines : { options: {}, series: [] });
+
+        setLoadTimeData(loadTime && loadTime.options && loadTime.series ?
+          loadTime : { options: {}, series: [] });
+
+        setResponseTimeData(responseTime && responseTime.options && responseTime.series ?
+          responseTime : { options: {}, series: [] });
+
+        setResourceUsageData(resourceUsage && resourceUsage.options && resourceUsage.series ?
+          resourceUsage : { options: {}, series: [] });
+
+        setBrowserComparisonData(browserComparison && browserComparison.options && browserComparison.series ?
+          browserComparison : { options: {}, series: [] });
 
         setError(null);
       } catch (err) {

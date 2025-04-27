@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Script to kill processes running on ports 5173 and 3001
+# Script to kill processes running on ports 5173 (Vite) and 3001 (API server)
 # Created by Augment Agent
 
-echo "Searching for processes on ports 5173 and 3001..."
+echo "Searching for processes on ports 5173 (Vite) and 3001 (API server)..."
 
 # Find and kill process on port 5173
 PORT_5173_PID=$(lsof -ti:5173)
@@ -21,10 +21,10 @@ else
     echo "No process found running on port 5173."
 fi
 
-# Find and kill process on port 3001
+# Find and kill process on port 3001 (API server)
 PORT_3001_PID=$(lsof -ti:3001)
 if [ -n "$PORT_3001_PID" ]; then
-    echo "Found process with PID $PORT_3001_PID running on port 3001. Killing it..."
+    echo "Found process with PID $PORT_3001_PID running on port 3001 (API server). Killing it..."
     kill -15 $PORT_3001_PID
     sleep 1
     # Check if process still exists and force kill if necessary
@@ -32,9 +32,9 @@ if [ -n "$PORT_3001_PID" ]; then
         echo "Process still running. Force killing..."
         kill -9 $PORT_3001_PID
     fi
-    echo "Process on port 3001 has been terminated."
+    echo "Process on port 3001 (API server) has been terminated."
 else
-    echo "No process found running on port 3001."
+    echo "No process found running on port 3001 (API server)."
 fi
 
 echo "Script completed."
