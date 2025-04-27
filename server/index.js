@@ -58,6 +58,10 @@ async function initMongoDB() {
 
     console.log('Initializing MongoDB with data from json-server');
 
+    // Import test runs and results
+    const testRuns = await import('./sampleData/testRuns.js');
+    const testResults = await import('./sampleData/testResults.js');
+
     // Read the JSON file
     const jsonFilePath = path.join(__dirname, '../data/db.json');
     const jsonData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
@@ -98,6 +102,17 @@ async function initMongoDB() {
         await db.collection(key).insertOne(value);
         console.log(`Inserted 1 document into collection: ${key}`);
       }
+    }
+
+    // Insert test runs and results
+    if (testRuns.default && testRuns.default.length > 0) {
+      await db.collection('testRuns').insertMany(testRuns.default);
+      console.log(`Inserted ${testRuns.default.length} documents into testRuns`);
+    }
+
+    if (testResults.default && testResults.default.length > 0) {
+      await db.collection('testResults').insertMany(testResults.default);
+      console.log(`Inserted ${testResults.default.length} documents into testResults`);
     }
 
     console.log('MongoDB initialization completed successfully');
