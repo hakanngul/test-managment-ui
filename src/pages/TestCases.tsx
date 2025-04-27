@@ -1,37 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  Card,
-  TextField,
-  InputAdornment,
-  Button,
-  MenuItem,
-  Menu,
-  IconButton,
-  Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  Paper,
-  Tooltip,
-  CircularProgress,
-  Alert,
-} from '@mui/material';
-import {
-  Search as SearchIcon,
-  FilterList as FilterIcon,
-  Add as AddIcon,
-  MoreVert as MoreIcon,
-  ArrowDropDown as ArrowDropDownIcon,
-} from '@mui/icons-material';
+import { Box, Alert } from '@mui/material';
 import { TestCase } from '../types';
 import api from '../services/api';
+import {
+  TestCasesHeader,
+  TestCasesFilter,
+  TestCasesTable,
+  FilterMenu,
+  SortMenu,
+  EmptyState,
+  LoadingState
+} from '../components/testCases';
 
 const TestCases: React.FC = () => {
   const navigate = useNavigate();
@@ -53,7 +33,8 @@ const TestCases: React.FC = () => {
     const fetchTestCases = async () => {
       try {
         setLoading(true);
-        const data = await api.getMockTestCases();
+        // Changed from getMockTestCases to getTestCases to fetch from json-server
+        const data = await api.getTestCases();
         setTestCases(data);
         setError(null);
       } catch (err) {
@@ -87,7 +68,7 @@ const TestCases: React.FC = () => {
     navigate(`/test-cases/${id}`);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -135,8 +116,8 @@ const TestCases: React.FC = () => {
       } else if (sortBy === 'priority') {
         const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
         return sortDirection === 'asc'
-          ? priorityOrder[a.priority] - priorityOrder[b.priority]
-          : priorityOrder[b.priority] - priorityOrder[a.priority];
+          ? priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder]
+          : priorityOrder[b.priority as keyof typeof priorityOrder] - priorityOrder[a.priority as keyof typeof priorityOrder];
       } else if (sortBy === 'status') {
         return sortDirection === 'asc'
           ? a.status.localeCompare(b.status)
@@ -148,8 +129,6 @@ const TestCases: React.FC = () => {
       }
       return 0;
     });
-
-  const paginatedTestCases = filteredTestCases.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   // Helper function to format date
   const formatDate = (dateString: string) => {
@@ -178,19 +157,7 @@ const TestCases: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4" component="h1" fontWeight="500">
-          Test Cases
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/test-cases/new')}
-        >
-          New Test Case
-        </Button>
-      </Box>
+      <TestCasesHeader title="Test Cases" />
 
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
@@ -198,223 +165,53 @@ const TestCases: React.FC = () => {
         </Alert>
       )}
 
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
+      {loading && <LoadingState />}
 
-      {!loading && testCases.length === 0 && !error && (
-        <Box sx={{ textAlign: 'center', my: 4 }}>
-          <Typography variant="h6" color="text.secondary">
-            No test cases found
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Create your first test case to get started
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => navigate('/test-cases/new')}
-            sx={{ mt: 2 }}
-          >
-            New Test Case
-          </Button>
-        </Box>
-      )}
-
-      <Card sx={{ mb: 3, p: 2, borderRadius: 2 }}>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-          <TextField
-            placeholder="Search test cases..."
-            variant="outlined"
-            size="small"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            sx={{ flexGrow: 1 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <Button
-            variant="outlined"
-            startIcon={<FilterIcon />}
-            onClick={handleFilterClick}
-            size="small"
-          >
-            Filter
-          </Button>
-
-          <Button
-            variant="outlined"
-            endIcon={<ArrowDropDownIcon />}
-            onClick={handleSortClick}
-            size="small"
-          >
-            Sort by: {sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}
-          </Button>
-        </Box>
-      </Card>
-
-      {/* Filter Menu */}
-      <Menu
-        anchorEl={filterAnchorEl}
-        open={Boolean(filterAnchorEl)}
-        onClose={handleFilterClose}
-      >
-        <Box sx={{ px: 2, py: 1 }}>
-          <Typography variant="subtitle2" gutterBottom>
-            Status
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-            {['all', 'active', 'draft', 'archived'].map((status) => (
-              <Chip
-                key={status}
-                label={status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
-                onClick={() => handleStatusFilterChange(status)}
-                variant={selectedStatusFilter === status ? 'filled' : 'outlined'}
-                color={selectedStatusFilter === status ? (status === 'all' ? 'primary' : getStatusColor(status)) : 'default'}
-              />
-            ))}
-          </Box>
-
-          <Typography variant="subtitle2" gutterBottom>
-            Priority
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {['all', 'critical', 'high', 'medium', 'low'].map((priority) => (
-              <Chip
-                key={priority}
-                label={priority === 'all' ? 'All' : priority.charAt(0).toUpperCase() + priority.slice(1)}
-                onClick={() => handlePriorityFilterChange(priority)}
-                variant={selectedPriorityFilter === priority ? 'filled' : 'outlined'}
-                color={selectedPriorityFilter === priority ? (priority === 'all' ? 'primary' : getPriorityColor(priority)) : 'default'}
-              />
-            ))}
-          </Box>
-        </Box>
-      </Menu>
-
-      {/* Sort Menu */}
-      <Menu
-        anchorEl={sortAnchorEl}
-        open={Boolean(sortAnchorEl)}
-        onClose={handleSortClose}
-      >
-        <MenuItem onClick={() => handleSortChange('title')}>
-          Title {sortBy === 'title' && (sortDirection === 'asc' ? '↑' : '↓')}
-        </MenuItem>
-        <MenuItem onClick={() => handleSortChange('priority')}>
-          Priority {sortBy === 'priority' && (sortDirection === 'asc' ? '↑' : '↓')}
-        </MenuItem>
-        <MenuItem onClick={() => handleSortChange('status')}>
-          Status {sortBy === 'status' && (sortDirection === 'asc' ? '↑' : '↓')}
-        </MenuItem>
-        <MenuItem onClick={() => handleSortChange('updatedAt')}>
-          Last Updated {sortBy === 'updatedAt' && (sortDirection === 'asc' ? '↑' : '↓')}
-        </MenuItem>
-      </Menu>
+      {!loading && testCases.length === 0 && !error && <EmptyState />}
 
       {!loading && testCases.length > 0 && (
-        <Paper sx={{ width: '100%', borderRadius: 2 }}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Test Case</TableCell>
-                  <TableCell>Priority</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Last Updated</TableCell>
-                  <TableCell>Tags</TableCell>
-                  <TableCell align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedTestCases.map((testCase) => (
-                <TableRow
-                  key={testCase.id}
-                  hover
-                  onClick={() => handleViewTestCase(testCase.id)}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
-                      {testCase.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                      {testCase.description.substring(0, 100)}
-                      {testCase.description.length > 100 ? '...' : ''}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={testCase.priority.charAt(0).toUpperCase() + testCase.priority.slice(1)}
-                      size="small"
-                      color={getPriorityColor(testCase.priority)}
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={testCase.status.charAt(0).toUpperCase() + testCase.status.slice(1)}
-                      size="small"
-                      color={getStatusColor(testCase.status)}
-                    />
-                  </TableCell>
-                  <TableCell>{formatDate(testCase.updatedAt)}</TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {testCase.tags.slice(0, 2).map((tag, index) => (
-                        <Chip
-                          key={index}
-                          label={tag}
-                          size="small"
-                          variant="outlined"
-                          sx={{ height: 20, fontSize: '0.75rem' }}
-                        />
-                      ))}
-                      {testCase.tags.length > 2 && (
-                        <Chip
-                          label={`+${testCase.tags.length - 2}`}
-                          size="small"
-                          variant="outlined"
-                          sx={{ height: 20, fontSize: '0.75rem' }}
-                        />
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Handle menu open
-                      }}
-                    >
-                      <MoreIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={filteredTestCases.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
+        <>
+          <TestCasesFilter
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onFilterClick={handleFilterClick}
+            onSortClick={handleSortClick}
+            sortBy={sortBy}
+          />
+
+          <FilterMenu
+            anchorEl={filterAnchorEl}
+            open={Boolean(filterAnchorEl)}
+            onClose={handleFilterClose}
+            selectedStatusFilter={selectedStatusFilter}
+            selectedPriorityFilter={selectedPriorityFilter}
+            onStatusFilterChange={handleStatusFilterChange}
+            onPriorityFilterChange={handlePriorityFilterChange}
+            getStatusColor={getStatusColor}
+            getPriorityColor={getPriorityColor}
+          />
+
+          <SortMenu
+            anchorEl={sortAnchorEl}
+            open={Boolean(sortAnchorEl)}
+            onClose={handleSortClose}
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            onSortChange={handleSortChange}
+          />
+
+          <TestCasesTable
+            testCases={filteredTestCases}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            onRowClick={handleViewTestCase}
+            formatDate={formatDate}
+            getPriorityColor={getPriorityColor}
+            getStatusColor={getStatusColor}
+          />
+        </>
       )}
     </Box>
   );

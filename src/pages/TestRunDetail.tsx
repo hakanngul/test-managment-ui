@@ -84,6 +84,7 @@ const TestRunDetail: React.FC = () => {
 
   // Add pagination handlers
   const handleChangePage = (event: unknown, newPage: number) => {
+    console.log(event)
     setPage(newPage);
   };
 
