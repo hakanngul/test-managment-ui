@@ -108,6 +108,23 @@ export const api = {
   getStatuses: () => fetchData<string[]>('testStatuses'),
   getEnvironments: () => fetchData<string[]>('testEnvironments'),
   getFeatures: () => fetchData<string[]>('testFeatures'),
+
+  // Test Results
+  getTestResults: () => fetchData<any[]>('testResults'),
+  getTestResultById: (id: string) => fetchData<any>(`testResults/${id}`),
+  createTestResult: (data: any) => fetchData<any>('testResults', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  updateTestResult: (id: string, data: any) => fetchData<any>(`testResults/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  deleteTestResult: (id: string) => fetchData<void>(`testResults/${id}`, {
+    method: 'DELETE',
+  }),
+
+  // These methods are kept for backward compatibility but now use MongoDB data
   getExecutionTimeData: () => fetchData<number[]>('executionTimeData'),
   getTestCountsByDay: () => fetchData<any[]>('testCountsByDay'),
 
@@ -135,12 +152,25 @@ export const api = {
   getBrowserComparisonData: () => fetchData<any>('browserComparisonData'),
 
   // Server Agent Data
-  getSystemResourcesData: () => fetchData<any>('systemResourcesData'),
-  getAgentStatusData: () => fetchData<any>('agentStatusData'),
-  getQueueStatusData: () => fetchData<any>('queueStatusData'),
-  getActiveAgentsData: () => fetchData<any[]>('activeAgentsData'),
-  getQueuedRequestsData: () => fetchData<any[]>('queuedRequestsData'),
-  getProcessedRequestsData: () => fetchData<any[]>('processedRequestsData'),
+  getSystemResourcesData: () => fetchData<any>('systemResources').catch(() => ({
+    lastUpdated: new Date().toLocaleString('tr-TR'),
+    cpuUsage: 0,
+    memoryUsage: 0
+  })),
+  getAgentStatusData: () => fetchData<any>('agentStatus').catch(() => ({
+    total: 0,
+    available: 0,
+    busy: 0,
+    limit: 1
+  })),
+  getQueueStatusData: () => fetchData<any>('queueStatus').catch(() => ({
+    queued: 0,
+    processing: 0,
+    total: 0
+  })),
+  getActiveAgentsData: () => fetchData<any[]>('activeAgents').catch(() => []),
+  getQueuedRequestsData: () => fetchData<any[]>('queuedRequests').catch(() => []),
+  getProcessedRequestsData: () => fetchData<any[]>('processedRequests').catch(() => []),
 };
 
 export default api;

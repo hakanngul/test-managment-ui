@@ -4,7 +4,12 @@ import Chart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
 
 interface TestResultsChartProps {
-  testCountsByDay: any[];
+  testCountsByDay: {
+    passed: number[];
+    failed: number[];
+    pending: number[];
+    blocked: number[];
+  } | any[];
   last7Days: string[];
 }
 
@@ -49,10 +54,30 @@ const TestResultsChart: React.FC<TestResultsChartProps> = ({
         <Chart
           options={testCountsChartOptions}
           series={[
-            { name: 'Passed', data: testCountsByDay.map((day: any) => day.passed) },
-            { name: 'Failed', data: testCountsByDay.map((day: any) => day.failed) },
-            { name: 'Pending', data: testCountsByDay.map((day: any) => day.pending) },
-            { name: 'Blocked', data: testCountsByDay.map((day: any) => day.blocked) },
+            {
+              name: 'Passed',
+              data: Array.isArray(testCountsByDay)
+                ? testCountsByDay.map((day: any) => day.passed)
+                : testCountsByDay.passed
+            },
+            {
+              name: 'Failed',
+              data: Array.isArray(testCountsByDay)
+                ? testCountsByDay.map((day: any) => day.failed)
+                : testCountsByDay.failed
+            },
+            {
+              name: 'Pending',
+              data: Array.isArray(testCountsByDay)
+                ? testCountsByDay.map((day: any) => day.pending)
+                : testCountsByDay.pending
+            },
+            {
+              name: 'Blocked',
+              data: Array.isArray(testCountsByDay)
+                ? testCountsByDay.map((day: any) => day.blocked)
+                : testCountsByDay.blocked
+            },
           ]}
           type="bar"
           height={300}

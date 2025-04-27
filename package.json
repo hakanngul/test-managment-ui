@@ -21,6 +21,7 @@
     "@mui/x-data-grid": "^6.18.1",
     "@mui/x-date-pickers": "^6.18.1",
     "apexcharts": "^4.0.0",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "date-fns": "^2.30.0",
     "express": "^5.1.0",

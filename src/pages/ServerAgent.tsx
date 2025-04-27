@@ -91,15 +91,30 @@ const ServerAgent: React.FC = () => {
           api.getProcessedRequestsData()
         ]);
 
-        // Update state with fetched data
-        setLastUpdated(systemResources.lastUpdated);
-        setCpuUsage(systemResources.cpuUsage);
-        setMemoryUsage(systemResources.memoryUsage);
-        setAgentStatus(agentStatusData);
-        setQueueStatus(queueStatusData);
-        setActiveAgents(activeAgentsData);
-        setQueuedRequests(queuedRequestsData);
-        setProcessedRequests(processedRequestsData);
+        // Update state with fetched data, using default values if data is missing
+        setLastUpdated(systemResources?.lastUpdated || new Date().toLocaleString('tr-TR'));
+        setCpuUsage(systemResources?.cpuUsage || 0);
+        setMemoryUsage(systemResources?.memoryUsage || 0);
+
+        // Set agent status with defaults if needed
+        setAgentStatus({
+          total: agentStatusData?.total || 0,
+          available: agentStatusData?.available || 0,
+          busy: agentStatusData?.busy || 0,
+          limit: agentStatusData?.limit || 1
+        });
+
+        // Set queue status with defaults if needed
+        setQueueStatus({
+          queued: queueStatusData?.queued || 0,
+          processing: queueStatusData?.processing || 0,
+          total: queueStatusData?.total || 0
+        });
+
+        // Set data lists with defaults if needed
+        setActiveAgents(activeAgentsData || []);
+        setQueuedRequests(queuedRequestsData || []);
+        setProcessedRequests(processedRequestsData || []);
         setError(null);
       } catch (err) {
         console.error('Error fetching server agent data:', err);
@@ -189,10 +204,10 @@ const ServerAgent: React.FC = () => {
 
   return (
     <Box>
-      <PageHeader 
-        title="Server Agent" 
-        lastUpdated={lastUpdated} 
-        onRefresh={refreshData} 
+      <PageHeader
+        title="Server Agent"
+        lastUpdated={lastUpdated}
+        onRefresh={refreshData}
       />
 
       {error && <ErrorDisplay message={error} />}
@@ -203,35 +218,35 @@ const ServerAgent: React.FC = () => {
         <Grid container spacing={3}>
           {/* System Resources */}
           <Grid item xs={12} md={4}>
-            <SystemResourcesCard 
-              lastUpdated={lastUpdated} 
-              cpuUsage={cpuUsage} 
-              memoryUsage={memoryUsage} 
+            <SystemResourcesCard
+              lastUpdated={lastUpdated}
+              cpuUsage={cpuUsage}
+              memoryUsage={memoryUsage}
             />
           </Grid>
 
           {/* Agent Status */}
           <Grid item xs={12} md={4}>
-            <AgentStatusCard 
-              total={agentStatus.total} 
-              available={agentStatus.available} 
-              busy={agentStatus.busy} 
-              limit={agentStatus.limit} 
+            <AgentStatusCard
+              total={agentStatus.total}
+              available={agentStatus.available}
+              busy={agentStatus.busy}
+              limit={agentStatus.limit}
             />
           </Grid>
 
           {/* Queue Status */}
           <Grid item xs={12} md={4}>
-            <QueueStatusCard 
-              queued={queueStatus.queued} 
-              processing={queueStatus.processing} 
-              total={queueStatus.total} 
+            <QueueStatusCard
+              queued={queueStatus.queued}
+              processing={queueStatus.processing}
+              total={queueStatus.total}
             />
           </Grid>
 
           {/* Tabs for Agents and Requests */}
           <Grid item xs={12}>
-            <TabsContainer 
+            <TabsContainer
               activeAgents={activeAgents}
               queuedRequests={queuedRequests}
               processedRequests={processedRequests}

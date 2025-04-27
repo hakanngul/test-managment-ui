@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 
 interface UseApiOptions<T> {
@@ -76,16 +76,100 @@ export function useUsers() {
 
 export function useDashboardData() {
   const { data: testCases, loading: testCasesLoading, error: testCasesError } = useApi(() => api.getTestCases());
+  const { data: testRuns, loading: testRunsLoading } = useApi(() => api.getTestRuns());
+  const { data: testResults, loading: testResultsLoading } = useApi(() => api.getTestResults());
   const { data: testCategories } = useApi(() => api.getCategories());
   const { data: testPriorities } = useApi(() => api.getPriorities());
   const { data: testStatuses } = useApi(() => api.getStatuses());
   const { data: testEnvironments } = useApi(() => api.getEnvironments());
   const { data: testFeatures } = useApi(() => api.getFeatures());
-  const { data: executionTimeData } = useApi(() => api.getExecutionTimeData());
-  const { data: testCountsByDay } = useApi(() => api.getTestCountsByDay());
+
+  // Generate execution time data based on test results
+  const executionTimeData = React.useMemo(() => {
+    if (!testResults || testResults.length === 0) {
+      return Array(7).fill(0);
+    }
+
+    // Get the last 7 days of test durations
+    const last7Days = Array.from({ length: 7 }).map((_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - i));
+      date.setHours(0, 0, 0, 0);
+      return date.getTime();
+    });
+
+    // Calculate average duration for each day
+    return last7Days.map(day => {
+      const dayResults = testResults.filter(result => {
+        const resultDate = new Date(result.startTime || result.createdAt);
+        resultDate.setHours(0, 0, 0, 0);
+        return resultDate.getTime() === day;
+      });
+
+      if (dayResults.length === 0) return 0;
+
+      const totalDuration = dayResults.reduce((sum, result) => sum + (result.duration || 0), 0);
+      return Math.round((totalDuration / dayResults.length) / 1000); // Convert to seconds
+    });
+  }, [testResults]);
+
+  // Generate test counts by day based on test runs
+  const testCountsByDay = React.useMemo(() => {
+    if (!testRuns || testRuns.length === 0) {
+      return {
+        passed: Array(7).fill(0),
+        failed: Array(7).fill(0),
+        pending: Array(7).fill(0),
+        blocked: Array(7).fill(0)
+      };
+    }
+
+    // Get the last 7 days
+    const last7Days = Array.from({ length: 7 }).map((_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (6 - i));
+      date.setHours(0, 0, 0, 0);
+      return date.getTime();
+    });
+
+    // Initialize counts
+    const counts = {
+      passed: Array(7).fill(0),
+      failed: Array(7).fill(0),
+      pending: Array(7).fill(0),
+      blocked: Array(7).fill(0)
+    };
+
+    // Count tests by status for each day
+    testRuns.forEach(run => {
+      const runDate = new Date(run.startTime || run.createdAt);
+      runDate.setHours(0, 0, 0, 0);
+      const dayIndex = last7Days.findIndex(day => day === runDate.getTime());
+
+      if (dayIndex !== -1 && run.results) {
+        // Count by status
+        run.results.forEach((result: { status: string; }) => {
+          const status = result.status.toLowerCase();
+          if (status === 'passed' || status === 'pass') {
+            counts.passed[dayIndex]++;
+          } else if (status === 'failed' || status === 'fail') {
+            counts.failed[dayIndex]++;
+          } else if (status === 'pending') {
+            counts.pending[dayIndex]++;
+          } else if (status === 'blocked') {
+            counts.blocked[dayIndex]++;
+          }
+        });
+      }
+    });
+
+    return counts;
+  }, [testRuns]);
 
   return {
     testCases,
+    testRuns,
+    testResults,
     testCategories,
     testPriorities,
     testStatuses,
@@ -93,7 +177,7 @@ export function useDashboardData() {
     testFeatures,
     executionTimeData,
     testCountsByDay,
-    loading: testCasesLoading,
+    loading: testCasesLoading || testRunsLoading || testResultsLoading,
     error: testCasesError
   };
 }

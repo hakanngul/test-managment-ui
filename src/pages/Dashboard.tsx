@@ -42,25 +42,26 @@ const Dashboard: React.FC = () => {
   } = useDashboardData();
 
   // Transform API test cases to our format
-  const testCases = apiTestCases.map((test: any) => {
+  const testCases = apiTestCases ? apiTestCases.map((test: any) => {
     // Map status values to expected values for the chart
     let mappedStatus = test.status;
-    if (test.status === 'active') mappedStatus = 'Passed';
-    else if (test.status === 'inactive') mappedStatus = 'Failed';
-    else if (test.status === 'draft') mappedStatus = 'Pending';
-    else if (test.status === 'archived') mappedStatus = 'Blocked';
+    if (test.status === 'active' || test.status === 'pass') mappedStatus = 'Passed';
+    else if (test.status === 'inactive' || test.status === 'fail') mappedStatus = 'Failed';
+    else if (test.status === 'draft' || test.status === 'pending') mappedStatus = 'Pending';
+    else if (test.status === 'archived' || test.status === 'blocked') mappedStatus = 'Blocked';
+    else if (!test.status) mappedStatus = 'Pending';
 
     return {
       ...test,
-      name: test.title || '',
-      category: test.tags?.[0] || 'Uncategorized',
-      feature: test.tags?.[1] || 'General',
+      name: test.title || test.name || '',
+      category: test.tags?.[0] || test.category || 'Uncategorized',
+      feature: test.tags?.[1] || test.feature || 'General',
       status: mappedStatus,
-      lastRun: null,
-      duration: 0,
-      environment: 'Development'
+      lastRun: test.lastRun || null,
+      duration: test.duration || 0,
+      environment: test.environment || 'Development'
     };
-  });
+  }) : [];
 
   // Get last 7 days for chart
   const last7Days = Array.from({ length: 7 }).map((_, i) => {
@@ -73,18 +74,10 @@ const Dashboard: React.FC = () => {
   const totalTests = testCases.length;
 
   // Count tests by status
-  let passedTests = testCases.filter((test: TestCase) => test.status === 'Passed' || test.status === 'passed').length;
-  let failedTests = testCases.filter((test: TestCase) => test.status === 'Failed' || test.status === 'failed').length;
-  let pendingTests = testCases.filter((test: TestCase) => test.status === 'Pending' || test.status === 'pending').length;
-  let blockedTests = testCases.filter((test: TestCase) => test.status === 'Blocked' || test.status === 'blocked').length;
-
-  // Use sample data for the chart if needed
-  if (passedTests + failedTests + pendingTests + blockedTests === 0) {
-    passedTests = 35;
-    failedTests = 12;
-    pendingTests = 8;
-    blockedTests = 5;
-  }
+  const passedTests = testCases.filter((test: TestCase) => test.status === 'Passed' || test.status === 'passed').length;
+  const failedTests = testCases.filter((test: TestCase) => test.status === 'Failed' || test.status === 'failed').length;
+  const pendingTests = testCases.filter((test: TestCase) => test.status === 'Pending' || test.status === 'pending').length;
+  const blockedTests = testCases.filter((test: TestCase) => test.status === 'Blocked' || test.status === 'blocked').length;
 
   const passRate = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
 

@@ -7,10 +7,10 @@ interface SystemResourcesCardProps {
   memoryUsage: number;
 }
 
-const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({ 
-  lastUpdated, 
-  cpuUsage, 
-  memoryUsage 
+const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
+  lastUpdated,
+  cpuUsage,
+  memoryUsage
 }) => {
   const theme = useTheme();
 
@@ -27,9 +27,9 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
         <Box sx={{ mt: 3 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="body2">CPU Kullanımı</Typography>
-            <Typography 
-              variant="body2" 
-              fontWeight="medium" 
+            <Typography
+              variant="body2"
+              fontWeight="medium"
               color={cpuUsage > 80 ? 'error.main' : cpuUsage > 50 ? 'warning.main' : 'success.main'}
             >
               {cpuUsage}%
@@ -37,7 +37,7 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
           </Box>
           <LinearProgress
             variant="determinate"
-            value={cpuUsage}
+            value={cpuUsage || 0}
             sx={{
               height: 10,
               borderRadius: 5,
@@ -53,9 +53,9 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="body2">Bellek Kullanımı</Typography>
-            <Typography 
-              variant="body2" 
-              fontWeight="medium" 
+            <Typography
+              variant="body2"
+              fontWeight="medium"
               color={memoryUsage > 80 ? 'error.main' : memoryUsage > 50 ? 'warning.main' : 'success.main'}
             >
               {memoryUsage}%
@@ -63,7 +63,7 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
           </Box>
           <LinearProgress
             variant="determinate"
-            value={memoryUsage}
+            value={memoryUsage || 0}
             sx={{
               height: 10,
               borderRadius: 5,
