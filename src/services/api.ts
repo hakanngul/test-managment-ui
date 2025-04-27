@@ -108,6 +108,19 @@ export const api = {
   getAvailableActions: () => fetchData<string[]>('availableActions'),
   getTeamMembers: () => fetchData<any[]>('teamMembers'),
   getMockTestCases: () => fetchData<any[]>('mockTestCases'),
+
+  // Reports Data
+  getTestExecutionData: () => fetchData<any>('testExecutionData'),
+  getTestDurationData: () => fetchData<any>('testDurationData'),
+  getTestResults: () => fetchData<any[]>('testResults'),
+
+  // Server Agent Data
+  getSystemResourcesData: () => fetchData<any>('systemResourcesData'),
+  getAgentStatusData: () => fetchData<any>('agentStatusData'),
+  getQueueStatusData: () => fetchData<any>('queueStatusData'),
+  getActiveAgentsData: () => fetchData<any[]>('activeAgentsData'),
+  getQueuedRequestsData: () => fetchData<any[]>('queuedRequestsData'),
+  getProcessedRequestsData: () => fetchData<any[]>('processedRequestsData'),
 };
 
 export default api;

@@ -565,6 +565,121 @@
     { "id": "4", "name": "Sarah Williams" },
     { "id": "5", "name": "Robert Brown" }
   ],
+  "testExecutionData": {
+    "options": {
+      "chart": {
+        "type": "bar",
+        "stacked": true,
+        "toolbar": {
+          "show": false
+        }
+      },
+      "plotOptions": {
+        "bar": {
+          "horizontal": false,
+          "columnWidth": "55%"
+        }
+      },
+      "xaxis": {
+        "categories": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+      },
+      "colors": ["#4caf50", "#f44336", "#ff9800"],
+      "legend": {
+        "position": "top"
+      },
+      "fill": {
+        "opacity": 1
+      }
+    },
+    "series": [
+      {
+        "name": "Passed",
+        "data": [44, 55, 57, 56, 61, 58, 63]
+      },
+      {
+        "name": "Failed",
+        "data": [13, 23, 20, 8, 13, 27, 15]
+      },
+      {
+        "name": "Skipped",
+        "data": [11, 17, 15, 15, 21, 14, 15]
+      }
+    ]
+  },
+  "testDurationData": {
+    "options": {
+      "chart": {
+        "type": "line",
+        "toolbar": {
+          "show": false
+        }
+      },
+      "stroke": {
+        "curve": "smooth"
+      },
+      "xaxis": {
+        "categories": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+      },
+      "colors": ["#2196f3"]
+    },
+    "series": [
+      {
+        "name": "Duration (minutes)",
+        "data": [30, 45, 35, 50, 49, 60, 70]
+      }
+    ]
+  },
+  "testResults": [
+    {
+      "id": "1",
+      "name": "Login Test Suite",
+      "total": 15,
+      "passed": 13,
+      "failed": 2,
+      "skipped": 0,
+      "duration": "10:25",
+      "lastRun": "2023-05-10 09:30"
+    },
+    {
+      "id": "2",
+      "name": "Payment Processing",
+      "total": 25,
+      "passed": 22,
+      "failed": 1,
+      "skipped": 2,
+      "duration": "15:40",
+      "lastRun": "2023-05-10 10:15"
+    },
+    {
+      "id": "3",
+      "name": "User Management",
+      "total": 18,
+      "passed": 16,
+      "failed": 0,
+      "skipped": 2,
+      "duration": "12:30",
+      "lastRun": "2023-05-10 11:00"
+    }
+  ],
+  "systemResourcesData": {
+    "lastUpdated": "27.04.2025 01:50:14",
+    "cpuUsage": 14.6,
+    "memoryUsage": 0.4
+  },
+  "agentStatusData": {
+    "total": 0,
+    "available": 0,
+    "busy": 0,
+    "limit": 1
+  },
+  "queueStatusData": {
+    "queued": 0,
+    "processing": 0,
+    "total": 0
+  },
+  "activeAgentsData": [],
+  "queuedRequestsData": [],
+  "processedRequestsData": [],
   "mockTestCases": [
     {
       "id": "tc-1",

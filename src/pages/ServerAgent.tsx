@@ -26,6 +26,7 @@ import {
   Tab,
   Stack,
   useTheme,
+  Alert,
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -36,28 +37,7 @@ import {
   Cancel as CancelIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
-
-// Mock data for system resources
-const systemResourcesData = {
-  lastUpdated: '27.04.2025 01:50:14',
-  cpuUsage: 14.6,
-  memoryUsage: 0.4,
-};
-
-// Mock data for agent status
-const agentStatusData = {
-  total: 0,
-  available: 0,
-  busy: 0,
-  limit: 1,
-};
-
-// Mock data for queue status
-const queueStatusData = {
-  queued: 0,
-  processing: 0,
-  total: 0,
-};
+import api from '../services/api';
 
 // Interface for active agents
 interface ActiveAgent {
@@ -90,32 +70,81 @@ interface ProcessedRequest {
   duration: string;
 }
 
-// Mock data for active agents
-const activeAgentsData: ActiveAgent[] = [];
-
-// Mock data for queued requests
-const queuedRequestsData: QueuedRequest[] = [];
-
-// Mock data for processed requests
-const processedRequestsData: ProcessedRequest[] = [];
-
 const ServerAgent: React.FC = () => {
   const theme = useTheme();
-  const [lastUpdated, setLastUpdated] = useState(systemResourcesData.lastUpdated);
-  const [cpuUsage, setCpuUsage] = useState(systemResourcesData.cpuUsage);
-  const [memoryUsage, setMemoryUsage] = useState(systemResourcesData.memoryUsage);
-  
-  const [agentStatus, setAgentStatus] = useState(agentStatusData);
-  const [queueStatus, setQueueStatus] = useState(queueStatusData);
-  
-  const [activeAgents, setActiveAgents] = useState<ActiveAgent[]>(activeAgentsData);
-  const [queuedRequests, setQueuedRequests] = useState<QueuedRequest[]>(queuedRequestsData);
-  const [processedRequests, setProcessedRequests] = useState<ProcessedRequest[]>(processedRequestsData);
-  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // System resources state
+  const [lastUpdated, setLastUpdated] = useState('');
+  const [cpuUsage, setCpuUsage] = useState(0);
+  const [memoryUsage, setMemoryUsage] = useState(0);
+
+  // Agent and queue status state
+  const [agentStatus, setAgentStatus] = useState({
+    total: 0,
+    available: 0,
+    busy: 0,
+    limit: 1
+  });
+
+  const [queueStatus, setQueueStatus] = useState({
+    queued: 0,
+    processing: 0,
+    total: 0
+  });
+
+  // Data lists state
+  const [activeAgents, setActiveAgents] = useState<ActiveAgent[]>([]);
+  const [queuedRequests, setQueuedRequests] = useState<QueuedRequest[]>([]);
+  const [processedRequests, setProcessedRequests] = useState<ProcessedRequest[]>([]);
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [
+          systemResources,
+          agentStatusData,
+          queueStatusData,
+          activeAgentsData,
+          queuedRequestsData,
+          processedRequestsData
+        ] = await Promise.all([
+          api.getSystemResourcesData(),
+          api.getAgentStatusData(),
+          api.getQueueStatusData(),
+          api.getActiveAgentsData(),
+          api.getQueuedRequestsData(),
+          api.getProcessedRequestsData()
+        ]);
+
+        // Update state with fetched data
+        setLastUpdated(systemResources.lastUpdated);
+        setCpuUsage(systemResources.cpuUsage);
+        setMemoryUsage(systemResources.memoryUsage);
+        setAgentStatus(agentStatusData);
+        setQueueStatus(queueStatusData);
+        setActiveAgents(activeAgentsData);
+        setQueuedRequests(queuedRequestsData);
+        setProcessedRequests(processedRequestsData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching server agent data:', err);
+        setError('Failed to load server agent data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const [processedPage, setProcessedPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tabValue, setTabValue] = useState(0);
-  
+
   // Simulate data refresh
   const refreshData = () => {
     // Update last updated time
@@ -131,36 +160,36 @@ const ServerAgent: React.FC = () => {
       second: '2-digit',
     });
     setLastUpdated(`${formattedDate} ${formattedTime}`);
-    
+
     // Simulate CPU and memory usage changes
     setCpuUsage(Math.round((Math.random() * 20 + 5) * 10) / 10);
     setMemoryUsage(Math.round(Math.random() * 10) / 10);
   };
-  
+
   // Auto refresh every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       refreshData();
     }, 10000);
-    
+
     return () => clearInterval(interval);
   }, []);
-  
+
   // Handle tab change
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
-  
+
   // Handle pagination
   const handleChangePage = (_event: unknown, newPage: number) => {
     setProcessedPage(newPage);
   };
-  
+
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setProcessedPage(0);
   };
-  
+
   // Helper functions
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -170,16 +199,16 @@ const ServerAgent: React.FC = () => {
       default: return 'default';
     }
   };
-  
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'available': return <CheckCircleIcon fontSize="small" />;
       case 'busy': return <WarningIcon fontSize="small" />;
       case 'offline': return <CancelIcon fontSize="small" />;
-      default: return null;
+      default: return <CheckCircleIcon fontSize="small" />;
     }
   };
-  
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'error';
@@ -188,7 +217,7 @@ const ServerAgent: React.FC = () => {
       default: return 'default';
     }
   };
-  
+
   return (
     <Box>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -204,8 +233,21 @@ const ServerAgent: React.FC = () => {
           </IconButton>
         </Box>
       </Box>
-      
-      <Grid container spacing={3}>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {!loading && (
+        <Grid container spacing={3}>
         {/* System Resources */}
         <Grid item xs={12} md={4}>
           <Card sx={{ height: '100%', borderRadius: 2 }}>
@@ -216,7 +258,7 @@ const ServerAgent: React.FC = () => {
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 Güncelleme: {lastUpdated}
               </Typography>
-              
+
               <Box sx={{ mt: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">CPU Kullanımı</Typography>
@@ -224,47 +266,47 @@ const ServerAgent: React.FC = () => {
                     {cpuUsage}%
                   </Typography>
                 </Box>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={cpuUsage} 
-                  sx={{ 
-                    height: 10, 
+                <LinearProgress
+                  variant="determinate"
+                  value={cpuUsage}
+                  sx={{
+                    height: 10,
                     borderRadius: 5,
                     mb: 3,
                     bgcolor: 'rgba(0,0,0,0.1)',
                     '& .MuiLinearProgress-bar': {
-                      bgcolor: cpuUsage > 80 ? theme.palette.error.main : 
-                              cpuUsage > 50 ? theme.palette.warning.main : 
+                      bgcolor: cpuUsage > 80 ? theme.palette.error.main :
+                              cpuUsage > 50 ? theme.palette.warning.main :
                               theme.palette.success.main
                     }
-                  }} 
+                  }}
                 />
-                
+
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">Bellek Kullanımı</Typography>
                   <Typography variant="body2" fontWeight="medium" color={memoryUsage > 80 ? 'error.main' : memoryUsage > 50 ? 'warning.main' : 'success.main'}>
                     {memoryUsage}%
                   </Typography>
                 </Box>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={memoryUsage} 
-                  sx={{ 
-                    height: 10, 
+                <LinearProgress
+                  variant="determinate"
+                  value={memoryUsage}
+                  sx={{
+                    height: 10,
                     borderRadius: 5,
                     bgcolor: 'rgba(0,0,0,0.1)',
                     '& .MuiLinearProgress-bar': {
-                      bgcolor: memoryUsage > 80 ? theme.palette.error.main : 
-                              memoryUsage > 50 ? theme.palette.warning.main : 
+                      bgcolor: memoryUsage > 80 ? theme.palette.error.main :
+                              memoryUsage > 50 ? theme.palette.warning.main :
                               theme.palette.success.main
                     }
-                  }} 
+                  }}
                 />
               </Box>
             </CardContent>
           </Card>
         </Grid>
-        
+
         {/* Agent Status */}
         <Grid item xs={12} md={4}>
           <Card sx={{ height: '100%', borderRadius: 2 }}>
@@ -272,7 +314,7 @@ const ServerAgent: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Agent Durumu
               </Typography>
-              
+
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid item xs={6}>
                   <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'primary.light', color: 'primary.contrastText' }}>
@@ -302,7 +344,7 @@ const ServerAgent: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         {/* Queue Status */}
         <Grid item xs={12} md={4}>
           <Card sx={{ height: '100%', borderRadius: 2 }}>
@@ -310,7 +352,7 @@ const ServerAgent: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Kuyruk Durumu
               </Typography>
-              
+
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid item xs={4}>
                   <Paper sx={{ p: 2, textAlign: 'center', bgcolor: 'warning.light', color: 'warning.contrastText' }}>
@@ -334,7 +376,7 @@ const ServerAgent: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
-        
+
         {/* Tabs for Agents and Requests */}
         <Grid item xs={12}>
           <Card sx={{ borderRadius: 2 }}>
@@ -344,23 +386,23 @@ const ServerAgent: React.FC = () => {
               variant="fullWidth"
               sx={{ borderBottom: 1, borderColor: 'divider' }}
             >
-              <Tab 
-                icon={<ComputerIcon />} 
-                label="Aktif Agent'lar" 
+              <Tab
+                icon={<ComputerIcon />}
+                label="Aktif Agent'lar"
                 iconPosition="start"
               />
-              <Tab 
-                icon={<ListIcon />} 
-                label="Kuyrukta Bekleyen İstekler" 
+              <Tab
+                icon={<ListIcon />}
+                label="Kuyrukta Bekleyen İstekler"
                 iconPosition="start"
               />
-              <Tab 
-                icon={<HourglassTopIcon />} 
-                label="İşlenen İstekler" 
+              <Tab
+                icon={<HourglassTopIcon />}
+                label="İşlenen İstekler"
                 iconPosition="start"
               />
             </Tabs>
-            
+
             <Box sx={{ p: 2 }}>
               {/* Active Agents Tab */}
               {tabValue === 0 && (
@@ -383,7 +425,7 @@ const ServerAgent: React.FC = () => {
                             <TableCell>{agent.id}</TableCell>
                             <TableCell>{agent.browser}</TableCell>
                             <TableCell>
-                              <Chip 
+                              <Chip
                                 icon={getStatusIcon(agent.status)}
                                 label={agent.status === 'available' ? 'Müsait' : agent.status === 'busy' ? 'Meşgul' : 'Çevrimdışı'}
                                 size="small"
@@ -408,7 +450,7 @@ const ServerAgent: React.FC = () => {
                   </Table>
                 </TableContainer>
               )}
-              
+
               {/* Queued Requests Tab */}
               {tabValue === 1 && (
                 <TableContainer>
@@ -432,7 +474,7 @@ const ServerAgent: React.FC = () => {
                             <TableCell>{request.testName}</TableCell>
                             <TableCell>{request.browser}</TableCell>
                             <TableCell>
-                              <Chip 
+                              <Chip
                                 label={request.priority === 'high' ? 'Yüksek' : request.priority === 'medium' ? 'Orta' : 'Düşük'}
                                 size="small"
                                 color={getPriorityColor(request.priority)}
@@ -456,7 +498,7 @@ const ServerAgent: React.FC = () => {
                   </Table>
                 </TableContainer>
               )}
-              
+
               {/* Processed Requests Tab */}
               {tabValue === 2 && (
                 <>
@@ -476,7 +518,7 @@ const ServerAgent: React.FC = () => {
                       </Select>
                     </FormControl>
                   </Box>
-                  
+
                   <TableContainer>
                     <Table>
                       <TableHead>
@@ -515,7 +557,7 @@ const ServerAgent: React.FC = () => {
                       </TableBody>
                     </Table>
                   </TableContainer>
-                  
+
                   <TablePagination
                     component="div"
                     count={processedRequests.length}
@@ -532,6 +574,7 @@ const ServerAgent: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
+      )}
     </Box>
   );
 };

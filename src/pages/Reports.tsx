@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -19,6 +19,8 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   BarChart as ChartIcon,
@@ -28,12 +30,54 @@ import {
 } from '@mui/icons-material';
 import Chart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import api from '../services/api';
 
 const Reports: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  // API data state
+  const [testExecutionData, setTestExecutionData] = useState<any>({
+    options: {} as ApexOptions,
+    series: []
+  });
+
+  const [testDurationData, setTestDurationData] = useState<any>({
+    options: {} as ApexOptions,
+    series: []
+  });
+
+  const [testResults, setTestResults] = useState<any[]>([]);
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [executionData, durationData, results] = await Promise.all([
+          api.getTestExecutionData(),
+          api.getTestDurationData(),
+          api.getTestResults()
+        ]);
+
+        setTestExecutionData(executionData);
+        setTestDurationData(durationData);
+        setTestResults(results);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching reports data:', err);
+        setError('Failed to load reports data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -44,107 +88,6 @@ const Reports: React.FC = () => {
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
   };
-
-  // Mock data for charts
-  const testExecutionData = {
-    options: {
-      chart: {
-        type: 'bar',
-        stacked: true,
-        toolbar: {
-          show: false,
-        },
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: '55%',
-        },
-      },
-      xaxis: {
-        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      },
-      colors: ['#4caf50', '#f44336', '#ff9800'],
-      legend: {
-        position: 'top',
-      },
-      fill: {
-        opacity: 1,
-      },
-    } as ApexOptions,
-    series: [
-      {
-        name: 'Passed',
-        data: [44, 55, 57, 56, 61, 58, 63],
-      },
-      {
-        name: 'Failed',
-        data: [13, 23, 20, 8, 13, 27, 15],
-      },
-      {
-        name: 'Skipped',
-        data: [11, 17, 15, 15, 21, 14, 15],
-      },
-    ],
-  };
-
-  const testDurationData = {
-    options: {
-      chart: {
-        type: 'line',
-        toolbar: {
-          show: false,
-        },
-      },
-      stroke: {
-        curve: 'smooth',
-      },
-      xaxis: {
-        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      },
-      colors: ['#2196f3'],
-    } as ApexOptions,
-    series: [
-      {
-        name: 'Duration (minutes)',
-        data: [30, 45, 35, 50, 49, 60, 70],
-      },
-    ],
-  };
-
-  // Mock data for test results table
-  const testResults = [
-    {
-      id: '1',
-      name: 'Login Test Suite',
-      total: 15,
-      passed: 13,
-      failed: 2,
-      skipped: 0,
-      duration: '10:25',
-      lastRun: '2023-05-10 09:30',
-    },
-    {
-      id: '2',
-      name: 'Payment Processing',
-      total: 25,
-      passed: 22,
-      failed: 1,
-      skipped: 2,
-      duration: '15:40',
-      lastRun: '2023-05-10 10:15',
-    },
-    {
-      id: '3',
-      name: 'User Management',
-      total: 18,
-      passed: 16,
-      failed: 0,
-      skipped: 2,
-      duration: '12:30',
-      lastRun: '2023-05-10 11:00',
-    },
-  ];
 
   return (
     <Box>
@@ -174,8 +117,20 @@ const Reports: React.FC = () => {
         </Box>
       </Box>
 
-      <Tabs 
-        value={tabValue} 
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      <Tabs
+        value={tabValue}
         onChange={handleTabChange}
         sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
       >
@@ -185,7 +140,7 @@ const Reports: React.FC = () => {
         <Tab label="Performance" />
       </Tabs>
 
-      {tabValue === 0 && (
+      {!loading && tabValue === 0 && (
         <Grid container spacing={3}>
           {/* Summary Cards */}
           <Grid item xs={12} md={3}>
@@ -313,21 +268,21 @@ const Reports: React.FC = () => {
                           <TableCell>{result.name}</TableCell>
                           <TableCell align="right">{result.total}</TableCell>
                           <TableCell align="right">
-                            <Chip 
+                            <Chip
                               label={result.passed}
                               size="small"
                               color="success"
                             />
                           </TableCell>
                           <TableCell align="right">
-                            <Chip 
+                            <Chip
                               label={result.failed}
                               size="small"
                               color="error"
                             />
                           </TableCell>
                           <TableCell align="right">
-                            <Chip 
+                            <Chip
                               label={result.skipped}
                               size="small"
                               color="warning"
