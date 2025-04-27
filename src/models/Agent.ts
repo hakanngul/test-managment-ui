@@ -1,3 +1,5 @@
+import { BrowserType } from "./enums/TestCaseEnums";
+
 // Agent status
 export enum AgentStatus {
   AVAILABLE = 'available',
@@ -5,14 +7,6 @@ export enum AgentStatus {
   OFFLINE = 'offline'
 }
 
-// Browser type
-export enum BrowserType {
-  CHROME = 'chrome',
-  FIREFOX = 'firefox',
-  SAFARI = 'safari',
-  EDGE = 'edge',
-  IE = 'ie'
-}
 
 // Agent model
 export interface Agent {
