@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -20,6 +20,8 @@ import {
   TablePagination,
   Paper,
   Tooltip,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -29,57 +31,15 @@ import {
   ArrowDropDown as ArrowDropDownIcon,
 } from '@mui/icons-material';
 import { TestCase } from '../types';
-
-// Mock test case data
-const MOCK_TEST_CASES: TestCase[] = Array.from({ length: 50 }).map((_, index) => ({
-  id: `tc-${index + 1}`,
-  title: `Test Case ${index + 1}: ${[
-    'User Login',
-    'Product Search',
-    'Checkout Process',
-    'Account Creation',
-    'Password Reset',
-    'Order History',
-    'Payment Processing',
-    'Item Filtering',
-    'Admin Dashboard',
-    'User Profile',
-  ][index % 10]}`,
-  description: `Description for test case ${index + 1}. This test verifies ${[
-    'user authentication functionality',
-    'product search results accuracy',
-    'the complete checkout process',
-    'new account creation workflow',
-    'the password reset functionality',
-    'customer order history display',
-    'credit card transaction processing',
-    'product filtering and sorting',
-    'admin dashboard functionality',
-    'user profile update process',
-  ][index % 10]}.`,
-  status: ['active', 'draft', 'archived'][Math.floor(Math.random() * 3)] as 'active' | 'draft' | 'archived',
-  priority: ['low', 'medium', 'high', 'critical'][Math.floor(Math.random() * 4)] as 'low' | 'medium' | 'high' | 'critical',
-  createdBy: '1',
-  createdAt: new Date(Date.now() - Math.floor(Math.random() * 90) * 24 * 60 * 60 * 1000).toISOString(),
-  updatedAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString(),
-  steps: Array.from({ length: Math.floor(Math.random() * 5) + 1 }).map((_, i) => ({
-    id: `step-${index}-${i}`,
-    order: i + 1,
-    description: `Step ${i + 1} description`,
-    expectedResult: `Expected result for step ${i + 1}`,
-    type: Math.random() > 0.5 ? 'manual' : 'automated',
-  })),
-  tags: Array.from({ length: Math.floor(Math.random() * 3) + 1 }).map(
-    (_, i) => ['regression', 'smoke', 'integration', 'api', 'ui', 'performance', 'security'][Math.floor(Math.random() * 7)]
-  ),
-  projectId: '1',
-}));
+import api from '../services/api';
 
 const TestCases: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(null);
-  const [testCases, setTestCases] = useState<TestCase[]>(MOCK_TEST_CASES);
+  const [testCases, setTestCases] = useState<TestCase[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
@@ -87,6 +47,25 @@ const TestCases: React.FC = () => {
   const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [sortBy, setSortBy] = useState<string>('updatedAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  // Fetch test cases from API
+  useEffect(() => {
+    const fetchTestCases = async () => {
+      try {
+        setLoading(true);
+        const data = await api.getMockTestCases();
+        setTestCases(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching test cases:', err);
+        setError('Failed to load test cases. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestCases();
+  }, []);
 
   const handleFilterClick = (event: React.MouseEvent<HTMLElement>) => {
     setFilterAnchorEl(event.currentTarget);
@@ -142,15 +121,15 @@ const TestCases: React.FC = () => {
     .filter((testCase) => {
       const matchesSearch = testCase.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           testCase.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       const matchesStatus = selectedStatusFilter === 'all' || testCase.status === selectedStatusFilter;
       const matchesPriority = selectedPriorityFilter === 'all' || testCase.priority === selectedPriorityFilter;
-      
+
       return matchesSearch && matchesStatus && matchesPriority;
     })
     .sort((a, b) => {
       if (sortBy === 'title') {
-        return sortDirection === 'asc' 
+        return sortDirection === 'asc'
           ? a.title.localeCompare(b.title)
           : b.title.localeCompare(a.title);
       } else if (sortBy === 'priority') {
@@ -213,6 +192,38 @@ const TestCases: React.FC = () => {
         </Button>
       </Box>
 
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {!loading && testCases.length === 0 && !error && (
+        <Box sx={{ textAlign: 'center', my: 4 }}>
+          <Typography variant="h6" color="text.secondary">
+            No test cases found
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Create your first test case to get started
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/test-cases/new')}
+            sx={{ mt: 2 }}
+          >
+            New Test Case
+          </Button>
+        </Box>
+      )}
+
       <Card sx={{ mb: 3, p: 2, borderRadius: 2 }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
           <TextField
@@ -230,7 +241,7 @@ const TestCases: React.FC = () => {
               ),
             }}
           />
-          
+
           <Button
             variant="outlined"
             startIcon={<FilterIcon />}
@@ -239,7 +250,7 @@ const TestCases: React.FC = () => {
           >
             Filter
           </Button>
-          
+
           <Button
             variant="outlined"
             endIcon={<ArrowDropDownIcon />}
@@ -263,7 +274,7 @@ const TestCases: React.FC = () => {
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
             {['all', 'active', 'draft', 'archived'].map((status) => (
-              <Chip 
+              <Chip
                 key={status}
                 label={status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
                 onClick={() => handleStatusFilterChange(status)}
@@ -272,13 +283,13 @@ const TestCases: React.FC = () => {
               />
             ))}
           </Box>
-          
+
           <Typography variant="subtitle2" gutterBottom>
             Priority
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             {['all', 'critical', 'high', 'medium', 'low'].map((priority) => (
-              <Chip 
+              <Chip
                 key={priority}
                 label={priority === 'all' ? 'All' : priority.charAt(0).toUpperCase() + priority.slice(1)}
                 onClick={() => handlePriorityFilterChange(priority)}
@@ -310,22 +321,23 @@ const TestCases: React.FC = () => {
         </MenuItem>
       </Menu>
 
-      <Paper sx={{ width: '100%', borderRadius: 2 }}>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Test Case</TableCell>
-                <TableCell>Priority</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Last Updated</TableCell>
-                <TableCell>Tags</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paginatedTestCases.map((testCase) => (
-                <TableRow 
+      {!loading && testCases.length > 0 && (
+        <Paper sx={{ width: '100%', borderRadius: 2 }}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Test Case</TableCell>
+                  <TableCell>Priority</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Last Updated</TableCell>
+                  <TableCell>Tags</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {paginatedTestCases.map((testCase) => (
+                <TableRow
                   key={testCase.id}
                   hover
                   onClick={() => handleViewTestCase(testCase.id)}
@@ -341,7 +353,7 @@ const TestCases: React.FC = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Chip 
+                    <Chip
                       label={testCase.priority.charAt(0).toUpperCase() + testCase.priority.slice(1)}
                       size="small"
                       color={getPriorityColor(testCase.priority)}
@@ -349,7 +361,7 @@ const TestCases: React.FC = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <Chip 
+                    <Chip
                       label={testCase.status.charAt(0).toUpperCase() + testCase.status.slice(1)}
                       size="small"
                       color={getStatusColor(testCase.status)}
@@ -403,6 +415,7 @@ const TestCases: React.FC = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      )}
     </Box>
   );
 };

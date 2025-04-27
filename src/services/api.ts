@@ -106,6 +106,8 @@ export const api = {
   // Test Case Form Data
   getAvailableTags: () => fetchData<string[]>('availableTags'),
   getAvailableActions: () => fetchData<string[]>('availableActions'),
+  getTeamMembers: () => fetchData<any[]>('teamMembers'),
+  getMockTestCases: () => fetchData<any[]>('mockTestCases'),
 };
 
 export default api;
