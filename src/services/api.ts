@@ -1,5 +1,5 @@
 // API base URL
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 // Generic fetch function with error handling
 async function fetchData<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

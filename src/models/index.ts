@@ -1,0 +1,27 @@
+// Collection names
+export const COLLECTIONS = {
+  USERS: 'users',
+  PROJECTS: 'projects',
+  TEST_CASES: 'testCases',
+  TEST_SUITES: 'testSuites',
+  TEST_RUNS: 'testRuns',
+  SERVER_AGENT: 'serverAgent',
+  NOTIFICATIONS: 'notifications',
+  TEST_CATEGORIES: 'testCategories',
+  TEST_PRIORITIES: 'testPriorities',
+  TEST_STATUSES: 'testStatuses',
+  TEST_ENVIRONMENTS: 'testEnvironments',
+  AVAILABLE_ACTIONS: 'availableActions',
+  TEST_FEATURES: 'testFeatures',
+  EXECUTION_TIME_DATA: 'executionTimeData',
+  TEST_COUNTS_BY_DAY: 'testCountsByDay',
+  TEST_RESULTS: 'testResults',
+  SYSTEM_RESOURCES_DATA: 'systemResourcesData',
+  AGENT_STATUS_DATA: 'agentStatusData',
+  QUEUE_STATUS_DATA: 'queueStatusData',
+  ACTIVE_AGENTS_DATA: 'activeAgentsData',
+  QUEUED_REQUESTS_DATA: 'queuedRequestsData',
+  PROCESSED_REQUESTS_DATA: 'processedRequestsData',
+  DETAILED_TEST_RESULTS: 'detailedTestResults',
+  PERFORMANCE_METRICS: 'performanceMetrics'
+};
