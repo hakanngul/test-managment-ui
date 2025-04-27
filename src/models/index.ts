@@ -50,6 +50,7 @@ export * from './enums/TestRunEnums';
 export * from './enums/AgentEnums';
 export * from './enums/TestResultEnums';
 export * from './enums/ProcessedRequestEnums';
+export * from './enums/QueuedRequestEnums';
 
 // Export all interfaces
 export * from './interfaces/TestCase';
@@ -61,6 +62,7 @@ export * from './interfaces/TestResult';
 export * from './interfaces/TestStepResult';
 export * from './interfaces/TestReportData';
 export * from './interfaces/ProcessedRequest';
+export * from './interfaces/QueuedRequest';
 
 // Export all utils
 export * from './utils/TestCaseUtils';
@@ -115,3 +117,17 @@ export {
   createDefaultProcessedRequestResources,
   createDefaultProcessedRequestLogs
 } from './utils/ProcessedRequestUtils';
+
+// Export QueuedRequest utils with explicit re-exports for conflicting functions
+export {
+  toQueuedRequest,
+  fromQueuedRequest,
+  calculateWaitTimeMs,
+  formatWaitTime,
+  calculateEstimatedStartTime,
+  createDefaultRequestEnvironment,
+  createDefaultRequestTiming,
+  createDefaultRequestRetryConfig,
+  createDefaultQueueStatusSummary,
+  updateQueueStatusSummary
+} from './utils/QueuedRequestUtils';
