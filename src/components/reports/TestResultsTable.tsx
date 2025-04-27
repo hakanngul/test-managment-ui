@@ -16,21 +16,11 @@ import {
   MenuItem
 } from '@mui/material';
 import { MoreVert as MoreIcon } from '@mui/icons-material';
-
-interface TestResult {
-  id: string;
-  name: string;
-  total: number;
-  passed: number;
-  failed: number;
-  skipped: number;
-  duration: string;
-  lastRun: string;
-}
+import { TestResultSummary } from '../../models';
 
 interface TestResultsTableProps {
   title: string;
-  results: TestResult[];
+  results: TestResultSummary[];
   onViewAll?: () => void;
   onViewDetails?: (id: string) => void;
   onDownload?: (id: string) => void;
@@ -132,7 +122,7 @@ const TestResultsTable: React.FC<TestResultsTableProps> = ({
                   />
                 </TableCell>
                 <TableCell>{result.duration}</TableCell>
-                <TableCell>{result.lastRun}</TableCell>
+                <TableCell>{result.lastRun.toLocaleString('tr-TR')}</TableCell>
                 <TableCell align="right">
                   <IconButton
                     size="small"

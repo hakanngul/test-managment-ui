@@ -10,6 +10,16 @@ import {
   CoverageTab,
   PerformanceTab
 } from '../components/reports';
+import {
+  TestResultSummary,
+  TestExecutionTrendData,
+  TestDurationTrendData,
+  TestReportSummary,
+  toTestResultSummary,
+  toTestExecutionTrendData,
+  toTestDurationTrendData,
+  generateTestReportSummary
+} from '../models';
 
 const Reports: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -17,17 +27,30 @@ const Reports: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // API data state
-  const [testExecutionData, setTestExecutionData] = useState<any>({
+  const [testExecutionData, setTestExecutionData] = useState<TestExecutionTrendData>({
     options: {},
     series: []
   });
 
-  const [testDurationData, setTestDurationData] = useState<any>({
+  const [testDurationData, setTestDurationData] = useState<TestDurationTrendData>({
     options: {},
     series: []
   });
 
-  const [testResults, setTestResults] = useState<any[]>([]);
+  const [testResults, setTestResults] = useState<TestResultSummary[]>([]);
+
+  // Test report summary
+  const [testReportSummary, setTestReportSummary] = useState<TestReportSummary>({
+    totalTests: 0,
+    passRate: 0,
+    averageDuration: '0m 0s',
+    failedTests: 0,
+    lastUpdated: new Date(),
+    trend: {
+      passRate: 0,
+      change: 0
+    }
+  });
 
   // Additional data for new tabs
   const [detailedResults, setDetailedResults] = useState<any[]>([]);
@@ -119,18 +142,27 @@ const Reports: React.FC = () => {
           api.getBrowserComparisonData()
         ]);
 
-        // Update state with fetched data
-        // For array data, ensure we have an array
-        setTestResults(Array.isArray(results) ? results : []);
+        // Convert and update test results
+        const formattedResults = Array.isArray(results)
+          ? results.map(result => toTestResultSummary(result))
+          : [];
+        setTestResults(formattedResults);
+
+        // Generate test report summary
+        const reportSummary = generateTestReportSummary(formattedResults);
+        setTestReportSummary(reportSummary);
+
+        // Convert and update test execution data
+        const formattedExecutionData = toTestExecutionTrendData(executionData);
+        setTestExecutionData(formattedExecutionData);
+
+        // Convert and update test duration data
+        const formattedDurationData = toTestDurationTrendData(durationData);
+        setTestDurationData(formattedDurationData);
+
+        // Update other data
         setDetailedResults(Array.isArray(detailedResultsData) ? detailedResultsData : []);
         setPerformanceMetrics(Array.isArray(performance) ? performance : []);
-
-        // For object data with options and series, ensure we have valid structure
-        setTestExecutionData(executionData && executionData.options && executionData.series ?
-          executionData : { options: {}, series: [] });
-
-        setTestDurationData(durationData && durationData.options && durationData.series ?
-          durationData : { options: {}, series: [] });
 
         setStatusDistributionData(statusDistribution && statusDistribution.options && statusDistribution.series ?
           statusDistribution : { options: {}, series: [] });
@@ -246,6 +278,7 @@ const Reports: React.FC = () => {
               testExecutionData={testExecutionData}
               testDurationData={testDurationData}
               testResults={testResults}
+              testReportSummary={testReportSummary}
               onViewAllResults={handleViewAllResults}
               onViewTestDetails={handleViewTestDetails}
               onDownloadTestReport={handleDownloadTestReport}

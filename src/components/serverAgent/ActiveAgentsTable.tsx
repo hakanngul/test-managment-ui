@@ -1,32 +1,23 @@
 import React from 'react';
-import { 
-  TableContainer, 
-  Table, 
-  TableHead, 
-  TableBody, 
-  TableRow, 
-  TableCell, 
-  Typography, 
-  Chip 
+import {
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Typography,
+  Chip
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
-
-// Interface for active agents
-interface ActiveAgent {
-  id: string;
-  browser: string;
-  status: 'available' | 'busy' | 'offline';
-  created: string;
-  lastActivity: string;
-  currentRequest: string | null;
-}
+import { Agent, AgentStatus } from '../../models';
 
 interface ActiveAgentsTableProps {
-  agents: ActiveAgent[];
+  agents: Agent[];
 }
 
 const ActiveAgentsTable: React.FC<ActiveAgentsTableProps> = ({ agents }) => {
@@ -76,8 +67,8 @@ const ActiveAgentsTable: React.FC<ActiveAgentsTableProps> = ({ agents }) => {
                     color={getStatusColor(agent.status)}
                   />
                 </TableCell>
-                <TableCell>{agent.created}</TableCell>
-                <TableCell>{agent.lastActivity}</TableCell>
+                <TableCell>{agent.created.toLocaleString('tr-TR')}</TableCell>
+                <TableCell>{agent.lastActivity.toLocaleString('tr-TR')}</TableCell>
                 <TableCell>{agent.currentRequest || '-'}</TableCell>
               </TableRow>
             ))

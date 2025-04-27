@@ -155,6 +155,37 @@ app.get('/api/executionTimeData', async (req, res) => {
   }
 });
 
+// Special endpoint for availableActions
+app.get('/api/availableActions', async (req, res) => {
+  try {
+    const db = await connectToMongoDB();
+
+    // Get available actions from MongoDB
+    const data = await db.collection('availableActions').find({}).toArray();
+
+    if (data && data.length > 0) {
+      // If data is stored as objects with 'value' property
+      if ('value' in data[0]) {
+        return res.json(data.map(item => item.value));
+      }
+      return res.json(data);
+    }
+
+    // Return default actions if not found in database
+    return res.json([
+      "click", "doubleClick", "rightClick", "type", "clear", "select", "check", "uncheck",
+      "navigate", "back", "forward", "refresh",
+      "wait", "waitForElement", "waitForNavigation",
+      "assertText", "assertElementPresent", "assertElementNotPresent", "assertTitle", "assertUrl", "assertValue", "assertChecked", "assertNotChecked",
+      "hover", "dragAndDrop", "uploadFile", "pressKey", "focus", "blur", "scrollTo", "executeScript",
+      "custom", "screenshot", "comment"
+    ]);
+  } catch (error) {
+    console.error('Error getting available actions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Special endpoint for Server Agent data
 app.get('/api/systemResources', async (req, res) => {
   try {

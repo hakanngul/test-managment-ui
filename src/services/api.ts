@@ -129,15 +129,118 @@ export const api = {
   getTestCountsByDay: () => fetchData<any[]>('testCountsByDay'),
 
   // Test Case Form Data
-  getAvailableTags: () => fetchData<string[]>('availableTags'),
-  getAvailableActions: () => fetchData<string[]>('availableActions'),
+  getAvailableTags: () => fetchData<string[]>('availableTags').catch(() => [
+    'regression', 'smoke', 'integration', 'api', 'ui', 'performance', 'security',
+    'functional', 'usability', 'accessibility', 'compatibility', 'load', 'stress'
+  ]),
+  getAvailableActions: () => fetchData<string[]>('availableActions').catch(() => [
+    'click', 'type', 'wait', 'select', 'assert', 'navigate', 'hover', 'scroll', 'drag', 'upload', 'custom'
+  ]),
   getTeamMembers: () => fetchData<any[]>('teamMembers'),
   getMockTestCases: () => fetchData<any[]>('mockTestCases'),
 
   // Reports Data
-  getTestExecutionData: () => fetchData<any>('testExecutionData'),
-  getTestDurationData: () => fetchData<any>('testDurationData'),
-  getTestResults: () => fetchData<any[]>('testResults'),
+  getTestExecutionData: () => fetchData<any>('testExecutionData').catch(() => ({
+    options: {
+      chart: {
+        type: 'bar',
+        height: 350,
+        stacked: true,
+        toolbar: {
+          show: true
+        }
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false
+        }
+      },
+      xaxis: {
+        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      legend: {
+        position: 'right',
+        offsetY: 40
+      },
+      fill: {
+        opacity: 1
+      }
+    },
+    series: [
+      {
+        name: 'Passed',
+        data: [44, 55, 41, 67, 22, 43, 36]
+      },
+      {
+        name: 'Failed',
+        data: [13, 23, 20, 8, 13, 27, 33]
+      },
+      {
+        name: 'Skipped',
+        data: [11, 17, 15, 15, 21, 14, 15]
+      }
+    ]
+  })),
+  getTestDurationData: () => fetchData<any>('testDurationData').catch(() => ({
+    options: {
+      chart: {
+        type: 'line',
+        height: 350,
+        toolbar: {
+          show: true
+        }
+      },
+      xaxis: {
+        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yaxis: {
+        title: {
+          text: 'Duration (minutes)'
+        }
+      }
+    },
+    series: [
+      {
+        name: 'Duration',
+        data: [30, 40, 35, 50, 49, 60, 70]
+      }
+    ]
+  })),
+  getTestResults: () => fetchData<any[]>('testResults').catch(() => [
+    {
+      id: '1',
+      name: 'Login Test Suite',
+      total: 24,
+      passed: 20,
+      failed: 3,
+      skipped: 1,
+      duration: '45m 30s',
+      durationMs: 2730000,
+      lastRun: new Date().toISOString()
+    },
+    {
+      id: '2',
+      name: 'User Profile Tests',
+      total: 15,
+      passed: 12,
+      failed: 2,
+      skipped: 1,
+      duration: '30m 15s',
+      durationMs: 1815000,
+      lastRun: new Date().toISOString()
+    },
+    {
+      id: '3',
+      name: 'Payment Processing',
+      total: 18,
+      passed: 16,
+      failed: 1,
+      skipped: 1,
+      duration: '25m 45s',
+      durationMs: 1545000,
+      lastRun: new Date().toISOString()
+    }
+  ]),
   getDetailedTestResults: () => fetchData<any[]>('detailedTestResults'),
   getStatusDistributionData: () => fetchData<any>('statusDistributionData'),
   getDurationByStatusData: () => fetchData<any>('durationByStatusData'),

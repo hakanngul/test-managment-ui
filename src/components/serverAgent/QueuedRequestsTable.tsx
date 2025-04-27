@@ -1,25 +1,15 @@
 import React from 'react';
-import { 
-  TableContainer, 
-  Table, 
-  TableHead, 
-  TableBody, 
-  TableRow, 
-  TableCell, 
-  Typography, 
-  Chip 
+import {
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Typography,
+  Chip
 } from '@mui/material';
-
-// Interface for queued requests
-interface QueuedRequest {
-  id: string;
-  testName: string;
-  browser: string;
-  priority: 'high' | 'medium' | 'low';
-  category: string;
-  queuedAt: string;
-  waitTime: string;
-}
+import { QueuedRequest, RequestPriority } from '../../models';
 
 interface QueuedRequestsTableProps {
   requests: QueuedRequest[];
@@ -65,7 +55,7 @@ const QueuedRequestsTable: React.FC<QueuedRequestsTableProps> = ({ requests }) =
                   />
                 </TableCell>
                 <TableCell>{request.category}</TableCell>
-                <TableCell>{request.queuedAt}</TableCell>
+                <TableCell>{request.queuedAt.toLocaleString('tr-TR')}</TableCell>
                 <TableCell>{request.waitTime}</TableCell>
               </TableRow>
             ))

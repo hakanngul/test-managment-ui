@@ -10,37 +10,16 @@ import {
   LoadingIndicator,
   ErrorDisplay
 } from '../components/serverAgent';
-
-// Interface for active agents
-interface ActiveAgent {
-  id: string;
-  browser: string;
-  status: 'available' | 'busy' | 'offline';
-  created: string;
-  lastActivity: string;
-  currentRequest: string | null;
-}
-
-// Interface for queued requests
-interface QueuedRequest {
-  id: string;
-  testName: string;
-  browser: string;
-  priority: 'high' | 'medium' | 'low';
-  category: string;
-  queuedAt: string;
-  waitTime: string;
-}
-
-// Interface for processed requests
-interface ProcessedRequest {
-  id: string;
-  testName: string;
-  browser: string;
-  agentId: string;
-  startTime: string;
-  duration: string;
-}
+import {
+  Agent,
+  QueuedRequest,
+  ProcessedRequest,
+  AgentStatusSummary,
+  QueueStatusSummary,
+  toAgent,
+  toQueuedRequest,
+  toProcessedRequest
+} from '../models';
 
 const ServerAgent: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -52,21 +31,21 @@ const ServerAgent: React.FC = () => {
   const [memoryUsage, setMemoryUsage] = useState(0);
 
   // Agent and queue status state
-  const [agentStatus, setAgentStatus] = useState({
+  const [agentStatus, setAgentStatus] = useState<AgentStatusSummary>({
     total: 0,
     available: 0,
     busy: 0,
     limit: 1
   });
 
-  const [queueStatus, setQueueStatus] = useState({
+  const [queueStatus, setQueueStatus] = useState<QueueStatusSummary>({
     queued: 0,
     processing: 0,
     total: 0
   });
 
   // Data lists state
-  const [activeAgents, setActiveAgents] = useState<ActiveAgent[]>([]);
+  const [activeAgents, setActiveAgents] = useState<Agent[]>([]);
   const [queuedRequests, setQueuedRequests] = useState<QueuedRequest[]>([]);
   const [processedRequests, setProcessedRequests] = useState<ProcessedRequest[]>([]);
 
@@ -91,7 +70,7 @@ const ServerAgent: React.FC = () => {
           api.getProcessedRequestsData()
         ]);
 
-        // Update state with fetched data, using default values if data is missing
+        // Update system resources state
         setLastUpdated(systemResources?.lastUpdated || new Date().toLocaleString('tr-TR'));
         setCpuUsage(systemResources?.cpuUsage || 0);
         setMemoryUsage(systemResources?.memoryUsage || 0);
@@ -111,10 +90,46 @@ const ServerAgent: React.FC = () => {
           total: queueStatusData?.total || 0
         });
 
-        // Set data lists with defaults if needed
-        setActiveAgents(activeAgentsData || []);
-        setQueuedRequests(queuedRequestsData || []);
-        setProcessedRequests(processedRequestsData || []);
+        // Convert and set active agents
+        const formattedAgents = Array.isArray(activeAgentsData)
+          ? activeAgentsData.map(agent => {
+              // Convert string dates to Date objects for the model
+              const agentWithDateObjects = {
+                ...agent,
+                created: agent.created || new Date().toISOString(),
+                lastActivity: agent.lastActivity || new Date().toISOString()
+              };
+              return toAgent(agentWithDateObjects);
+            })
+          : [];
+        setActiveAgents(formattedAgents);
+
+        // Convert and set queued requests
+        const formattedQueuedRequests = Array.isArray(queuedRequestsData)
+          ? queuedRequestsData.map(request => {
+              // Convert string dates to Date objects for the model
+              const requestWithDateObjects = {
+                ...request,
+                queuedAt: request.queuedAt || new Date().toISOString()
+              };
+              return toQueuedRequest(requestWithDateObjects);
+            })
+          : [];
+        setQueuedRequests(formattedQueuedRequests);
+
+        // Convert and set processed requests
+        const formattedProcessedRequests = Array.isArray(processedRequestsData)
+          ? processedRequestsData.map(request => {
+              // Convert string dates to Date objects for the model
+              const requestWithDateObjects = {
+                ...request,
+                startTime: request.startTime || new Date().toISOString(),
+                endTime: request.endTime
+              };
+              return toProcessedRequest(requestWithDateObjects);
+            })
+          : [];
+        setProcessedRequests(formattedProcessedRequests);
         setError(null);
       } catch (err) {
         console.error('Error fetching server agent data:', err);

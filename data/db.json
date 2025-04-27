@@ -48,6 +48,13 @@
   "testPriorities": ["Critical", "High", "Medium", "Low"],
   "testStatuses": ["Passed", "Failed", "Pending", "Blocked"],
   "testEnvironments": ["Development", "Staging", "Production", "QA"],
-  "availableActions": ["click", "type", "wait", "select", "assert", "navigate", "hover", "scroll", "drag", "upload", "custom"],
+  "availableActions": [
+    "click", "doubleClick", "rightClick", "type", "clear", "select", "check", "uncheck",
+    "navigate", "back", "forward", "refresh",
+    "wait", "waitForElement", "waitForNavigation",
+    "assertText", "assertElementPresent", "assertElementNotPresent", "assertTitle", "assertUrl", "assertValue", "assertChecked", "assertNotChecked",
+    "hover", "dragAndDrop", "uploadFile", "pressKey", "focus", "blur", "scrollTo", "executeScript",
+    "custom", "screenshot", "comment"
+  ],
   "testFeatures": ["Authentication", "Search", "Checkout", "User Profile", "Admin Panel", "Reporting", "Notifications"]
 }

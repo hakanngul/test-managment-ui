@@ -8,38 +8,10 @@ import {
 import ActiveAgentsTable from './ActiveAgentsTable';
 import QueuedRequestsTable from './QueuedRequestsTable';
 import ProcessedRequestsTable from './ProcessedRequestsTable';
-
-// Interfaces
-interface ActiveAgent {
-  id: string;
-  browser: string;
-  status: 'available' | 'busy' | 'offline';
-  created: string;
-  lastActivity: string;
-  currentRequest: string | null;
-}
-
-interface QueuedRequest {
-  id: string;
-  testName: string;
-  browser: string;
-  priority: 'high' | 'medium' | 'low';
-  category: string;
-  queuedAt: string;
-  waitTime: string;
-}
-
-interface ProcessedRequest {
-  id: string;
-  testName: string;
-  browser: string;
-  agentId: string;
-  startTime: string;
-  duration: string;
-}
+import { Agent, QueuedRequest, ProcessedRequest } from '../../models';
 
 interface TabsContainerProps {
-  activeAgents: ActiveAgent[];
+  activeAgents: Agent[];
   queuedRequests: QueuedRequest[];
   processedRequests: ProcessedRequest[];
   tabValue: number;

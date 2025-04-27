@@ -1,13 +1,13 @@
 import React from 'react';
-import { 
+import {
   Box,
-  TableContainer, 
-  Table, 
-  TableHead, 
-  TableBody, 
-  TableRow, 
-  TableCell, 
-  Typography, 
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Typography,
   TablePagination,
   FormControl,
   InputLabel,
@@ -15,16 +15,7 @@ import {
   MenuItem,
   SelectChangeEvent
 } from '@mui/material';
-
-// Interface for processed requests
-interface ProcessedRequest {
-  id: string;
-  testName: string;
-  browser: string;
-  agentId: string;
-  startTime: string;
-  duration: string;
-}
+import { ProcessedRequest } from '../../models';
 
 interface ProcessedRequestsTableProps {
   requests: ProcessedRequest[];
@@ -34,18 +25,18 @@ interface ProcessedRequestsTableProps {
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const ProcessedRequestsTable: React.FC<ProcessedRequestsTableProps> = ({ 
-  requests, 
-  page, 
-  rowsPerPage, 
-  onPageChange, 
-  onRowsPerPageChange 
+const ProcessedRequestsTable: React.FC<ProcessedRequestsTableProps> = ({
+  requests,
+  page,
+  rowsPerPage,
+  onPageChange,
+  onRowsPerPageChange
 }) => {
   const handleRowsPerPageChange = (event: SelectChangeEvent<number>) => {
     const target = {
       value: event.target.value.toString()
     } as React.ChangeEvent<HTMLInputElement>;
-    
+
     onRowsPerPageChange(target);
   };
 
@@ -90,7 +81,7 @@ const ProcessedRequestsTable: React.FC<ProcessedRequestsTableProps> = ({
                     <TableCell>{request.testName}</TableCell>
                     <TableCell>{request.browser}</TableCell>
                     <TableCell>{request.agentId}</TableCell>
-                    <TableCell>{request.startTime}</TableCell>
+                    <TableCell>{request.startTime.toLocaleString('tr-TR')}</TableCell>
                     <TableCell>{request.duration}</TableCell>
                   </TableRow>
                 ))
