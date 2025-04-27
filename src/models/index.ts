@@ -45,11 +45,20 @@ export * from './TestReportData';
 // Export all enums
 export * from './enums/TestCaseEnums';
 export * from './enums/TestStepEnums';
+export * from './enums/TestSuiteEnums';
+export * from './enums/TestRunEnums';
+export * from './enums/AgentEnums';
 
 // Export all interfaces
 export * from './interfaces/TestCase';
 export * from './interfaces/TestStep';
+export * from './interfaces/TestSuite';
+export * from './interfaces/TestRun';
+export * from './interfaces/Agent';
 
 // Export all utils
 export * from './utils/TestCaseUtils';
 export * from './utils/TestStepUtils';
+export * from './utils/TestSuiteUtils';
+export * from './utils/TestRunUtils';
+export * from './utils/AgentUtils';
