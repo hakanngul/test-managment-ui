@@ -1,16 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
   Typography,
   FormHelperText,
-  Box,
-  Tabs,
-  Tab,
 } from '@mui/material';
 import { TestStep } from '../../types';
-import TestStepsList from './TestStepsList';
-import AddTestStepForm from './AddTestStepForm';
 import TestStepForm from './TestStepForm';
 import { TestStep as ModelTestStep } from '../../models/TestStep';
 
@@ -33,7 +28,6 @@ const TestStepsSection: React.FC<TestStepsSectionProps> = ({
   onAddStep,
   onRemoveStep,
 }) => {
-  const [tabValue, setTabValue] = useState(0);
   const [modelSteps, setModelSteps] = useState<ModelTestStep[]>([]);
 
   // Convert TestStep[] to ModelTestStep[]
@@ -52,13 +46,42 @@ const TestStepsSection: React.FC<TestStepsSectionProps> = ({
     }));
   };
 
-  // Handle tab change
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    if (newValue === 1 && modelSteps.length === 0) {
-      // İlk kez model tabına geçildiğinde, mevcut adımları dönüştür
-      setModelSteps(convertToModelSteps(steps));
+  // Convert ModelTestStep[] to TestStep[]
+  const convertToTestSteps = (modelSteps: ModelTestStep[]): TestStep[] => {
+    return modelSteps.map(step => ({
+      id: step.id,
+      order: step.order,
+      action: step.action as any,
+      target: step.target || '',
+      value: step.value,
+      description: step.description,
+      expectedResult: step.expectedResult || '',
+      type: step.isManual ? 'manual' : 'automated'
+    }));
+  };
+
+  // Update modelSteps when steps change
+  useEffect(() => {
+    setModelSteps(convertToModelSteps(steps));
+  }, [steps]);
+
+  // Handle model steps change
+  const handleModelStepsChange = (newModelSteps: ModelTestStep[]) => {
+    setModelSteps(newModelSteps);
+
+    // Convert model steps to regular steps
+    const newSteps = convertToTestSteps(newModelSteps);
+
+    // Doğrudan formData'yı güncellemek için bir event oluşturalım
+    // Bu, NewTestCase.tsx'deki handleChange fonksiyonunu tetikleyecek
+    if (onStepChange) {
+      onStepChange({
+        target: {
+          name: 'steps',
+          value: newSteps
+        }
+      } as any);
     }
-    setTabValue(newValue);
   };
 
   return (
@@ -74,38 +97,10 @@ const TestStepsSection: React.FC<TestStepsSectionProps> = ({
           </FormHelperText>
         )}
 
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-          <Tabs value={tabValue} onChange={handleTabChange}>
-            <Tab label="Klasik Görünüm" />
-            <Tab label="Gelişmiş Model Görünümü" />
-          </Tabs>
-        </Box>
-
-        {tabValue === 0 ? (
-          <>
-            {/* Existing Steps */}
-            <TestStepsList steps={steps} onRemoveStep={onRemoveStep} />
-
-            {/* Add New Step */}
-            <AddTestStepForm
-              currentStep={currentStep}
-              availableActions={availableActions}
-              errors={errors}
-              onStepChange={onStepChange}
-              onAddStep={onAddStep}
-            />
-          </>
-        ) : (
-          <TestStepForm
-            steps={modelSteps}
-            onChange={(newSteps) => {
-              setModelSteps(newSteps);
-              // Burada model adımlarını normal adımlara dönüştürme işlemi yapılabilir
-              // ve onAddStep, onRemoveStep gibi fonksiyonlar çağrılabilir
-              // Şimdilik sadece görüntüleme amaçlı
-            }}
-          />
-        )}
+        <TestStepForm
+          steps={modelSteps}
+          onChange={handleModelStepsChange}
+        />
       </CardContent>
     </Card>
   );

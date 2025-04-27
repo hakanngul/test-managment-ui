@@ -15,6 +15,7 @@ export interface TestCase {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  updatedBy?: string;
   steps: TestStep[];
   tags: string[];
   projectId: string;

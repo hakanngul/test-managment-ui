@@ -27,7 +27,6 @@ import {
   Delete as DeleteIcon,
   PlayArrow as PlayIcon,
   ExpandMore as ExpandMoreIcon,
-  ContentCopy as CopyIcon,
   DragIndicator as DragIcon,
   Add as AddIcon,
   Code as CodeIcon,
@@ -52,10 +51,11 @@ const TestCaseDetail: React.FC = () => {
 
       try {
         setLoading(true);
-        // Fetch all mock test cases
-        const allTestCases = await api.getMockTestCases();
-        // Find the specific test case by ID
-        const testCaseData = allTestCases.find(tc => tc.id === id);
+        // Fetch test case by ID directly from API
+        const testCaseData = await api.getTestCaseById(id).catch(error => {
+          console.error('Error fetching test case by ID:', error);
+          return null;
+        });
 
         if (testCaseData) {
           setTestCase(testCaseData);
@@ -162,17 +162,37 @@ const TestCaseDetail: React.FC = () => {
 
   const handleEditToggle = async () => {
     if (editMode && testCase) {
-      // In a real application, you would save changes to the API
-      // For now, we'll just toggle edit mode without making API calls
-      // since we're using mock data
-      console.log('Saving changes to test case:', testCase);
+      try {
+        // Save changes to the API
+        await api.updateTestCase(testCase.id, testCase);
 
-      // Note: In a real application with a proper backend, you would use:
-      // await api.updateTestCase(testCase.id, testCase);
-      // const updatedTestCase = await api.getTestCaseById(testCase.id);
-      // setTestCase(updatedTestCase);
+        // Fetch the updated test case
+        const updatedTestCase = await api.getTestCaseById(testCase.id);
+        setTestCase(updatedTestCase);
+
+        console.log('Test case updated successfully:', updatedTestCase);
+      } catch (error) {
+        console.error('Error updating test case:', error);
+        setError('Failed to update test case. Please try again later.');
+      }
     }
     setEditMode(!editMode);
+  };
+
+  // Handle delete test case
+  const handleDeleteTestCase = async () => {
+    if (!testCase) return;
+
+    if (window.confirm(`Are you sure you want to delete the test case "${testCase.title}"?`)) {
+      try {
+        await api.deleteTestCase(testCase.id);
+        console.log('Test case deleted successfully');
+        navigate('/test-cases');
+      } catch (error) {
+        console.error('Error deleting test case:', error);
+        setError('Failed to delete test case. Please try again later.');
+      }
+    }
   };
 
   return (
@@ -191,14 +211,9 @@ const TestCaseDetail: React.FC = () => {
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
             variant="outlined"
-            startIcon={<CopyIcon />}
-          >
-            Duplicate
-          </Button>
-          <Button
-            variant="outlined"
             color="error"
             startIcon={<DeleteIcon />}
+            onClick={handleDeleteTestCase}
           >
             Delete
           </Button>
@@ -616,44 +631,48 @@ const TestCaseDetail: React.FC = () => {
                 Created on {formatDate(testCase.createdAt)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Test case created by John Doe
+                Test case created by {testCase.createdBy || 'Admin'}
               </Typography>
             </Paper>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2,
-                borderRadius: 1,
-                bgcolor: 'background.default',
-                border: '1px solid',
-                borderColor: 'divider',
-                mb: 2,
-              }}
-            >
-              <Typography variant="subtitle2">
-                Updated on {formatDate(testCase.updatedAt)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Description updated by Jane Smith
-              </Typography>
-            </Paper>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2,
-                borderRadius: 1,
-                bgcolor: 'background.default',
-                border: '1px solid',
-                borderColor: 'divider',
-              }}
-            >
-              <Typography variant="subtitle2">
-                Updated on {new Date(new Date(testCase.updatedAt).getTime() - 3600000).toLocaleString()}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Test steps reordered by John Doe
-              </Typography>
-            </Paper>
+            {testCase.updatedAt && testCase.updatedAt !== testCase.createdAt && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: 1,
+                  bgcolor: 'background.default',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  mb: 2,
+                }}
+              >
+                <Typography variant="subtitle2">
+                  Updated on {formatDate(testCase.updatedAt)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Test case updated by {testCase.updatedBy || 'Admin'}
+                </Typography>
+              </Paper>
+            )}
+            {testCase.steps && testCase.steps.length > 0 && (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: 1,
+                  bgcolor: 'background.default',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography variant="subtitle2">
+                  Test Steps
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {testCase.steps.length} steps defined
+                </Typography>
+              </Paper>
+            )}
           </CardContent>
         </Card>
       )}

@@ -356,6 +356,146 @@ app.get('/api/processedRequests', async (req, res) => {
   }
 });
 
+// Special endpoint for testCases/:id - PUT
+app.put('/api/testCases/:id', async (req, res) => {
+  try {
+    const db = await connectToMongoDB();
+    const id = req.params.id;
+    const testCaseData = req.body;
+
+    // Update updatedAt and updatedBy fields
+    testCaseData.updatedAt = new Date().toISOString();
+    testCaseData.updatedBy = testCaseData.updatedBy || 'Admin';
+
+    // Update test case in MongoDB
+    const result = await db.collection('testCases').updateOne(
+      { id: id },
+      { $set: testCaseData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: `Test case with ID ${id} not found.` });
+    }
+
+    res.json(testCaseData);
+  } catch (error) {
+    console.error('Error updating test case:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Special endpoint for testCases/:id - DELETE
+app.delete('/api/testCases/:id', async (req, res) => {
+  try {
+    const db = await connectToMongoDB();
+    const id = req.params.id;
+
+    // Delete test case from MongoDB
+    const result = await db.collection('testCases').deleteOne({ id: id });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: `Test case with ID ${id} not found.` });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting test case:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Special endpoint for testCases/:id - GET
+app.get('/api/testCases/:id', async (req, res) => {
+  try {
+    const db = await connectToMongoDB();
+    const id = req.params.id;
+
+    // Get test case from MongoDB
+    const testCase = await db.collection('testCases').findOne({ id: id });
+
+    // If no data, try with _id
+    if (!testCase) {
+      const testCaseById = await db.collection('testCases').findOne({ _id: id });
+      if (testCaseById) {
+        return res.json(testCaseById);
+      }
+
+      // Try lowercase collection
+      const lowerCaseTestCase = await db.collection('TestCases').findOne({ id: id });
+      if (lowerCaseTestCase) {
+        return res.json(lowerCaseTestCase);
+      }
+
+      // Return 404 if not found
+      return res.status(404).json({ error: `Test case with ID ${id} not found.` });
+    }
+
+    res.json(testCase);
+  } catch (error) {
+    console.error('Error getting test case by ID:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Special endpoint for testCases - GET
+app.get('/api/testCases', async (req, res) => {
+  try {
+    const db = await connectToMongoDB();
+
+    // Get test cases from MongoDB
+    const testCases = await db.collection('testCases').find({}).toArray();
+
+    // If no data, try lowercase collection
+    if (!testCases || testCases.length === 0) {
+      const lowerCaseTestCases = await db.collection('TestCases').find({}).toArray();
+      if (lowerCaseTestCases && lowerCaseTestCases.length > 0) {
+        return res.json(lowerCaseTestCases);
+      }
+
+      // Return empty array if nothing found
+      return res.json([]);
+    }
+
+    res.json(testCases);
+  } catch (error) {
+    console.error('Error getting test cases:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Special endpoint for testCases - POST
+app.post('/api/testCases', async (req, res) => {
+  try {
+    const db = await connectToMongoDB();
+    const testCase = req.body;
+
+    // Generate an ID if not provided
+    if (!testCase.id) {
+      testCase.id = `tc-${Date.now()}`;
+    }
+
+    // Add timestamps if not provided
+    if (!testCase.createdAt) {
+      testCase.createdAt = new Date().toISOString();
+    }
+    if (!testCase.updatedAt) {
+      testCase.updatedAt = new Date().toISOString();
+    }
+
+    // Add MongoDB _id field
+    testCase._id = testCase.id;
+
+    // Insert into MongoDB
+    const result = await db.collection('testCases').insertOne(testCase);
+
+    // Return the created test case
+    res.status(201).json({ ...testCase, _id: result.insertedId });
+  } catch (error) {
+    console.error('Error creating test case:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Special endpoint for testCountsByDay
 app.get('/api/testCountsByDay', async (req, res) => {
   try {

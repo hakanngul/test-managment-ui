@@ -98,10 +98,17 @@ const TestCases: React.FC = () => {
   };
 
   // Filter and sort test cases
-  const filteredTestCases = testCases
+  const filteredTestCases = Array.isArray(testCases) ? testCases
     .filter((testCase) => {
-      const matchesSearch = testCase.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          testCase.description.toLowerCase().includes(searchQuery.toLowerCase());
+      // Null check for testCase
+      if (!testCase || typeof testCase !== 'object') return false;
+
+      // Null check for title and description
+      const title = testCase.title || '';
+      const description = testCase.description || '';
+
+      const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          description.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesStatus = selectedStatusFilter === 'all' || testCase.status === selectedStatusFilter;
       const matchesPriority = selectedPriorityFilter === 'all' || testCase.priority === selectedPriorityFilter;
@@ -110,25 +117,33 @@ const TestCases: React.FC = () => {
     })
     .sort((a, b) => {
       if (sortBy === 'title') {
+        const titleA = a.title || '';
+        const titleB = b.title || '';
         return sortDirection === 'asc'
-          ? a.title.localeCompare(b.title)
-          : b.title.localeCompare(a.title);
+          ? titleA.localeCompare(titleB)
+          : titleB.localeCompare(titleA);
       } else if (sortBy === 'priority') {
         const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+        const priorityA = a.priority || 'low';
+        const priorityB = b.priority || 'low';
         return sortDirection === 'asc'
-          ? priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder]
-          : priorityOrder[b.priority as keyof typeof priorityOrder] - priorityOrder[a.priority as keyof typeof priorityOrder];
+          ? (priorityOrder[priorityA as keyof typeof priorityOrder] || 0) - (priorityOrder[priorityB as keyof typeof priorityOrder] || 0)
+          : (priorityOrder[priorityB as keyof typeof priorityOrder] || 0) - (priorityOrder[priorityA as keyof typeof priorityOrder] || 0);
       } else if (sortBy === 'status') {
+        const statusA = a.status || '';
+        const statusB = b.status || '';
         return sortDirection === 'asc'
-          ? a.status.localeCompare(b.status)
-          : b.status.localeCompare(a.status);
+          ? statusA.localeCompare(statusB)
+          : statusB.localeCompare(statusA);
       } else if (sortBy === 'updatedAt') {
+        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
         return sortDirection === 'asc'
-          ? new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
-          : new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+          ? dateA - dateB
+          : dateB - dateA;
       }
       return 0;
-    });
+    }) : [];
 
   // Helper function to format date
   const formatDate = (dateString: string) => {
@@ -167,9 +182,9 @@ const TestCases: React.FC = () => {
 
       {loading && <LoadingState />}
 
-      {!loading && testCases.length === 0 && !error && <EmptyState />}
+      {!loading && (!Array.isArray(testCases) || testCases.length === 0) && !error && <EmptyState />}
 
-      {!loading && testCases.length > 0 && (
+      {!loading && Array.isArray(testCases) && testCases.length > 0 && (
         <>
           <TestCasesFilter
             searchQuery={searchQuery}

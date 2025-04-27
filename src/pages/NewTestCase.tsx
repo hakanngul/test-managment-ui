@@ -105,10 +105,20 @@ const NewTestCase: React.FC = () => {
   const handleStepChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }> | SelectChangeEvent<string>) => {
     const { name, value } = e.target;
     if (name) {
-      setCurrentStep({
-        ...currentStep,
-        [name]: value,
-      });
+      // Eğer steps alanı doğrudan güncelleniyorsa (TestStepForm'dan)
+      if (name === 'steps') {
+        setFormData({
+          ...formData,
+          steps: value as TestStep[]
+        });
+        setUnsavedChanges(true);
+      } else {
+        // Normal adım alanı güncellemesi
+        setCurrentStep({
+          ...currentStep,
+          [name]: value,
+        });
+      }
     }
   };
 
@@ -199,21 +209,40 @@ const NewTestCase: React.FC = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    // In a real application, you would send the data to an API
-    console.log('Submitting test case:', formData);
+    try {
+      setLoading(true);
 
-    // Mock successful submission
-    setTimeout(() => {
+      // Prepare data for API
+      const testCaseData = {
+        ...formData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: 'admin', // Varsayılan kullanıcı
+        status: formData.status || 'draft',
+        priority: formData.priority || 'medium',
+        tags: formData.tags || [],
+        steps: formData.steps || []
+      };
+
+      // Send data to API
+      const response = await api.createTestCase(testCaseData);
+      console.log('Test case created successfully:', response);
+
       // Navigate back to test cases list
       navigate('/test-cases');
-    }, 1000);
+    } catch (error) {
+      console.error('Error creating test case:', error);
+      setApiError('Test case oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Handle cancel

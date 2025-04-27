@@ -42,8 +42,15 @@ export const api = {
   getProjectById: (id: string) => fetchData<any>(`projects/${id}`),
 
   // Test Cases
-  getTestCases: () => fetchData<any[]>('testCases'),
+  getTestCases: () => fetchData<any[]>('testCases').catch(() => []),
   getTestCaseById: (id: string) => fetchData<any>(`testCases/${id}`),
+  updateTestCase: (id: string, data: any) => fetchData<any>(`testCases/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  deleteTestCase: (id: string) => fetchData<void>(`testCases/${id}`, {
+    method: 'DELETE',
+  }),
   createTestCase: (data: any) => fetchData<any>('testCases', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -110,7 +117,7 @@ export const api = {
   getFeatures: () => fetchData<string[]>('testFeatures'),
 
   // Test Results
-  getTestResults: () => fetchData<any[]>('testResults'),
+  getTestResultsData: () => fetchData<any[]>('testResults'),
   getTestResultById: (id: string) => fetchData<any>(`testResults/${id}`),
   createTestResult: (data: any) => fetchData<any>('testResults', {
     method: 'POST',

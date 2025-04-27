@@ -32,9 +32,11 @@ export interface TestCase {
   steps: TestStep[];
   tags: string[];
   createdBy?: string;
+  updatedBy?: string;
   createdAt?: string;
   updatedAt?: string;
   projectId?: string;
+  code?: string;
 }
 
 // Test suite interface
