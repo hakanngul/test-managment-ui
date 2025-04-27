@@ -21,6 +21,7 @@ import NewTestCase from './pages/NewTestCase';
 import CreateTestSuite from './pages/CreateTestSuite';
 import ServerAgent from './pages/ServerAgent';
 import TestPage from './pages/TestPage';
+import TestExecutionSimulator from './pages/TestExecutionSimulator';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
                   <Route path="server-agent" element={<ServerAgent />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="test-page" element={<TestPage />} />
+                  <Route path="test-execution-simulator" element={<TestExecutionSimulator />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
