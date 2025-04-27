@@ -1,70 +1,141 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  Button,
-  Tabs,
-  Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  IconButton,
-  Menu,
-  MenuItem,
-  CircularProgress,
-  Alert,
-} from '@mui/material';
-import {
-  BarChart as ChartIcon,
-  Download as DownloadIcon,
-  Share as ShareIcon,
-  MoreVert as MoreIcon,
-} from '@mui/icons-material';
-import Chart from 'react-apexcharts';
-import { ApexOptions } from 'apexcharts';
+import { Box, Tabs, Tab } from '@mui/material';
 import api from '../services/api';
+import {
+  PageHeader,
+  LoadingIndicator,
+  ErrorAlert,
+  OverviewTab,
+  TestResultsTab,
+  CoverageTab,
+  PerformanceTab
+} from '../components/reports';
 
 const Reports: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
-  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // API data state
   const [testExecutionData, setTestExecutionData] = useState<any>({
-    options: {} as ApexOptions,
+    options: {},
     series: []
   });
 
   const [testDurationData, setTestDurationData] = useState<any>({
-    options: {} as ApexOptions,
+    options: {},
     series: []
   });
 
   const [testResults, setTestResults] = useState<any[]>([]);
+
+  // Additional data for new tabs
+  const [detailedResults, setDetailedResults] = useState<any[]>([]);
+  const [statusDistributionData, setStatusDistributionData] = useState<any>({
+    options: {},
+    series: []
+  });
+  const [durationByStatusData, setDurationByStatusData] = useState<any>({
+    options: {},
+    series: []
+  });
+  const [coverageData, setCoverageData] = useState<any>({
+    summary: {
+      lines: { total: 0, covered: 0, percentage: 0 },
+      branches: { total: 0, covered: 0, percentage: 0 },
+      functions: { total: 0, covered: 0, percentage: 0 },
+      statements: { total: 0, covered: 0, percentage: 0 }
+    },
+    files: []
+  });
+  const [coverageTrendData, setCoverageTrendData] = useState<any>({
+    options: {},
+    series: []
+  });
+  const [coverageByTypeData, setCoverageByTypeData] = useState<any>({
+    options: {},
+    series: []
+  });
+  const [uncoveredLinesData, setUncoveredLinesData] = useState<any>({
+    options: {},
+    series: []
+  });
+  const [performanceMetrics, setPerformanceMetrics] = useState<any[]>([]);
+  const [loadTimeData, setLoadTimeData] = useState<any>({
+    options: {},
+    series: []
+  });
+  const [responseTimeData, setResponseTimeData] = useState<any>({
+    options: {},
+    series: []
+  });
+  const [resourceUsageData, setResourceUsageData] = useState<any>({
+    options: {},
+    series: []
+  });
+  const [browserComparisonData, setBrowserComparisonData] = useState<any>({
+    options: {},
+    series: []
+  });
 
   // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [executionData, durationData, results] = await Promise.all([
+
+        // Fetch all required data from the API
+        const [
+          executionData,
+          durationData,
+          results,
+          detailedResultsData,
+          statusDistribution,
+          durationByStatus,
+          coverage,
+          coverageTrend,
+          coverageByType,
+          uncoveredLines,
+          performance,
+          loadTime,
+          responseTime,
+          resourceUsage,
+          browserComparison
+        ] = await Promise.all([
           api.getTestExecutionData(),
           api.getTestDurationData(),
-          api.getTestResults()
+          api.getTestResults(),
+          api.getDetailedTestResults(),
+          api.getStatusDistributionData(),
+          api.getDurationByStatusData(),
+          api.getCoverageData(),
+          api.getCoverageTrendData(),
+          api.getCoverageByTypeData(),
+          api.getUncoveredLinesData(),
+          api.getPerformanceMetrics(),
+          api.getLoadTimeData(),
+          api.getResponseTimeData(),
+          api.getResourceUsageData(),
+          api.getBrowserComparisonData()
         ]);
 
+        // Update state with fetched data
         setTestExecutionData(executionData);
         setTestDurationData(durationData);
         setTestResults(results);
+        setDetailedResults(detailedResultsData);
+        setStatusDistributionData(statusDistribution);
+        setDurationByStatusData(durationByStatus);
+        setCoverageData(coverage);
+        setCoverageTrendData(coverageTrend);
+        setCoverageByTypeData(coverageByType);
+        setUncoveredLinesData(uncoveredLines);
+        setPerformanceMetrics(performance);
+        setLoadTimeData(loadTime);
+        setResponseTimeData(responseTime);
+        setResourceUsageData(resourceUsage);
+        setBrowserComparisonData(browserComparison);
+
         setError(null);
       } catch (err) {
         console.error('Error fetching reports data:', err);
@@ -81,243 +152,101 @@ const Reports: React.FC = () => {
     setTabValue(newValue);
   };
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setMenuAnchorEl(event.currentTarget);
+  const handleExport = () => {
+    console.log('Exporting report...');
   };
 
-  const handleMenuClose = () => {
-    setMenuAnchorEl(null);
+  const handleShare = () => {
+    console.log('Sharing report...');
+  };
+
+  const handleGenerateReport = () => {
+    console.log('Generating report...');
+  };
+
+  const handleViewAllResults = () => {
+    setTabValue(1); // Switch to Test Results tab
+  };
+
+  const handleViewTestDetails = (id: string) => {
+    console.log('Viewing test details for:', id);
+    setTabValue(1); // Switch to Test Results tab
+  };
+
+  const handleDownloadTestReport = (id: string) => {
+    console.log('Downloading test report for:', id);
+  };
+
+  const handleShareTestReport = (id: string) => {
+    console.log('Sharing test report for:', id);
   };
 
   return (
     <Box>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4" component="h1" fontWeight="500">
-          Reports
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="outlined"
-            startIcon={<DownloadIcon />}
+      <PageHeader
+        title="Reports"
+        onExport={handleExport}
+        onShare={handleShare}
+        onGenerateReport={handleGenerateReport}
+      />
+
+      {error && <ErrorAlert message={error} />}
+
+      {loading ? (
+        <LoadingIndicator />
+      ) : (
+        <>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
           >
-            Export
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<ShareIcon />}
-          >
-            Share
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<ChartIcon />}
-          >
-            Generate Report
-          </Button>
-        </Box>
-      </Box>
+            <Tab label="Overview" />
+            <Tab label="Test Results" />
+            <Tab label="Coverage" />
+            <Tab label="Performance" />
+          </Tabs>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
+          {tabValue === 0 && (
+            <OverviewTab
+              testExecutionData={testExecutionData}
+              testDurationData={testDurationData}
+              testResults={testResults}
+              onViewAllResults={handleViewAllResults}
+              onViewTestDetails={handleViewTestDetails}
+              onDownloadTestReport={handleDownloadTestReport}
+              onShareTestReport={handleShareTestReport}
+            />
+          )}
+
+          {tabValue === 1 && (
+            <TestResultsTab
+              detailedResults={detailedResults}
+              statusDistributionData={statusDistributionData}
+              durationByStatusData={durationByStatusData}
+            />
+          )}
+
+          {tabValue === 2 && (
+            <CoverageTab
+              coverageData={coverageData}
+              coverageTrendData={coverageTrendData}
+              coverageByTypeData={coverageByTypeData}
+              uncoveredLinesData={uncoveredLinesData}
+            />
+          )}
+
+          {tabValue === 3 && (
+            <PerformanceTab
+              performanceMetrics={performanceMetrics}
+              loadTimeData={loadTimeData}
+              responseTimeData={responseTimeData}
+              resourceUsageData={resourceUsageData}
+              browserComparisonData={browserComparisonData}
+            />
+          )}
+        </>
       )}
-
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
-
-      <Tabs
-        value={tabValue}
-        onChange={handleTabChange}
-        sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
-      >
-        <Tab label="Overview" />
-        <Tab label="Test Results" />
-        <Tab label="Coverage" />
-        <Tab label="Performance" />
-      </Tabs>
-
-      {!loading && tabValue === 0 && (
-        <Grid container spacing={3}>
-          {/* Summary Cards */}
-          <Grid item xs={12} md={3}>
-            <Card sx={{ borderRadius: 2 }}>
-              <CardContent>
-                <Typography color="text.secondary" variant="subtitle2" gutterBottom>
-                  Total Tests
-                </Typography>
-                <Typography variant="h4" component="div">
-                  1,234
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Last 7 days
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <Card sx={{ borderRadius: 2 }}>
-              <CardContent>
-                <Typography color="text.secondary" variant="subtitle2" gutterBottom>
-                  Pass Rate
-                </Typography>
-                <Typography variant="h4" component="div" color="success.main">
-                  85%
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  +5% from last week
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <Card sx={{ borderRadius: 2 }}>
-              <CardContent>
-                <Typography color="text.secondary" variant="subtitle2" gutterBottom>
-                  Average Duration
-                </Typography>
-                <Typography variant="h4" component="div">
-                  45m
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Per test suite
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <Card sx={{ borderRadius: 2 }}>
-              <CardContent>
-                <Typography color="text.secondary" variant="subtitle2" gutterBottom>
-                  Failed Tests
-                </Typography>
-                <Typography variant="h4" component="div" color="error.main">
-                  23
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Requires attention
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Charts */}
-          <Grid item xs={12} md={8}>
-            <Card sx={{ borderRadius: 2 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Test Execution Trend
-                </Typography>
-                <Chart
-                  options={testExecutionData.options}
-                  series={testExecutionData.series}
-                  type="bar"
-                  height={350}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Card sx={{ borderRadius: 2 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Test Duration Trend
-                </Typography>
-                <Chart
-                  options={testDurationData.options}
-                  series={testDurationData.series}
-                  type="line"
-                  height={350}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Test Results Table */}
-          <Grid item xs={12}>
-            <Card sx={{ borderRadius: 2 }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6">
-                    Recent Test Results
-                  </Typography>
-                  <Button color="primary" size="small">
-                    View All
-                  </Button>
-                </Box>
-                <TableContainer component={Paper} elevation={0}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Test Suite</TableCell>
-                        <TableCell align="right">Total</TableCell>
-                        <TableCell align="right">Passed</TableCell>
-                        <TableCell align="right">Failed</TableCell>
-                        <TableCell align="right">Skipped</TableCell>
-                        <TableCell>Duration</TableCell>
-                        <TableCell>Last Run</TableCell>
-                        <TableCell align="right">Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {testResults.map((result) => (
-                        <TableRow key={result.id}>
-                          <TableCell>{result.name}</TableCell>
-                          <TableCell align="right">{result.total}</TableCell>
-                          <TableCell align="right">
-                            <Chip
-                              label={result.passed}
-                              size="small"
-                              color="success"
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <Chip
-                              label={result.failed}
-                              size="small"
-                              color="error"
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <Chip
-                              label={result.skipped}
-                              size="small"
-                              color="warning"
-                            />
-                          </TableCell>
-                          <TableCell>{result.duration}</TableCell>
-                          <TableCell>{result.lastRun}</TableCell>
-                          <TableCell align="right">
-                            <IconButton
-                              size="small"
-                              onClick={handleMenuClick}
-                            >
-                              <MoreIcon fontSize="small" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      )}
-
-      <Menu
-        anchorEl={menuAnchorEl}
-        open={Boolean(menuAnchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={handleMenuClose}>View Details</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Download Report</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Share</MenuItem>
-      </Menu>
     </Box>
   );
 };

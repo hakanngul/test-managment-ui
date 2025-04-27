@@ -113,6 +113,18 @@ export const api = {
   getTestExecutionData: () => fetchData<any>('testExecutionData'),
   getTestDurationData: () => fetchData<any>('testDurationData'),
   getTestResults: () => fetchData<any[]>('testResults'),
+  getDetailedTestResults: () => fetchData<any[]>('detailedTestResults'),
+  getStatusDistributionData: () => fetchData<any>('statusDistributionData'),
+  getDurationByStatusData: () => fetchData<any>('durationByStatusData'),
+  getCoverageData: () => fetchData<any>('coverageData'),
+  getCoverageTrendData: () => fetchData<any>('coverageTrendData'),
+  getCoverageByTypeData: () => fetchData<any>('coverageByTypeData'),
+  getUncoveredLinesData: () => fetchData<any>('uncoveredLinesData'),
+  getPerformanceMetrics: () => fetchData<any[]>('performanceMetrics'),
+  getLoadTimeData: () => fetchData<any>('loadTimeData'),
+  getResponseTimeData: () => fetchData<any>('responseTimeData'),
+  getResourceUsageData: () => fetchData<any>('resourceUsageData'),
+  getBrowserComparisonData: () => fetchData<any>('browserComparisonData'),
 
   // Server Agent Data
   getSystemResourcesData: () => fetchData<any>('systemResourcesData'),

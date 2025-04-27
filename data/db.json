@@ -681,6 +681,946 @@
   "activeAgentsData": [],
   "queuedRequestsData": [],
   "processedRequestsData": [],
+  "detailedTestResults": [
+    {
+      "id": "dtr-1",
+      "name": "Login Test Suite",
+      "status": "passed",
+      "total": 15,
+      "passed": 13,
+      "failed": 2,
+      "skipped": 0,
+      "duration": "10:25",
+      "startTime": "2023-05-10 09:30",
+      "endTime": "2023-05-10 09:55",
+      "environment": "Staging",
+      "browser": "Chrome",
+      "testCases": [
+        {
+          "id": "dtc-1-1",
+          "name": "Valid Login Credentials",
+          "status": "passed",
+          "duration": "00:45",
+          "steps": [
+            {
+              "id": "dts-1-1-1",
+              "name": "Navigate to login page",
+              "status": "passed",
+              "duration": "00:10"
+            },
+            {
+              "id": "dts-1-1-2",
+              "name": "Enter valid username and password",
+              "status": "passed",
+              "duration": "00:15"
+            },
+            {
+              "id": "dts-1-1-3",
+              "name": "Click login button",
+              "status": "passed",
+              "duration": "00:20"
+            }
+          ]
+        },
+        {
+          "id": "dtc-1-2",
+          "name": "Invalid Login Credentials",
+          "status": "passed",
+          "duration": "00:38",
+          "steps": [
+            {
+              "id": "dts-1-2-1",
+              "name": "Navigate to login page",
+              "status": "passed",
+              "duration": "00:08"
+            },
+            {
+              "id": "dts-1-2-2",
+              "name": "Enter invalid username and password",
+              "status": "passed",
+              "duration": "00:12"
+            },
+            {
+              "id": "dts-1-2-3",
+              "name": "Click login button",
+              "status": "passed",
+              "duration": "00:18"
+            }
+          ]
+        },
+        {
+          "id": "dtc-1-3",
+          "name": "Password Reset",
+          "status": "failed",
+          "duration": "01:05",
+          "steps": [
+            {
+              "id": "dts-1-3-1",
+              "name": "Navigate to login page",
+              "status": "passed",
+              "duration": "00:10"
+            },
+            {
+              "id": "dts-1-3-2",
+              "name": "Click forgot password link",
+              "status": "passed",
+              "duration": "00:15"
+            },
+            {
+              "id": "dts-1-3-3",
+              "name": "Enter email address",
+              "status": "passed",
+              "duration": "00:12"
+            },
+            {
+              "id": "dts-1-3-4",
+              "name": "Click reset password button",
+              "status": "failed",
+              "duration": "00:28",
+              "errorMessage": "Element not found: reset-password-button",
+              "screenshot": "error-screenshot-1.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dtr-2",
+      "name": "Payment Processing",
+      "status": "failed",
+      "total": 25,
+      "passed": 22,
+      "failed": 1,
+      "skipped": 2,
+      "duration": "15:40",
+      "startTime": "2023-05-10 10:15",
+      "endTime": "2023-05-10 10:55",
+      "environment": "Staging",
+      "browser": "Firefox",
+      "testCases": [
+        {
+          "id": "dtc-2-1",
+          "name": "Credit Card Payment",
+          "status": "passed",
+          "duration": "01:20",
+          "steps": [
+            {
+              "id": "dts-2-1-1",
+              "name": "Navigate to checkout page",
+              "status": "passed",
+              "duration": "00:15"
+            },
+            {
+              "id": "dts-2-1-2",
+              "name": "Enter credit card details",
+              "status": "passed",
+              "duration": "00:25"
+            },
+            {
+              "id": "dts-2-1-3",
+              "name": "Submit payment",
+              "status": "passed",
+              "duration": "00:40"
+            }
+          ]
+        },
+        {
+          "id": "dtc-2-2",
+          "name": "PayPal Integration",
+          "status": "failed",
+          "duration": "01:45",
+          "steps": [
+            {
+              "id": "dts-2-2-1",
+              "name": "Navigate to checkout page",
+              "status": "passed",
+              "duration": "00:15"
+            },
+            {
+              "id": "dts-2-2-2",
+              "name": "Select PayPal payment method",
+              "status": "passed",
+              "duration": "00:20"
+            },
+            {
+              "id": "dts-2-2-3",
+              "name": "Redirect to PayPal",
+              "status": "failed",
+              "duration": "01:10",
+              "errorMessage": "Timeout waiting for PayPal redirect",
+              "screenshot": "error-screenshot-2.png"
+            }
+          ]
+        },
+        {
+          "id": "dtc-2-3",
+          "name": "Gift Card Payment",
+          "status": "skipped",
+          "duration": "00:00",
+          "steps": [
+            {
+              "id": "dts-2-3-1",
+              "name": "Navigate to checkout page",
+              "status": "skipped",
+              "duration": "00:00"
+            },
+            {
+              "id": "dts-2-3-2",
+              "name": "Enter gift card details",
+              "status": "skipped",
+              "duration": "00:00"
+            },
+            {
+              "id": "dts-2-3-3",
+              "name": "Submit payment",
+              "status": "skipped",
+              "duration": "00:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dtr-3",
+      "name": "User Management",
+      "status": "passed",
+      "total": 18,
+      "passed": 16,
+      "failed": 0,
+      "skipped": 2,
+      "duration": "12:30",
+      "startTime": "2023-05-10 11:00",
+      "endTime": "2023-05-10 11:30",
+      "environment": "Development",
+      "browser": "Chrome",
+      "testCases": [
+        {
+          "id": "dtc-3-1",
+          "name": "User Registration",
+          "status": "passed",
+          "duration": "01:15",
+          "steps": [
+            {
+              "id": "dts-3-1-1",
+              "name": "Navigate to registration page",
+              "status": "passed",
+              "duration": "00:10"
+            },
+            {
+              "id": "dts-3-1-2",
+              "name": "Fill registration form",
+              "status": "passed",
+              "duration": "00:35"
+            },
+            {
+              "id": "dts-3-1-3",
+              "name": "Submit registration",
+              "status": "passed",
+              "duration": "00:30"
+            }
+          ]
+        },
+        {
+          "id": "dtc-3-2",
+          "name": "User Profile Update",
+          "status": "passed",
+          "duration": "01:05",
+          "steps": [
+            {
+              "id": "dts-3-2-1",
+              "name": "Navigate to profile page",
+              "status": "passed",
+              "duration": "00:15"
+            },
+            {
+              "id": "dts-3-2-2",
+              "name": "Update profile information",
+              "status": "passed",
+              "duration": "00:30"
+            },
+            {
+              "id": "dts-3-2-3",
+              "name": "Save profile changes",
+              "status": "passed",
+              "duration": "00:20"
+            }
+          ]
+        },
+        {
+          "id": "dtc-3-3",
+          "name": "Account Deletion",
+          "status": "skipped",
+          "duration": "00:00",
+          "steps": [
+            {
+              "id": "dts-3-3-1",
+              "name": "Navigate to account settings",
+              "status": "skipped",
+              "duration": "00:00"
+            },
+            {
+              "id": "dts-3-3-2",
+              "name": "Select delete account option",
+              "status": "skipped",
+              "duration": "00:00"
+            },
+            {
+              "id": "dts-3-3-3",
+              "name": "Confirm account deletion",
+              "status": "skipped",
+              "duration": "00:00"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "statusDistributionData": {
+    "options": {
+      "chart": {
+        "type": "donut"
+      },
+      "labels": ["Passed", "Failed", "Skipped"],
+      "colors": ["#4caf50", "#f44336", "#ff9800"],
+      "legend": {
+        "position": "bottom"
+      },
+      "responsive": [{
+        "breakpoint": 480,
+        "options": {
+          "chart": {
+            "width": 200
+          },
+          "legend": {
+            "position": "bottom"
+          }
+        }
+      }]
+    },
+    "series": [51, 3, 4]
+  },
+  "durationByStatusData": {
+    "options": {
+      "chart": {
+        "type": "bar",
+        "stacked": false
+      },
+      "plotOptions": {
+        "bar": {
+          "horizontal": false,
+          "columnWidth": "55%"
+        }
+      },
+      "xaxis": {
+        "categories": ["Login Test Suite", "Payment Processing", "User Management"]
+      },
+      "colors": ["#4caf50", "#f44336", "#ff9800"],
+      "dataLabels": {
+        "enabled": false
+      },
+      "legend": {
+        "position": "top"
+      }
+    },
+    "series": [
+      {
+        "name": "Passed",
+        "data": [8.5, 12.2, 12.5]
+      },
+      {
+        "name": "Failed",
+        "data": [1.9, 3.4, 0]
+      },
+      {
+        "name": "Skipped",
+        "data": [0, 0, 0]
+      }
+    ]
+  },
+  "coverageData": {
+    "summary": {
+      "lines": {
+        "total": 1250,
+        "covered": 1050,
+        "percentage": 84
+      },
+      "branches": {
+        "total": 450,
+        "covered": 360,
+        "percentage": 80
+      },
+      "functions": {
+        "total": 320,
+        "covered": 288,
+        "percentage": 90
+      },
+      "statements": {
+        "total": 1500,
+        "covered": 1275,
+        "percentage": 85
+      }
+    },
+    "files": [
+      {
+        "id": "file-1",
+        "name": "LoginService.js",
+        "path": "src/services/LoginService.js",
+        "lines": {
+          "total": 120,
+          "covered": 114,
+          "percentage": 95
+        },
+        "branches": {
+          "total": 45,
+          "covered": 42,
+          "percentage": 93
+        },
+        "functions": {
+          "total": 25,
+          "covered": 25,
+          "percentage": 100
+        },
+        "statements": {
+          "total": 150,
+          "covered": 144,
+          "percentage": 96
+        }
+      },
+      {
+        "id": "file-2",
+        "name": "PaymentProcessor.js",
+        "path": "src/services/PaymentProcessor.js",
+        "lines": {
+          "total": 180,
+          "covered": 153,
+          "percentage": 85
+        },
+        "branches": {
+          "total": 65,
+          "covered": 52,
+          "percentage": 80
+        },
+        "functions": {
+          "total": 35,
+          "covered": 32,
+          "percentage": 91
+        },
+        "statements": {
+          "total": 210,
+          "covered": 180,
+          "percentage": 86
+        }
+      },
+      {
+        "id": "file-3",
+        "name": "UserManager.js",
+        "path": "src/services/UserManager.js",
+        "lines": {
+          "total": 150,
+          "covered": 135,
+          "percentage": 90
+        },
+        "branches": {
+          "total": 55,
+          "covered": 49,
+          "percentage": 89
+        },
+        "functions": {
+          "total": 30,
+          "covered": 28,
+          "percentage": 93
+        },
+        "statements": {
+          "total": 175,
+          "covered": 160,
+          "percentage": 91
+        }
+      },
+      {
+        "id": "file-4",
+        "name": "ProductSearch.js",
+        "path": "src/services/ProductSearch.js",
+        "lines": {
+          "total": 200,
+          "covered": 160,
+          "percentage": 80
+        },
+        "branches": {
+          "total": 70,
+          "covered": 56,
+          "percentage": 80
+        },
+        "functions": {
+          "total": 40,
+          "covered": 36,
+          "percentage": 90
+        },
+        "statements": {
+          "total": 230,
+          "covered": 190,
+          "percentage": 83
+        }
+      },
+      {
+        "id": "file-5",
+        "name": "CartService.js",
+        "path": "src/services/CartService.js",
+        "lines": {
+          "total": 160,
+          "covered": 128,
+          "percentage": 80
+        },
+        "branches": {
+          "total": 60,
+          "covered": 45,
+          "percentage": 75
+        },
+        "functions": {
+          "total": 35,
+          "covered": 30,
+          "percentage": 86
+        },
+        "statements": {
+          "total": 185,
+          "covered": 150,
+          "percentage": 81
+        }
+      },
+      {
+        "id": "file-6",
+        "name": "NotificationService.js",
+        "path": "src/services/NotificationService.js",
+        "lines": {
+          "total": 90,
+          "covered": 72,
+          "percentage": 80
+        },
+        "branches": {
+          "total": 35,
+          "covered": 28,
+          "percentage": 80
+        },
+        "functions": {
+          "total": 20,
+          "covered": 18,
+          "percentage": 90
+        },
+        "statements": {
+          "total": 110,
+          "covered": 90,
+          "percentage": 82
+        }
+      },
+      {
+        "id": "file-7",
+        "name": "CheckoutProcess.js",
+        "path": "src/services/CheckoutProcess.js",
+        "lines": {
+          "total": 220,
+          "covered": 176,
+          "percentage": 80
+        },
+        "branches": {
+          "total": 80,
+          "covered": 60,
+          "percentage": 75
+        },
+        "functions": {
+          "total": 45,
+          "covered": 38,
+          "percentage": 84
+        },
+        "statements": {
+          "total": 250,
+          "covered": 200,
+          "percentage": 80
+        }
+      },
+      {
+        "id": "file-8",
+        "name": "AnalyticsTracker.js",
+        "path": "src/services/AnalyticsTracker.js",
+        "lines": {
+          "total": 130,
+          "covered": 112,
+          "percentage": 86
+        },
+        "branches": {
+          "total": 40,
+          "covered": 28,
+          "percentage": 70
+        },
+        "functions": {
+          "total": 25,
+          "covered": 20,
+          "percentage": 80
+        },
+        "statements": {
+          "total": 150,
+          "covered": 126,
+          "percentage": 84
+        }
+      }
+    ]
+  },
+  "coverageTrendData": {
+    "options": {
+      "chart": {
+        "type": "line",
+        "toolbar": {
+          "show": false
+        }
+      },
+      "stroke": {
+        "curve": "smooth",
+        "width": 3
+      },
+      "xaxis": {
+        "categories": ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"]
+      },
+      "colors": ["#4caf50", "#ff9800", "#2196f3", "#9c27b0"],
+      "markers": {
+        "size": 4
+      },
+      "legend": {
+        "position": "top"
+      }
+    },
+    "series": [
+      {
+        "name": "Line Coverage",
+        "data": [65, 68, 72, 78, 82, 84]
+      },
+      {
+        "name": "Branch Coverage",
+        "data": [60, 63, 68, 72, 76, 80]
+      },
+      {
+        "name": "Function Coverage",
+        "data": [70, 75, 80, 85, 88, 90]
+      },
+      {
+        "name": "Statement Coverage",
+        "data": [68, 70, 75, 80, 83, 85]
+      }
+    ]
+  },
+  "coverageByTypeData": {
+    "options": {
+      "chart": {
+        "type": "radialBar"
+      },
+      "plotOptions": {
+        "radialBar": {
+          "hollow": {
+            "size": "30%"
+          },
+          "dataLabels": {
+            "name": {
+              "fontSize": "22px"
+            },
+            "value": {
+              "fontSize": "16px"
+            },
+            "total": {
+              "show": true,
+              "label": "Total"
+            }
+          }
+        }
+      },
+      "labels": ["Lines", "Branches", "Functions", "Statements"],
+      "colors": ["#4caf50", "#ff9800", "#2196f3", "#9c27b0"]
+    },
+    "series": [84, 80, 90, 85]
+  },
+  "uncoveredLinesData": {
+    "options": {
+      "chart": {
+        "type": "bar"
+      },
+      "plotOptions": {
+        "bar": {
+          "horizontal": true,
+          "barHeight": "50%"
+        }
+      },
+      "xaxis": {
+        "categories": ["CheckoutProcess.js", "CartService.js", "ProductSearch.js", "AnalyticsTracker.js", "PaymentProcessor.js"]
+      },
+      "colors": ["#f44336"],
+      "dataLabels": {
+        "enabled": true
+      }
+    },
+    "series": [
+      {
+        "name": "Uncovered Lines",
+        "data": [44, 32, 40, 18, 27]
+      }
+    ]
+  },
+  "performanceMetrics": [
+    {
+      "id": "perf-1",
+      "testName": "Homepage Load Test",
+      "loadTime": 850,
+      "responseTime": 120,
+      "cpuUsage": 45,
+      "memoryUsage": 280,
+      "networkRequests": 32,
+      "errors": 0,
+      "warnings": 2,
+      "browser": "Chrome",
+      "device": "Desktop",
+      "timestamp": "2023-05-10 09:15",
+      "status": "good"
+    },
+    {
+      "id": "perf-2",
+      "testName": "Product Page Load Test",
+      "loadTime": 1200,
+      "responseTime": 180,
+      "cpuUsage": 60,
+      "memoryUsage": 320,
+      "networkRequests": 45,
+      "errors": 1,
+      "warnings": 3,
+      "browser": "Firefox",
+      "device": "Desktop",
+      "timestamp": "2023-05-10 09:30",
+      "status": "warning"
+    },
+    {
+      "id": "perf-3",
+      "testName": "Checkout Process Test",
+      "loadTime": 1500,
+      "responseTime": 250,
+      "cpuUsage": 75,
+      "memoryUsage": 420,
+      "networkRequests": 60,
+      "errors": 2,
+      "warnings": 5,
+      "browser": "Chrome",
+      "device": "Mobile",
+      "timestamp": "2023-05-10 09:45",
+      "status": "critical"
+    },
+    {
+      "id": "perf-4",
+      "testName": "User Profile Test",
+      "loadTime": 750,
+      "responseTime": 100,
+      "cpuUsage": 35,
+      "memoryUsage": 240,
+      "networkRequests": 25,
+      "errors": 0,
+      "warnings": 1,
+      "browser": "Safari",
+      "device": "Tablet",
+      "timestamp": "2023-05-10 10:00",
+      "status": "good"
+    },
+    {
+      "id": "perf-5",
+      "testName": "Search Results Test",
+      "loadTime": 950,
+      "responseTime": 150,
+      "cpuUsage": 50,
+      "memoryUsage": 300,
+      "networkRequests": 38,
+      "errors": 0,
+      "warnings": 2,
+      "browser": "Edge",
+      "device": "Desktop",
+      "timestamp": "2023-05-10 10:15",
+      "status": "good"
+    },
+    {
+      "id": "perf-6",
+      "testName": "Cart Page Test",
+      "loadTime": 1100,
+      "responseTime": 170,
+      "cpuUsage": 55,
+      "memoryUsage": 310,
+      "networkRequests": 42,
+      "errors": 1,
+      "warnings": 2,
+      "browser": "Chrome",
+      "device": "Desktop",
+      "timestamp": "2023-05-10 10:30",
+      "status": "warning"
+    },
+    {
+      "id": "perf-7",
+      "testName": "Payment Page Test",
+      "loadTime": 1300,
+      "responseTime": 220,
+      "cpuUsage": 65,
+      "memoryUsage": 380,
+      "networkRequests": 50,
+      "errors": 1,
+      "warnings": 4,
+      "browser": "Firefox",
+      "device": "Mobile",
+      "timestamp": "2023-05-10 10:45",
+      "status": "warning"
+    },
+    {
+      "id": "perf-8",
+      "testName": "Order Confirmation Test",
+      "loadTime": 900,
+      "responseTime": 130,
+      "cpuUsage": 40,
+      "memoryUsage": 260,
+      "networkRequests": 30,
+      "errors": 0,
+      "warnings": 1,
+      "browser": "Chrome",
+      "device": "Desktop",
+      "timestamp": "2023-05-10 11:00",
+      "status": "good"
+    }
+  ],
+  "loadTimeData": {
+    "options": {
+      "chart": {
+        "type": "line",
+        "toolbar": {
+          "show": false
+        }
+      },
+      "stroke": {
+        "curve": "smooth",
+        "width": 3
+      },
+      "xaxis": {
+        "categories": ["May 4", "May 5", "May 6", "May 7", "May 8", "May 9", "May 10"]
+      },
+      "colors": ["#2196f3"],
+      "markers": {
+        "size": 4
+      },
+      "tooltip": {
+        "y": {
+          "formatter": "function(val) { return val + ' ms'; }"
+        }
+      }
+    },
+    "series": [
+      {
+        "name": "Load Time",
+        "data": [920, 880, 950, 1050, 980, 900, 850]
+      }
+    ]
+  },
+  "responseTimeData": {
+    "options": {
+      "chart": {
+        "type": "line",
+        "toolbar": {
+          "show": false
+        }
+      },
+      "stroke": {
+        "curve": "smooth",
+        "width": 3
+      },
+      "xaxis": {
+        "categories": ["May 4", "May 5", "May 6", "May 7", "May 8", "May 9", "May 10"]
+      },
+      "colors": ["#9c27b0"],
+      "markers": {
+        "size": 4
+      },
+      "tooltip": {
+        "y": {
+          "formatter": "function(val) { return val + ' ms'; }"
+        }
+      }
+    },
+    "series": [
+      {
+        "name": "Response Time",
+        "data": [150, 140, 160, 180, 170, 150, 130]
+      }
+    ]
+  },
+  "resourceUsageData": {
+    "options": {
+      "chart": {
+        "type": "area",
+        "stacked": false,
+        "toolbar": {
+          "show": false
+        }
+      },
+      "stroke": {
+        "curve": "smooth",
+        "width": 2
+      },
+      "xaxis": {
+        "categories": ["May 4", "May 5", "May 6", "May 7", "May 8", "May 9", "May 10"]
+      },
+      "colors": ["#4caf50", "#ff9800"],
+      "fill": {
+        "type": "gradient",
+        "gradient": {
+          "opacityFrom": 0.6,
+          "opacityTo": 0.1
+        }
+      },
+      "legend": {
+        "position": "top"
+      }
+    },
+    "series": [
+      {
+        "name": "CPU Usage (%)",
+        "data": [50, 55, 48, 60, 52, 48, 45]
+      },
+      {
+        "name": "Memory Usage (MB)",
+        "data": [300, 320, 290, 350, 310, 290, 280]
+      }
+    ]
+  },
+  "browserComparisonData": {
+    "options": {
+      "chart": {
+        "type": "bar",
+        "toolbar": {
+          "show": false
+        }
+      },
+      "plotOptions": {
+        "bar": {
+          "horizontal": false,
+          "columnWidth": "55%"
+        }
+      },
+      "xaxis": {
+        "categories": ["Chrome", "Firefox", "Safari", "Edge"]
+      },
+      "colors": ["#2196f3", "#9c27b0"],
+      "dataLabels": {
+        "enabled": false
+      },
+      "legend": {
+        "position": "top"
+      }
+    },
+    "series": [
+      {
+        "name": "Load Time (ms)",
+        "data": [850, 1100, 750, 950]
+      },
+      {
+        "name": "Response Time (ms)",
+        "data": [120, 180, 100, 150]
+      }
+    ]
+  },
   "mockTestCases": [
     {
       "id": "tc-1",
