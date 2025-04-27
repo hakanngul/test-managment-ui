@@ -12,7 +12,6 @@ import {
   StepLabel,
   StepContent,
   Alert,
-  IconButton,
   FormControl,
   InputLabel,
   Select,
@@ -34,7 +33,7 @@ import {
   Search as SearchIcon
 } from '@mui/icons-material';
 import api from '../services/api';
-import { TestCase, TestStep } from '../types';
+import { TestCase } from '../types';
 
 const TestExecutionSimulator: React.FC = () => {
   // State for test case selection
