@@ -1,41 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  Card,
-  Button,
-  TextField,
-  InputAdornment,
-  IconButton,
-  LinearProgress,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Stack,
-  Grid,
-} from '@mui/material';
-import {
-  Search as SearchIcon,
-  Add as AddIcon,
-  KeyboardArrowRight as KeyboardArrowRightIcon,
-  CalendarToday as CalendarTodayIcon,
-  Person as PersonIcon,
-  CheckCircle as CheckIcon,
-  Cancel as CancelIcon,
-  Block as BlockIcon,
-  HourglassEmpty as PendingIcon,
-} from '@mui/icons-material';
+import { Box, Stack } from '@mui/material';
 import { useTestSuites } from '../hooks/useApi';
-
-// Default empty test suites array
-const defaultTestSuites: any[] = [];
+import api from '../services/api';
+import {
+  PageHeader,
+  TestSuiteCard,
+  EmptyState,
+  LoadingState,
+  NewTestRunDialog
+} from '../components/testRuns';
 
 interface TestSuite {
   id: string;
@@ -67,7 +41,7 @@ const TestRuns: React.FC = () => {
   });
 
   // Fetch test suites from API
-  const { data: testSuites, loading: isLoading } = useTestSuites();
+  const { data: testSuites, loading: isLoading, error } = useTestSuites();
   const [formattedTestSuites, setFormattedTestSuites] = useState<TestSuite[]>([]);
 
   // Format test suites data
@@ -98,6 +72,11 @@ const TestRuns: React.FC = () => {
     suite.assignee.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Handle search change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   // Handle new test run dialog
   const handleOpenNewRunDialog = () => {
     navigate('/test-runs/create');
@@ -117,277 +96,102 @@ const TestRuns: React.FC = () => {
     }
   };
 
-  const handleCreateNewRun = () => {
-    console.log('Creating new test run:', newRunData);
-    handleCloseNewRunDialog();
-  };
+  const handleCreateNewRun = async () => {
+    try {
+      // Create new test run object
+      const newTestRun = {
+        name: newRunData.name,
+        startDate: newRunData.startDate,
+        endDate: newRunData.endDate,
+        assignee: newRunData.assignee,
+        status: 'pending',
+        progress: 0,
+        results: {
+          passed: 0,
+          failed: 0,
+          blocked: 0,
+          pending: 0
+        },
+        createdAt: new Date().toISOString()
+      };
 
-  // Helper functions
-  const getStatusChip = (status: string) => {
-    switch (status) {
-      case 'passed':
-        return <Chip label="Passed" color="success" size="small" sx={{ fontWeight: 500 }} />;
-      case 'failed':
-        return <Chip label="Failed" color="error" size="small" sx={{ fontWeight: 500 }} />;
-      case 'in_progress':
-        return <Chip label="In Progress" color="primary" size="small" sx={{ fontWeight: 500 }} />;
-      case 'pending':
-        return <Chip label="Pending" color="default" size="small" sx={{ fontWeight: 500 }} />;
-      default:
-        return null;
+      // Send to API
+      await api.createTestSuite(newTestRun);
+
+      // Close dialog and reset form
+      handleCloseNewRunDialog();
+      setNewRunData({
+        name: '',
+        startDate: '',
+        endDate: '',
+        assignee: '',
+      });
+
+      // Navigate to test runs page
+      navigate('/test-runs');
+    } catch (error) {
+      console.error('Error creating test run:', error);
     }
   };
 
-  // Get color for result type
-  const getResultColor = (type: string) => {
-    switch (type) {
-      case 'passed': return 'success.main';
-      case 'failed': return 'error.main';
-      case 'blocked': return 'warning.main';
-      case 'pending': return 'text.secondary';
-      default: return 'text.primary';
-    }
+  // Handle test suite click
+  const handleTestSuiteClick = (id: string) => {
+    navigate(`/test-runs/${id}`);
   };
 
   return (
     <Box>
       {/* Header with search and new button */}
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <TextField
-          placeholder="Search test suites..."
-          variant="outlined"
-          size="small"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ width: 300 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
-              </InputAdornment>
-            ),
-          }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenNewRunDialog}
-          sx={{
-            bgcolor: '#0f172a',
-            '&:hover': { bgcolor: '#1e293b' },
-            borderRadius: '4px',
-          }}
-        >
-          New Test Run
-        </Button>
-      </Box>
+      <PageHeader
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchChange}
+        onNewTestRunClick={handleOpenNewRunDialog}
+      />
 
       {/* Loading State */}
-      {isLoading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-          <Typography>Loading test suites...</Typography>
-        </Box>
+      {isLoading && <LoadingState />}
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <EmptyState
+          hasSearchQuery={false}
+          onCreateClick={handleOpenNewRunDialog}
+        />
       )}
 
       {/* Empty State */}
-      {!isLoading && filteredTestSuites.length === 0 && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 4 }}>
-          <Typography variant="h6" gutterBottom>No test suites found</Typography>
-          <Typography color="text.secondary" align="center">
-            {searchQuery ? 'Try adjusting your search query' : 'Create a new test suite to get started'}
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ mt: 2 }}
-            onClick={handleOpenNewRunDialog}
-          >
-            Create Test Suite
-          </Button>
-        </Box>
+      {!isLoading && !error && filteredTestSuites.length === 0 && (
+        <EmptyState
+          hasSearchQuery={searchQuery.length > 0}
+          onCreateClick={handleOpenNewRunDialog}
+        />
       )}
 
       {/* Test Suite Cards */}
       <Stack spacing={2}>
-        {!isLoading && filteredTestSuites.map((suite) => (
-          <Card
+        {!isLoading && !error && filteredTestSuites.map((suite) => (
+          <TestSuiteCard
             key={suite.id}
-            sx={{
-              borderRadius: 1,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              '&:hover': { boxShadow: '0 4px 6px rgba(0,0,0,0.1)' },
-              cursor: 'pointer',
-            }}
-            onClick={() => navigate(`/test-runs/${suite.id}`)}
-          >
-            <Box sx={{ p: 2 }}>
-              {/* Title and expand icon */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <KeyboardArrowRightIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                <Typography variant="subtitle1" fontWeight="500">
-                  {suite.name}
-                </Typography>
-              </Box>
-
-              {/* Date range */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, ml: 4 }}>
-                <CalendarTodayIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                <Typography variant="body2" color="text.secondary">
-                  {suite.dateRange}
-                </Typography>
-              </Box>
-
-              {/* Status chip */}
-              <Box sx={{ ml: 4, mb: 2 }}>
-                {getStatusChip(suite.status)}
-              </Box>
-
-              {/* Progress section */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ ml: 4 }}>
-                  Progress
-                </Typography>
-                <Typography variant="body2" fontWeight="medium">
-                  {suite.progress}%
-                </Typography>
-              </Box>
-
-              {/* Progress bar */}
-              <Box sx={{ mx: 4, mb: 2 }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={suite.progress}
-                  sx={{
-                    height: 8,
-                    borderRadius: 4,
-                    bgcolor: 'rgba(0,0,0,0.1)',
-                    '& .MuiLinearProgress-bar': {
-                      bgcolor: suite.status === 'failed' ? 'error.main' :
-                              suite.status === 'passed' ? 'success.main' : 'primary.main'
-                    }
-                  }}
-                />
-              </Box>
-
-              {/* Assignee */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ ml: 4 }}>
-                  Assignee:
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <PersonIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
-                  <Typography variant="body2">
-                    {suite.assignee}
-                  </Typography>
-                </Box>
-              </Box>
-
-              {/* Results grid */}
-              <Grid container spacing={2} sx={{ ml: 2 }}>
-                <Grid item xs={3}>
-                  <Typography variant="h6" color="success.main" align="center">
-                    {suite.results.passed}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" align="center">
-                    Passed
-                  </Typography>
-                </Grid>
-                <Grid item xs={3}>
-                  <Typography variant="h6" color="error.main" align="center">
-                    {suite.results.failed}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" align="center">
-                    Failed
-                  </Typography>
-                </Grid>
-                <Grid item xs={3}>
-                  <Typography variant="h6" color="warning.main" align="center">
-                    {suite.results.blocked}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" align="center">
-                    Blocked
-                  </Typography>
-                </Grid>
-                <Grid item xs={3}>
-                  <Typography variant="h6" color="text.secondary" align="center">
-                    {suite.results.pending}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" align="center">
-                    Pending
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Box>
-          </Card>
+            id={suite.id}
+            name={suite.name}
+            dateRange={suite.dateRange}
+            status={suite.status}
+            progress={suite.progress}
+            assignee={suite.assignee}
+            results={suite.results}
+            onClick={handleTestSuiteClick}
+          />
         ))}
       </Stack>
 
       {/* New Test Run Dialog */}
-      <Dialog
+      <NewTestRunDialog
         open={newRunDialogOpen}
+        data={newRunData}
         onClose={handleCloseNewRunDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Create New Test Run</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 1 }}>
-            <Stack spacing={3}>
-              <TextField
-                name="name"
-                label="Test Run Name"
-                fullWidth
-                required
-                value={newRunData.name}
-                onChange={handleNewRunChange}
-              />
-
-              <TextField
-                name="startDate"
-                label="Start Date"
-                type="date"
-                fullWidth
-                required
-                value={newRunData.startDate}
-                onChange={handleNewRunChange}
-                InputLabelProps={{ shrink: true }}
-              />
-
-              <TextField
-                name="endDate"
-                label="End Date"
-                type="date"
-                fullWidth
-                required
-                value={newRunData.endDate}
-                onChange={handleNewRunChange}
-                InputLabelProps={{ shrink: true }}
-              />
-
-              <TextField
-                name="assignee"
-                label="Assignee"
-                fullWidth
-                required
-                value={newRunData.assignee}
-                onChange={handleNewRunChange}
-              />
-            </Stack>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseNewRunDialog}>Cancel</Button>
-          <Button
-            onClick={handleCreateNewRun}
-            variant="contained"
-            color="primary"
-            disabled={!newRunData.name || !newRunData.startDate || !newRunData.endDate || !newRunData.assignee}
-          >
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onChange={handleNewRunChange}
+        onSubmit={handleCreateNewRun}
+      />
     </Box>
   );
 };

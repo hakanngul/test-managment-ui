@@ -25,6 +25,7 @@ import {
   TableRow,
   CircularProgress,
   Alert,
+  TablePagination,
 } from '@mui/material';
 import {
   PlayArrow as PlayIcon,
@@ -77,6 +78,20 @@ const TestRunDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Add pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // Add pagination handlers
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   // Fetch test run data from API
   useEffect(() => {
     const fetchTestRun = async () => {
@@ -84,6 +99,78 @@ const TestRunDetail: React.FC = () => {
 
       try {
         setLoading(true);
+
+        // First try to get from testSuites
+        try {
+          const data = await api.getTestSuiteById(id);
+
+          // Convert testSuite format to testRun format
+          const testRunData = {
+            id: data.id,
+            name: data.name,
+            status: data.status,
+            startTime: data.createdAt,
+            endTime: null,
+            environment: data.environment || 'staging',
+            browser: 'chrome',
+            device: 'desktop',
+            testCaseIds: data.testCases || [],
+            results: [],
+            createdBy: '1', // Default to first user
+            createdAt: data.createdAt,
+          };
+
+          // Add mock results based on the results summary
+          if (data.results) {
+            // Create mock results based on the summary data
+            const mockResults: TestResult[] = [];
+
+            // Add passed results
+            for (let i = 0; i < data.results.passed; i++) {
+              mockResults.push({
+                id: `result-${data.id}-passed-${i}`,
+                testCaseId: data.testCases && data.testCases[i % data.testCases.length] || `tc-${i+1}`,
+                status: 'passed',
+                duration: 30000 + Math.floor(Math.random() * 30000)
+              });
+            }
+
+            // Add failed results
+            for (let i = 0; i < data.results.failed; i++) {
+              mockResults.push({
+                id: `result-${data.id}-failed-${i}`,
+                testCaseId: data.testCases && data.testCases[(i + data.results.passed) % data.testCases.length] || `tc-${i+data.results.passed+1}`,
+                status: 'failed',
+                duration: 40000 + Math.floor(Math.random() * 50000),
+                errorMessage: 'Test assertion failed'
+              });
+            }
+
+            (testRunData as TestRun).results = mockResults;
+          }
+
+          // Calculate additional fields
+          const enhancedData = {
+            ...testRunData,
+            progress: data.progress || calculateProgress(testRunData),
+            totalTests: data.testCases ? data.testCases.length : 0,
+            passed: data.results ? data.results.passed : 0,
+            failed: data.results ? data.results.failed : 0,
+            skipped: data.results ? data.results.pending : 0,
+            running: 0,
+            duration: calculateDuration(testRunData),
+            triggeredBy: await getUserName('1'),
+          };
+
+          setTestRun(enhancedData);
+          setError(null);
+          setLoading(false);
+          return;
+        } catch (suiteErr) {
+          console.error('Error fetching test suite, trying test run:', suiteErr);
+        }
+
+        // If testSuite not found, try to get from testRuns
         const data = await api.getTestRunById(id);
 
         // Calculate additional fields
@@ -399,37 +486,48 @@ const TestRunDetail: React.FC = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {testRun.results.map((result) => (
-                      <TableRow key={result.id}>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {getTestCaseName(result.testCaseId)}
-                          </Typography>
-                          {result.errorMessage && (
-                            <Typography variant="caption" color="error">
-                              Error: {result.errorMessage}
+                    {testRun.results
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((result) => (
+                        <TableRow key={result.id}>
+                          <TableCell>
+                            <Typography variant="body2">
+                              {getTestCaseName(result.testCaseId)}
                             </Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            icon={getStatusIcon(result.status)}
-                            label={result.status.toUpperCase()}
-                            size="small"
-                            color={getStatusColor(result.status)}
-                          />
-                        </TableCell>
-                        <TableCell>{formatDurationFromMs(result.duration)}</TableCell>
-                        <TableCell align="right">
-                          <IconButton size="small">
-                            <BugIcon fontSize="small" />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                            {result.errorMessage && (
+                              <Typography variant="caption" color="error">
+                                Error: {result.errorMessage}
+                              </Typography>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              icon={getStatusIcon(result.status)}
+                              label={result.status.toUpperCase()}
+                              size="small"
+                              color={getStatusColor(result.status)}
+                            />
+                          </TableCell>
+                          <TableCell>{formatDurationFromMs(result.duration)}</TableCell>
+                          <TableCell align="right">
+                            <IconButton size="small">
+                              <BugIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>
+              <TablePagination
+                component="div"
+                count={testRun.results.length}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+              />
             </CardContent>
           </Card>
         </Grid>
