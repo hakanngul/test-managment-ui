@@ -37,7 +37,13 @@ export const toServerAgent = (data: any): ServerAgent => {
     queueStatus: {
       queued: data.queueStatus?.queued || 0,
       processing: data.queueStatus?.processing || 0,
-      total: data.queueStatus?.total || 0
+      total: data.queueStatus?.total || 0,
+      scheduled: data.queueStatus?.scheduled || 0,
+      assigned: data.queueStatus?.assigned || 0,
+      highPriority: data.queueStatus?.highPriority || 0,
+      mediumPriority: data.queueStatus?.mediumPriority || 0,
+      lowPriority: data.queueStatus?.lowPriority || 0,
+      estimatedWaitTime: data.queueStatus?.estimatedWaitTime || 0
     },
     activeAgents: data.activeAgents || [],
     queuedRequests: data.queuedRequests || [],

@@ -51,6 +51,7 @@ export * from './enums/AgentEnums';
 export * from './enums/TestResultEnums';
 export * from './enums/ProcessedRequestEnums';
 export * from './enums/QueuedRequestEnums';
+export * from './enums/ProjectEnums';
 
 // Export all interfaces
 export * from './interfaces/TestCase';
@@ -63,6 +64,7 @@ export * from './interfaces/TestStepResult';
 export * from './interfaces/TestReportData';
 export * from './interfaces/ProcessedRequest';
 export * from './interfaces/QueuedRequest';
+export * from './interfaces/Project';
 
 // Export all utils
 export * from './utils/TestCaseUtils';
@@ -131,3 +133,15 @@ export {
   createDefaultQueueStatusSummary,
   updateQueueStatusSummary
 } from './utils/QueuedRequestUtils';
+
+// Export Project utils
+export {
+  toProject,
+  fromProject,
+  calculateProjectStats,
+  createDefaultProjectConfig,
+  createDefaultProjectTimeline,
+  createProjectMember,
+  hasProjectRole,
+  isProjectAdmin
+} from './utils/ProjectUtils';
