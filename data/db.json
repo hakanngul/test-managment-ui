@@ -498,6 +498,7 @@
   "testPriorities": ["Critical", "High", "Medium", "Low"],
   "testStatuses": ["Passed", "Failed", "Pending", "Blocked"],
   "testEnvironments": ["Development", "Staging", "Production", "QA"],
+  "availableActions": ["click", "type", "wait", "select", "assert", "navigate", "hover", "scroll", "drag", "upload", "custom"],
   "testFeatures": ["Authentication", "Search", "Checkout", "User Profile", "Admin Panel", "Reporting", "Notifications"],
   "executionTimeData": [2.5, 3.1, 2.8, 3.4, 2.9, 2.7, 3.2],
   "testCountsByDay": [
@@ -925,8 +926,41 @@
         {
           "id": "step-9-0",
           "order": 1,
-          "description": "Step 1 description",
-          "expectedResult": "Expected result for step 1",
+          "action": "navigate",
+          "target": "/profile",
+          "value": "",
+          "description": "Navigate to user profile page",
+          "expectedResult": "User profile page is displayed with current user information",
+          "type": "manual"
+        },
+        {
+          "id": "step-9-1",
+          "order": 2,
+          "action": "click",
+          "target": "#edit-profile-button",
+          "value": "",
+          "description": "Click on Edit Profile button",
+          "expectedResult": "Profile edit form is displayed with current user information",
+          "type": "manual"
+        },
+        {
+          "id": "step-9-2",
+          "order": 3,
+          "action": "type",
+          "target": "#user-name",
+          "value": "New User Name",
+          "description": "Update the user name field",
+          "expectedResult": "User name field is updated with the new value",
+          "type": "manual"
+        },
+        {
+          "id": "step-9-3",
+          "order": 4,
+          "action": "click",
+          "target": "#save-profile-button",
+          "value": "",
+          "description": "Click on Save Profile button",
+          "expectedResult": "Profile is saved and success message is displayed",
           "type": "manual"
         }
       ],
