@@ -19,57 +19,155 @@ import {
   Divider,
   IconButton,
   Tooltip,
-  Alert
+  Alert,
+  Stepper,
+  Step,
+  StepLabel,
+  CircularProgress,
+  Snackbar
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
   Save as SaveIcon,
-  Cancel as CancelIcon
+  Cancel as CancelIcon,
+  PlayArrow as PlayArrowIcon,
+  NavigateNext as NextIcon,
+  NavigateBefore as BackIcon
 } from '@mui/icons-material';
-import { 
-  TestCase, 
-  TestCaseStatus, 
-  TestCasePriority, 
-  TestCaseCategory 
+import {
+  TestCase,
+  TestCaseStatus,
+  TestCasePriority,
+  TestCaseCategory
 } from '../models/interfaces/ITestCase';
+import TestStepsEditor, { TestStep, TestStepActionType } from '../components/test-cases/TestStepsEditor';
+import BrowserSettingsEditor, { BrowserSettings } from '../components/test-cases/BrowserSettingsEditor';
+import { testRunnerService, TestRunRequest, TestRunResponse } from '../services/TestRunnerService';
+import { BrowserType } from '../models/enums/TestEnums';
 
 const NewTestCase: React.FC = () => {
   const navigate = useNavigate();
-  
+
+  // Adım yönetimi
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = ['Temel Bilgiler', 'Test Adımları', 'Tarayıcı Ayarları', 'Gözden Geçir'];
+
+  // Temel bilgiler
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<TestCaseStatus>(TestCaseStatus.DRAFT);
   const [priority, setPriority] = useState<TestCasePriority>(TestCasePriority.MEDIUM);
   const [category, setCategory] = useState<TestCaseCategory>(TestCaseCategory.FUNCTIONAL);
   const [tags, setTags] = useState<string[]>([]);
-  const [browser, setBrowser] = useState('Chrome');
   const [environment, setEnvironment] = useState('Development');
-  const [automated, setAutomated] = useState(false);
+  const [automated, setAutomated] = useState(true);
   const [prerequisites, setPrerequisites] = useState<string[]>([]);
+
+  // Test adımları
+  const [testSteps, setTestSteps] = useState<TestStep[]>([]);
+
+  // Tarayıcı ayarları
+  const [browserSettings, setBrowserSettings] = useState<BrowserSettings>({
+    browser: BrowserType.CHROME,
+    headless: true,
+    width: 1366,
+    height: 768,
+    timeout: 30000,
+    recordVideo: true,
+    ignoreHTTPSErrors: false
+  });
+
+  // Test çalıştırma
+  const [isRunning, setIsRunning] = useState(false);
+  const [testRunId, setTestRunId] = useState<string | null>(null);
+  const [testRunStatus, setTestRunStatus] = useState<string | null>(null);
+
+  // UI durumu
   const [errors, setErrors] = useState<{
     name?: string;
     description?: string;
+    steps?: string[];
+    browserSettings?: string[];
   }>({});
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [showSnackbar, setShowSnackbar] = useState(false);
+
+  // Adım kontrolü
+  const handleNext = () => {
+    if (activeStep === 0) {
+      // Temel bilgileri doğrula
+      const newErrors: typeof errors = {};
+
+      if (!name.trim()) {
+        newErrors.name = 'Test case adı gereklidir';
+      }
+
+      if (!description.trim()) {
+        newErrors.description = 'Açıklama gereklidir';
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+    } else if (activeStep === 1) {
+      // Test adımlarını doğrula
+      const validation = testRunnerService.validateTestSteps(testSteps);
+      if (!validation.isValid) {
+        setErrors(prev => ({ ...prev, steps: validation.errors }));
+        setSnackbarMessage('Lütfen test adımlarını düzeltin');
+        setShowSnackbar(true);
+        return;
+      }
+    } else if (activeStep === 2) {
+      // Tarayıcı ayarlarını doğrula
+      const validation = testRunnerService.validateBrowserSettings(browserSettings);
+      if (!validation.isValid) {
+        setErrors(prev => ({ ...prev, browserSettings: validation.errors }));
+        setSnackbarMessage('Lütfen tarayıcı ayarlarını düzeltin');
+        setShowSnackbar(true);
+        return;
+      }
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
 
   // Form gönderme işlemi
-  const handleSubmit = () => {
-    // Form doğrulama
+  const handleSubmit = async () => {
+    // Tüm formu doğrula
     const newErrors: typeof errors = {};
-    
+
     if (!name.trim()) {
       newErrors.name = 'Test case adı gereklidir';
     }
-    
+
     if (!description.trim()) {
       newErrors.description = 'Açıklama gereklidir';
     }
-    
+
+    const stepsValidation = testRunnerService.validateTestSteps(testSteps);
+    if (!stepsValidation.isValid) {
+      newErrors.steps = stepsValidation.errors;
+    }
+
+    const browserValidation = testRunnerService.validateBrowserSettings(browserSettings);
+    if (!browserValidation.isValid) {
+      newErrors.browserSettings = browserValidation.errors;
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      setSnackbarMessage('Lütfen formdaki hataları düzeltin');
+      setShowSnackbar(true);
       return;
     }
-    
+
     // Yeni test case oluştur
     const newTestCase: Omit<TestCase, 'id'> = {
       name,
@@ -81,29 +179,105 @@ const NewTestCase: React.FC = () => {
       createdBy: 'Hakan Gül', // Gerçek uygulamada oturum açmış kullanıcıdan alınacak
       createdAt: new Date(),
       updatedAt: new Date(),
-      browser,
+      browser: browserSettings.browser,
       environment,
       automated,
       prerequisites,
       projectId: 'proj-001', // Gerçek uygulamada seçilen projeden alınacak
       steps: []
     };
-    
+
     // Gerçek uygulamada burada API çağrısı yapılacak
     console.log('Yeni test case oluşturuluyor:', newTestCase);
-    
+
     // Başarı mesajını göster
     setShowSuccessAlert(true);
-    
+
     // 2 saniye sonra test cases sayfasına yönlendir
     setTimeout(() => {
       navigate('/test-cases');
     }, 2000);
   };
 
+  // Test çalıştırma işlemi
+  const handleRunTest = async () => {
+    try {
+      setIsRunning(true);
+
+      // Test çalıştırma isteği oluştur
+      const testRunRequest: TestRunRequest = {
+        id: `run-${Date.now()}`,
+        name,
+        description,
+        browserSettings,
+        steps: testSteps,
+        testCaseId: undefined, // Henüz kaydedilmediği için ID yok
+        projectId: 'proj-001',
+        priority: priority,
+        tags,
+        createdBy: 'Hakan Gül'
+      };
+
+      // İsteği doğrula
+      const validation = testRunnerService.validateTestRunRequest(testRunRequest);
+      if (!validation.isValid) {
+        setSnackbarMessage('Test çalıştırma isteği geçersiz: ' + validation.errors.join(', '));
+        setShowSnackbar(true);
+        setIsRunning(false);
+        return;
+      }
+
+      // Test çalıştırma isteği gönder
+      const response = await testRunnerService.runTest(testRunRequest);
+
+      setTestRunId(response.id);
+      setTestRunStatus(response.status);
+
+      // Test durumunu periyodik olarak kontrol et
+      const statusCheckInterval = setInterval(async () => {
+        try {
+          const statusResponse = await testRunnerService.checkTestStatus(response.id);
+          setTestRunStatus(statusResponse.status);
+
+          // Test tamamlandıysa interval'i temizle
+          if (['completed', 'failed', 'error'].includes(statusResponse.status)) {
+            clearInterval(statusCheckInterval);
+            setIsRunning(false);
+
+            if (statusResponse.status === 'completed') {
+              setSnackbarMessage('Test başarıyla tamamlandı!');
+            } else {
+              setSnackbarMessage(`Test ${statusResponse.status} durumunda tamamlandı.`);
+            }
+            setShowSnackbar(true);
+          }
+        } catch (error) {
+          console.error('Test durumu kontrol hatası:', error);
+          clearInterval(statusCheckInterval);
+          setIsRunning(false);
+          setSnackbarMessage('Test durumu kontrol edilirken hata oluştu');
+          setShowSnackbar(true);
+        }
+      }, 5000); // 5 saniyede bir kontrol et
+
+      setSnackbarMessage('Test çalıştırma isteği gönderildi. Test kuyruğa alındı.');
+      setShowSnackbar(true);
+    } catch (error) {
+      console.error('Test çalıştırma hatası:', error);
+      setIsRunning(false);
+      setSnackbarMessage('Test çalıştırılırken hata oluştu');
+      setShowSnackbar(true);
+    }
+  };
+
   // İptal işlemi
   const handleCancel = () => {
     navigate('/test-cases');
+  };
+
+  // Snackbar kapatma
+  const handleCloseSnackbar = () => {
+    setShowSnackbar(false);
   };
 
   // Öncelik adını formatla
@@ -144,71 +318,11 @@ const NewTestCase: React.FC = () => {
     }
   };
 
-  return (
-    <Container maxWidth="xl">
-      <Box sx={{ py: 3 }}>
-        {/* Başlık ve Butonlar */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          mb: 3
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title="Geri Dön">
-              <IconButton 
-                onClick={handleCancel}
-                sx={{ mr: 2 }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-              Yeni Test Case Oluştur
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
-              variant="outlined"
-              color="inherit"
-              startIcon={<CancelIcon />}
-              onClick={handleCancel}
-            >
-              İptal
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<SaveIcon />}
-              onClick={handleSubmit}
-            >
-              Kaydet
-            </Button>
-          </Box>
-        </Box>
-        
-        {/* Başarı Mesajı */}
-        {showSuccessAlert && (
-          <Alert 
-            severity="success" 
-            sx={{ mb: 3 }}
-            onClose={() => setShowSuccessAlert(false)}
-          >
-            Test case başarıyla oluşturuldu! Test Cases sayfasına yönlendiriliyorsunuz...
-          </Alert>
-        )}
-        
-        {/* Form */}
-        <Paper 
-          elevation={2} 
-          sx={{ 
-            p: 3, 
-            mb: 3, 
-            borderRadius: 2,
-            boxShadow: '0 4px 20px 0 rgba(0,0,0,0.05)'
-          }}
-        >
+  // Adım içeriğini render et
+  const getStepContent = (step: number) => {
+    switch (step) {
+      case 0:
+        return (
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
@@ -216,7 +330,7 @@ const NewTestCase: React.FC = () => {
               </Typography>
               <Divider sx={{ mb: 2 }} />
             </Grid>
-            
+
             <Grid item xs={12}>
               <TextField
                 label="Test Case Adı"
@@ -228,7 +342,7 @@ const NewTestCase: React.FC = () => {
                 required
               />
             </Grid>
-            
+
             <Grid item xs={12}>
               <TextField
                 label="Açıklama"
@@ -242,7 +356,7 @@ const NewTestCase: React.FC = () => {
                 required
               />
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth>
                 <InputLabel>Durum</InputLabel>
@@ -259,7 +373,7 @@ const NewTestCase: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth>
                 <InputLabel>Öncelik</InputLabel>
@@ -276,7 +390,7 @@ const NewTestCase: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth>
                 <InputLabel>Kategori</InputLabel>
@@ -293,14 +407,14 @@ const NewTestCase: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
                 Ek Bilgiler
               </Typography>
               <Divider sx={{ mb: 2 }} />
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <Autocomplete
                 multiple
@@ -327,7 +441,7 @@ const NewTestCase: React.FC = () => {
                 )}
               />
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <Autocomplete
                 multiple
@@ -354,25 +468,7 @@ const NewTestCase: React.FC = () => {
                 )}
               />
             </Grid>
-            
-            <Grid item xs={12} sm={6} md={4}>
-              <FormControl fullWidth>
-                <InputLabel>Tarayıcı</InputLabel>
-                <Select
-                  value={browser}
-                  onChange={(e) => setBrowser(e.target.value)}
-                  label="Tarayıcı"
-                >
-                  <MenuItem value="Chrome">Chrome</MenuItem>
-                  <MenuItem value="Firefox">Firefox</MenuItem>
-                  <MenuItem value="Safari">Safari</MenuItem>
-                  <MenuItem value="Edge">Edge</MenuItem>
-                  <MenuItem value="Opera">Opera</MenuItem>
-                  <MenuItem value="N/A">Uygulanabilir Değil</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            
+
             <Grid item xs={12} sm={6} md={4}>
               <FormControl fullWidth>
                 <InputLabel>Ortam</InputLabel>
@@ -388,7 +484,7 @@ const NewTestCase: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6} md={4}>
               <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                 <FormControlLabel
@@ -404,48 +500,315 @@ const NewTestCase: React.FC = () => {
               </Box>
             </Grid>
           </Grid>
-        </Paper>
-        
-        {/* Test Adımları (İleriki aşamalarda eklenebilir) */}
-        <Paper 
-          elevation={2} 
-          sx={{ 
-            p: 3, 
-            mb: 3, 
+        );
+      case 1:
+        return (
+          <TestStepsEditor
+            steps={testSteps}
+            onChange={setTestSteps}
+          />
+        );
+      case 2:
+        return (
+          <BrowserSettingsEditor
+            settings={browserSettings}
+            onChange={setBrowserSettings}
+          />
+        );
+      case 3:
+        return (
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Özet
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 2, height: '100%' }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Temel Bilgiler
+                  </Typography>
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Ad:</strong> {name}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Açıklama:</strong> {description}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Durum:</strong> {formatStatus(status)}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Öncelik:</strong> {formatPriority(priority)}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Kategori:</strong> {formatCategory(category)}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Ortam:</strong> {environment}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Otomatize:</strong> {automated ? 'Evet' : 'Hayır'}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Etiketler:</strong> {tags.length > 0 ? tags.join(', ') : 'Yok'}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Ön Koşullar:</strong> {prerequisites.length > 0 ? prerequisites.join(', ') : 'Yok'}
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 2, height: '100%' }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Tarayıcı Ayarları
+                  </Typography>
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Tarayıcı:</strong> {browserSettings.browser}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Headless:</strong> {browserSettings.headless ? 'Evet' : 'Hayır'}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Boyut:</strong> {browserSettings.width}x{browserSettings.height}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Zaman Aşımı:</strong> {browserSettings.timeout}ms
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Video Kaydı:</strong> {browserSettings.recordVideo ? 'Evet' : 'Hayır'}
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>HTTPS Hatalarını Yok Say:</strong> {browserSettings.ignoreHTTPSErrors ? 'Evet' : 'Hayır'}
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Paper sx={{ p: 2 }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Test Adımları ({testSteps.length})
+                  </Typography>
+                  <Box sx={{ mt: 2 }}>
+                    {testSteps.length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        Henüz test adımı eklenmemiş.
+                      </Typography>
+                    ) : (
+                      <Box component="ul" sx={{ pl: 2 }}>
+                        {testSteps.map((step, index) => (
+                          <Box component="li" key={step.id} sx={{ mb: 1 }}>
+                            <Typography variant="body2">
+                              <strong>{index + 1}. {step.action}:</strong> {step.description}
+                              {step.selector && <span> (Seçici: {step.selector})</span>}
+                              {step.value && <span> (Değer: {step.value})</span>}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
+                </Paper>
+              </Grid>
+            </Grid>
+
+            {/* Test Çalıştırma Durumu */}
+            {testRunId && (
+              <Paper sx={{ p: 2, mt: 3 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Test Çalıştırma Durumu
+                </Typography>
+                <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {isRunning && <CircularProgress size={24} />}
+                  <Typography variant="body1">
+                    Test ID: {testRunId}
+                  </Typography>
+                  <Chip
+                    label={testRunStatus || 'Bilinmiyor'}
+                    color={
+                      testRunStatus === 'completed' ? 'success' :
+                      testRunStatus === 'failed' || testRunStatus === 'error' ? 'error' :
+                      testRunStatus === 'running' ? 'primary' :
+                      'default'
+                    }
+                  />
+                </Box>
+              </Paper>
+            )}
+          </Box>
+        );
+      default:
+        return 'Bilinmeyen adım';
+    }
+  };
+
+  return (
+    <Container maxWidth="xl">
+      <Box sx={{ py: 3 }}>
+        {/* Başlık ve Butonlar */}
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Tooltip title="Geri Dön">
+              <IconButton
+                onClick={handleCancel}
+                sx={{ mr: 2 }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+            </Tooltip>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+              Yeni Test Case Oluştur
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              variant="outlined"
+              color="inherit"
+              startIcon={<CancelIcon />}
+              onClick={handleCancel}
+            >
+              İptal
+            </Button>
+            {activeStep === steps.length - 1 ? (
+              <>
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<PlayArrowIcon />}
+                  onClick={handleRunTest}
+                  disabled={isRunning}
+                >
+                  {isRunning ? 'Çalıştırılıyor...' : 'Testi Çalıştır'}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<SaveIcon />}
+                  onClick={handleSubmit}
+                >
+                  Kaydet
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+              >
+                İleri
+              </Button>
+            )}
+          </Box>
+        </Box>
+
+        {/* Başarı Mesajı */}
+        {showSuccessAlert && (
+          <Alert
+            severity="success"
+            sx={{ mb: 3 }}
+            onClose={() => setShowSuccessAlert(false)}
+          >
+            Test case başarıyla oluşturuldu! Test Cases sayfasına yönlendiriliyorsunuz...
+          </Alert>
+        )}
+
+        {/* Adım Göstergesi */}
+        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+
+        {/* Form */}
+        <Paper
+          elevation={2}
+          sx={{
+            p: 3,
+            mb: 3,
             borderRadius: 2,
             boxShadow: '0 4px 20px 0 rgba(0,0,0,0.05)'
           }}
         >
-          <Typography variant="h6" gutterBottom>
-            Test Adımları
-          </Typography>
-          <Divider sx={{ mb: 2 }} />
-          
-          <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
-            Test adımları ekleme özelliği yakında eklenecektir.
-          </Typography>
+          {getStepContent(activeStep)}
         </Paper>
-        
+
         {/* Alt Butonlar */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
           <Button
             variant="outlined"
             color="inherit"
-            startIcon={<CancelIcon />}
-            onClick={handleCancel}
+            onClick={handleBack}
+            disabled={activeStep === 0}
+            startIcon={<BackIcon />}
           >
-            İptal
+            Geri
           </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<SaveIcon />}
-            onClick={handleSubmit}
-          >
-            Kaydet
-          </Button>
+
+          <Box>
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={handleCancel}
+              sx={{ mr: 2 }}
+            >
+              İptal
+            </Button>
+
+            {activeStep === steps.length - 1 ? (
+              <>
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<PlayArrowIcon />}
+                  onClick={handleRunTest}
+                  disabled={isRunning}
+                  sx={{ mr: 2 }}
+                >
+                  {isRunning ? 'Çalıştırılıyor...' : 'Testi Çalıştır'}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<SaveIcon />}
+                  onClick={handleSubmit}
+                >
+                  Kaydet
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+                endIcon={<NextIcon />}
+              >
+                İleri
+              </Button>
+            )}
+          </Box>
         </Box>
       </Box>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbarMessage}
+      />
     </Container>
   );
 };
