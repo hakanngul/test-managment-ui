@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Stack } from '@mui/material';
 import { useTestSuites } from '../hooks/useApi';
-import api from '../services_old/api';
+import api from '../services/api';
 import {
   PageHeader,
   TestSuiteCard,

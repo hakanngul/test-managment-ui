@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Alert } from '@mui/material';
 import { TestCase } from '../types';
-import api from '../services_old/api';
+import api from '../services/api';
 import {
   TestCasesHeader,
   TestCasesFilter,

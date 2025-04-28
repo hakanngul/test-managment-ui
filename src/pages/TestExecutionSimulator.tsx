@@ -32,7 +32,7 @@ import {
   Refresh as RefreshIcon,
   Search as SearchIcon
 } from '@mui/icons-material';
-import api from '../services_old/api';
+import api from '../services/api';
 import { TestCase } from '../types';
 
 const TestExecutionSimulator: React.FC = () => {

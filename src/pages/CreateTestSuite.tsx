@@ -37,7 +37,7 @@ import {
   Search as SearchIcon,
 } from '@mui/icons-material';
 import { TestCase } from '../types';
-import api from '../services_old/api';
+import api from '../services/api';
 
 const CreateTestSuite: React.FC = () => {
   const navigate = useNavigate();

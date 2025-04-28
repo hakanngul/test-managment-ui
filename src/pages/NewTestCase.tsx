@@ -6,7 +6,7 @@ import {
   FileUpload as ImportIcon
 } from '@mui/icons-material';
 import { TestCase, TestStep } from '../types';
-import api from '../services_old/api';
+import api from '../services/api';
 import {
   PageHeader,
   BasicInformationForm,

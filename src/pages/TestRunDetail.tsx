@@ -37,7 +37,7 @@ import {
   Cancel as CancelIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
-import api from '../services_old/api';
+import api from '../services/api';
 
 interface TestResult {
   id: string;
