@@ -1070,6 +1070,14 @@ export const mockPerformanceMetrics = {
     disk: 28, // %
     network: 35 // %
   },
+  // Sistem metrikleri için ek veriler
+  cpuUsage: 45, // %
+  memoryUsage: 3200, // MB
+  diskUsage: 12500, // MB
+  networkUsage: 35, // MB
+  activeProcesses: 124,
+  uptime: 1209600, // 14 gün (saniye cinsinden)
+  queueLength: 8,
   concurrentTests: {
     current: 5,
     max: 20
