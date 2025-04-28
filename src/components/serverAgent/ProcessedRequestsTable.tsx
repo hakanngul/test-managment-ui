@@ -35,7 +35,7 @@ const ProcessedRequestsTable: React.FC<ProcessedRequestsTableProps> = ({
   const handleRowsPerPageChange = (event: SelectChangeEvent<number>) => {
     const target = {
       value: event.target.value.toString()
-    } as React.ChangeEvent<HTMLInputElement>;
+    } as unknown as React.ChangeEvent<HTMLInputElement>;
 
     onRowsPerPageChange(target);
   };
@@ -78,11 +78,12 @@ const ProcessedRequestsTable: React.FC<ProcessedRequestsTableProps> = ({
                 .map((request) => (
                   <TableRow key={request.id}>
                     <TableCell>{request.id}</TableCell>
-                    <TableCell>{request.testName}</TableCell>
-                    <TableCell>{request.browser}</TableCell>
-                    <TableCell>{request.agentId}</TableCell>
-                    <TableCell>{request.startTime.toLocaleString('tr-TR')}</TableCell>
-                    <TableCell>{request.duration}</TableCell>
+                    <TableCell>{request.testName || request.name || '-'}</TableCell>
+                    <TableCell>{request.browser || '-'}</TableCell>
+                    <TableCell>{request.agentId || request.assignedTo || '-'}</TableCell>
+                    <TableCell>{request.startTime ? request.startTime.toLocaleString('tr-TR') : '-'}</TableCell>
+                    <TableCell>{request.duration ||
+                      (request.processingTime ? `${Math.round(request.processingTime / 1000)} saniye` : '-')}</TableCell>
                   </TableRow>
                 ))
             ) : (

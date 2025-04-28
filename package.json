@@ -11,7 +11,8 @@
     "api": "node server/index.js",
     "dev:all": "concurrently \"npm run api\" \"npm run dev\"",
     "init-database": "tsx src/scripts/initDatabase.ts",
-    "create-dummy-data": "tsx src/scripts/createDummyData.ts"
+    "create-dummy-data": "tsx src/scripts/createDummyData.ts",
+    "create-server-agent-dummy-data": "tsx src/scripts/createServerAgentDummyData.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",

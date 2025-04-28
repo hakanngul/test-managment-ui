@@ -55,8 +55,14 @@ const QueuedRequestsTable: React.FC<QueuedRequestsTableProps> = ({ requests }) =
                   />
                 </TableCell>
                 <TableCell>{request.category}</TableCell>
-                <TableCell>{request.queuedAt.toLocaleString('tr-TR')}</TableCell>
-                <TableCell>{request.waitTime}</TableCell>
+                <TableCell>{
+                  request.queuedAt ? request.queuedAt.toLocaleString('tr-TR') :
+                  (request.timing && request.timing.queuedAt ? request.timing.queuedAt.toLocaleString('tr-TR') : '-')
+                }</TableCell>
+                <TableCell>{
+                  request.waitTime ||
+                  (request.timing ? request.timing.waitTime : '-')
+                }</TableCell>
               </TableRow>
             ))
           ) : (

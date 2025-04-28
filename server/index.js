@@ -22,7 +22,11 @@ let client = null;
 let db = null;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Connect to MongoDB
@@ -419,7 +423,15 @@ app.get('/api/queuedRequests', async (req, res) => {
   try {
     const db = await connectToMongoDB();
 
-    // Get queued requests from MongoDB
+    // Get queued requests from MongoDB - first try queuedRequestsData collection
+    const queuedRequestsData = await db.collection('queuedRequestsData').find({}).toArray();
+
+    if (queuedRequestsData && queuedRequestsData.length > 0) {
+      console.log(`Found ${queuedRequestsData.length} queued requests in queuedRequestsData collection`);
+      return res.json(queuedRequestsData);
+    }
+
+    // If no data in queuedRequestsData, try serverAgent collection
     const serverAgent = await db.collection('ServerAgent').findOne({});
 
     // If no data, try lowercase collection
@@ -445,7 +457,15 @@ app.get('/api/processedRequests', async (req, res) => {
   try {
     const db = await connectToMongoDB();
 
-    // Get processed requests from MongoDB
+    // Get processed requests from MongoDB - first try processedRequestsData collection
+    const processedRequestsData = await db.collection('processedRequestsData').find({}).toArray();
+
+    if (processedRequestsData && processedRequestsData.length > 0) {
+      console.log(`Found ${processedRequestsData.length} processed requests in processedRequestsData collection`);
+      return res.json(processedRequestsData);
+    }
+
+    // If no data in processedRequestsData, try serverAgent collection
     const serverAgent = await db.collection('ServerAgent').findOne({});
 
     // If no data, try lowercase collection
@@ -901,6 +921,7 @@ app.delete('/api/:collection/:id', async (req, res) => {
 // Start the server
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`API URL: http://localhost:${PORT}/api`);
 
   // Initialize MongoDB
   await initMongoDB();

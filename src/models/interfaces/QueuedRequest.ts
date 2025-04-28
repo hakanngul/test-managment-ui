@@ -60,6 +60,8 @@ export interface QueueStatusSummary {
 
 // Queued request model
 export interface QueuedRequest {
+  [x: string]: any;
+  queuedAt: any;
   id: string;
   testName: string;
   testRunId?: string;

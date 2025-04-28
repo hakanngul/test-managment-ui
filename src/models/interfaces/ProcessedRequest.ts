@@ -61,6 +61,7 @@ export interface ProcessedRequestLogs {
 
 // Processed request model
 export interface ProcessedRequest {
+  [x: string]: string;
   id: string;
   testName: string;
   testRunId?: string;
