@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Automation Platform - Database Schema</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .mermaid {
+            margin: 20px 0;
+            overflow: auto;
+        }
+        .description {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Automation Platform - Database Schema</h1>
+        
+        <div class="description">
+            <p>Bu diyagram, Test Automation Platform'un veritabanı şemasını göstermektedir. Şema, test case'ler, test adımları, test suite'ler, test çalıştırmaları ve test sonuçları arasındaki ilişkileri içerir.</p>
+            <p>Özellikle, test geçmişi (test history) özelliği için testRuns, testResults ve testStepResults koleksiyonları kullanılmaktadır.</p>
+        </div>
+        
+        <div class="mermaid">
+erDiagram
+    USERS ||--o{ PROJECTS : "assigned to"
+    USERS ||--o{ TEST_RUNS : "initiates"
+    PROJECTS ||--o{ TEST_SUITES : "contains"
+    PROJECTS ||--o{ TEST_CASES : "contains"
+    TEST_SUITES ||--o{ TEST_CASES : "contains"
+    TEST_CASES ||--o{ TEST_STEPS : "contains"
+    TEST_RUNS ||--o{ TEST_RESULTS : "produces"
+    TEST_RUNS }|--o{ TEST_CASES : "executes"
+    TEST_RESULTS ||--o{ TEST_STEP_RESULTS : "contains"
+    TEST_RESULTS }|--|| TEST_CASES : "belongs to"
+    TEST_STEP_RESULTS }|--|| TEST_STEPS : "belongs to"
+    
+    USERS {
+        string id PK
+        string name
+        string email
+        string role
+        string avatar
+    }
+    
+    PROJECTS {
+        string id PK
+        string name
+        string description
+        string status
+        string priority
+        array members
+        date createdAt
+        date updatedAt
+    }
+    
+    TEST_CASES {
+        string id PK
+        string title
+        string description
+        string status
+        string priority
+        array steps
+        array tags
+        string projectId FK
+        string createdBy FK
+        date createdAt
+        date updatedAt
+    }
+    
+    TEST_STEPS {
+        string id PK
+        int order
+        string action
+        string target
+        string value
+        string description
+        string expectedResult
+        string type
+        string testCaseId FK
+    }
+    
+    TEST_SUITES {
+        string id PK
+        string name
+        string description
+        string status
+        string priority
+        int progress
+        array testCases
+        string projectId FK
+        array tags
+        string createdBy FK
+        date createdAt
+        date updatedAt
+    }
+    
+    TEST_RUNS {
+        string id PK
+        string name
+        string description
+        string status
+        string priority
+        string projectId FK
+        string testSuiteId FK
+        array testCaseIds
+        string environment
+        array browsers
+        date startTime
+        date endTime
+        int duration
+        array results
+        string createdBy FK
+        date createdAt
+        date updatedAt
+    }
+    
+    TEST_RESULTS {
+        string id PK
+        string testRunId FK
+        string testCaseId FK
+        string testSuiteId FK
+        string status
+        date startTime
+        date endTime
+        int duration
+        string environment
+        string browser
+        string errorMessage
+        array steps
+        date createdAt
+    }
+    
+    TEST_STEP_RESULTS {
+        string id PK
+        string testResultId FK
+        string testStepId FK
+        int order
+        string description
+        string expectedResult
+        string actualResult
+        string status
+        int duration
+        date startTime
+        date endTime
+        string errorMessage
+        string screenshot
+        date createdAt
+    }
+        </div>
+        
+        <h2>İlişki Açıklamaları</h2>
+        <ul>
+            <li><strong>Projects - TestSuites</strong>: Bir proje birden fazla test suite içerebilir.</li>
+            <li><strong>TestSuites - TestCases</strong>: Bir test suite birden fazla test case içerir.</li>
+            <li><strong>TestCases - TestSteps</strong>: Bir test case birden fazla test adımı içerir.</li>
+            <li><strong>Users - Projects</strong>: Kullanıcılar projelere atanabilir.</li>
+            <li><strong>Users - TestRuns</strong>: Kullanıcılar test çalıştırmaları başlatabilir.</li>
+            <li><strong>TestRuns - TestCases</strong>: Bir test çalıştırması birden fazla test case içerebilir.</li>
+            <li><strong>TestRuns - TestResults</strong>: Bir test çalıştırması birden fazla test sonucu üretir.</li>
+            <li><strong>TestResults - TestStepResults</strong>: Bir test sonucu birden fazla test adımı sonucu içerir.</li>
+            <li><strong>TestResults - TestCases</strong>: Her test sonucu bir test case'e aittir.</li>
+            <li><strong>TestStepResults - TestSteps</strong>: Her test adımı sonucu bir test adımına aittir.</li>
+        </ul>
+        
+        <h2>Test History Özelliği</h2>
+        <p>Test geçmişi (test history), testResults ve testStepResults koleksiyonlarında saklanır. Her test çalıştırması için bir veya daha fazla test sonucu oluşturulur ve bu sonuçlar testResults koleksiyonunda saklanır.</p>
+        <p>Bu yapı, test geçmişini detaylı bir şekilde takip etmeyi sağlar. Her test çalıştırması için hangi test case'lerin çalıştırıldığı, her test case için hangi adımların çalıştırıldığı ve her adımın sonucu gibi bilgiler saklanır.</p>
+    </div>
+    
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html>

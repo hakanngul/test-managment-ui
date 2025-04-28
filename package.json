@@ -13,7 +13,10 @@
     "init-database": "tsx src/scripts/initDatabase.ts",
     "create-dummy-data": "tsx src/scripts/createDummyData.ts",
     "create-server-agent-dummy-data": "tsx src/scripts/createServerAgentDummyData.ts",
-    "create-test-history": "node server/scripts/createTestHistory.js"
+    "create-test-history": "node server/scripts/createTestHistory.js",
+    "initialize-database": "node server/scripts/initializeDatabase.js",
+    "clean-database": "node server/scripts/cleanDatabase.js",
+    "reset-database": "node server/scripts/resetDatabase.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",

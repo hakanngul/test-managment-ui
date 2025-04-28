@@ -79,6 +79,10 @@ export interface TestResult {
   startTime?: string;
   endTime?: string;
   duration?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  environment?: string;
+  browser?: string;
   errorMessage?: string;
   errorStack?: string;
   screenshots?: string[];
