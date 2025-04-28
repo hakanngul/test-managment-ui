@@ -6,7 +6,8 @@ export enum ProcessedRequestStatus {
   TIMEOUT = 'timeout',
   ERROR = 'error',
   INTERRUPTED = 'interrupted',
-  PARTIAL = 'partial'
+  PARTIAL = 'partial',
+  PARTIAL_SUCCESS = 'partial_success'
 }
 
 // Processed request error type
@@ -20,7 +21,8 @@ export enum ProcessedRequestErrorType {
   PERMISSION = 'permission',
   RESOURCE = 'resource',
   AGENT = 'agent',
-  UNKNOWN = 'unknown'
+  UNKNOWN = 'unknown',
+  SYSTEM = 'system'
 }
 
 // Processed request priority

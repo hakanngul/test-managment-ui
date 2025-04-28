@@ -42,8 +42,8 @@ const QueuedRequestsTable: React.FC<QueuedRequestsTableProps> = ({ requests }) =
         </TableHead>
         <TableBody>
           {requests.length > 0 ? (
-            requests.map((request) => (
-              <TableRow key={request.id}>
+            requests.map((request, index) => (
+              <TableRow key={request.id || `queued-request-${index}`}>
                 <TableCell>{request.id}</TableCell>
                 <TableCell>{request.testName}</TableCell>
                 <TableCell>{request.browser}</TableCell>

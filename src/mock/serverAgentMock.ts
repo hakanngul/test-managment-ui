@@ -1,14 +1,11 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Agent } from '../models/interfaces/IAgent';
 import { AgentStatus, AgentType, AgentOS, AgentHealthStatus } from '../models/enums/AgentEnums';
 import { BrowserType } from '../models/enums/TestCaseEnums';
-import { ServerStatus, ServerType } from '../models/enums/ServerEnums';
 import { RequestStatus, RequestPriority, RequestCategory, RequestSource } from '../models/enums/QueuedRequestEnums';
 import { ProcessedRequestStatus, ProcessedRequestErrorType, ProcessedRequestPriority, ProcessedRequestSource } from '../models/enums/ProcessedRequestEnums';
 import { QueueStatusSummary } from '../models/interfaces/IQueuedRequest';
 import { SystemResource } from '../models/SystemResource';
 import { ServerAgent } from '../models/ServerAgent';
-import { ServerAgentSchema } from '../models/database/schemas';
 
 // Sistem kaynakları mock verisi
 export const mockSystemResource: SystemResource = {
@@ -55,15 +52,15 @@ export const mockQueueStatusSummary: QueueStatusSummary = {
 // Aktif agent'lar mock verisi
 export const mockAgents: Agent[] = [
   {
-    id: uuidv4(),
-    name: 'Agent-1',
+    id: '0aea406b-dff1-4df9-a613-cfa4a92e56e3',
+    name: 'Chrome-Agent-1',
     type: AgentType.BROWSER,
     status: AgentStatus.AVAILABLE,
     browser: BrowserType.CHROME,
     networkInfo: {
       ipAddress: '192.168.1.100',
     },
-    capabilities: ['chrome', 'headless', 'screenshot'],
+    capabilities: ['chrome', 'headless', 'screenshot', 'video'],
     serverId: 'server-001',
     created: new Date('2023-01-15T10:00:00'),
     lastActivity: new Date('2023-06-20T15:30:00'),
@@ -94,15 +91,15 @@ export const mockAgents: Agent[] = [
     }
   },
   {
-    id: uuidv4(),
-    name: 'Agent-2',
+    id: '4dd16532-17b6-4e06-9575-56acfd862d50',
+    name: 'Firefox-Agent-1',
     type: AgentType.BROWSER,
     status: AgentStatus.BUSY,
     browser: BrowserType.FIREFOX,
     networkInfo: {
       ipAddress: '192.168.1.101',
     },
-    capabilities: ['firefox', 'screenshot', 'video'],
+    capabilities: ['firefox', 'screenshot', 'video', 'network-monitor'],
     serverId: 'server-001',
     created: new Date('2023-02-10T09:15:00'),
     lastActivity: new Date(),
@@ -133,15 +130,15 @@ export const mockAgents: Agent[] = [
     }
   },
   {
-    id: uuidv4(),
-    name: 'Agent-3',
+    id: 'b8dad830-3ed6-4464-859f-f720d460c6a5',
+    name: 'API-Agent-1',
     type: AgentType.API,
     status: AgentStatus.OFFLINE,
     browser: BrowserType.CHROME,
     networkInfo: {
       ipAddress: '192.168.1.102',
     },
-    capabilities: ['api', 'rest', 'graphql'],
+    capabilities: ['api', 'rest', 'graphql', 'soap', 'jwt-auth'],
     serverId: 'server-001',
     created: new Date('2023-03-05T14:30:00'),
     lastActivity: new Date('2023-06-19T08:45:00'),
@@ -172,15 +169,15 @@ export const mockAgents: Agent[] = [
     }
   },
   {
-    id: uuidv4(),
-    name: 'Agent-4',
+    id: '34088356-e30a-446c-a38c-3dbcf12d53f6',
+    name: 'Mobile-Agent-1',
     type: AgentType.MOBILE,
     status: AgentStatus.ERROR,
     browser: BrowserType.SAFARI,
     networkInfo: {
       ipAddress: '192.168.1.103',
     },
-    capabilities: ['ios', 'safari', 'screenshot'],
+    capabilities: ['ios', 'safari', 'screenshot', 'touch-events', 'device-orientation'],
     serverId: 'server-001',
     created: new Date('2023-04-20T11:20:00'),
     lastActivity: new Date('2023-06-20T10:15:00'),
@@ -211,15 +208,15 @@ export const mockAgents: Agent[] = [
     }
   },
   {
-    id: uuidv4(),
-    name: 'Agent-5',
+    id: '3d2a4748-5d43-45dd-b200-59ecd6901f3e',
+    name: 'Edge-Agent-1',
     type: AgentType.BROWSER,
     status: AgentStatus.AVAILABLE,
     browser: BrowserType.EDGE,
     networkInfo: {
       ipAddress: '192.168.1.104',
     },
-    capabilities: ['edge', 'headless', 'screenshot', 'video'],
+    capabilities: ['edge', 'headless', 'screenshot', 'video', 'network-monitor', 'performance-metrics'],
     serverId: 'server-001',
     created: new Date('2023-05-15T16:45:00'),
     lastActivity: new Date('2023-06-20T14:30:00'),
@@ -248,20 +245,215 @@ export const mockAgents: Agent[] = [
       lastCheck: new Date('2023-06-20T14:30:00'),
       message: 'Agent is healthy'
     }
+  },
+  {
+    id: '7f8a9b2c-1d3e-4f5a-6b7c-8d9e0f1a2b3c',
+    name: 'Chrome-Agent-2',
+    type: AgentType.BROWSER,
+    status: AgentStatus.MAINTENANCE,
+    browser: BrowserType.CHROME,
+    networkInfo: {
+      ipAddress: '192.168.1.105',
+    },
+    capabilities: ['chrome', 'headless', 'screenshot', 'video', 'performance-metrics'],
+    serverId: 'server-001',
+    created: new Date('2023-03-22T08:30:00'),
+    lastActivity: new Date('2023-06-19T16:45:00'),
+    currentRequest: null,
+    version: '1.2.3',
+    systemInfo: {
+      os: AgentOS.WINDOWS,
+      osVersion: '11',
+      cpuModel: 'Intel Core i5-11600K',
+      cpuCores: 6,
+      totalMemory: 32768, // 32 GB
+      totalDisk: 1024000, // 1 TB
+      hostname: 'DESKTOP-DEF456',
+      username: 'testuser'
+    },
+    performanceMetrics: {
+      cpuUsage: 5,
+      memoryUsage: 20,
+      diskUsage: 55,
+      networkUsage: 2,
+      uptime: 129600, // 1.5 gün
+      lastUpdated: new Date('2023-06-19T16:45:00')
+    },
+    healthCheck: {
+      status: AgentHealthStatus.MAINTENANCE,
+      lastCheck: new Date('2023-06-19T16:45:00'),
+      message: 'Scheduled maintenance'
+    }
+  },
+  {
+    id: '4a5b6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d',
+    name: 'Firefox-Agent-2',
+    type: AgentType.BROWSER,
+    status: AgentStatus.BUSY,
+    browser: BrowserType.FIREFOX,
+    networkInfo: {
+      ipAddress: '192.168.1.106',
+    },
+    capabilities: ['firefox', 'screenshot', 'video', 'network-monitor', 'console-capture'],
+    serverId: 'server-001',
+    created: new Date('2023-04-05T11:20:00'),
+    lastActivity: new Date(),
+    currentRequest: 'req-002',
+    version: '1.2.3',
+    systemInfo: {
+      os: AgentOS.LINUX,
+      osVersion: 'Debian 11',
+      cpuModel: 'AMD Ryzen 5 5600X',
+      cpuCores: 6,
+      totalMemory: 16384, // 16 GB
+      totalDisk: 512000, // 500 GB
+      hostname: 'debian-server',
+      username: 'testuser'
+    },
+    performanceMetrics: {
+      cpuUsage: 65,
+      memoryUsage: 50,
+      diskUsage: 35,
+      networkUsage: 25,
+      uptime: 345600, // 4 gün
+      lastUpdated: new Date()
+    },
+    healthCheck: {
+      status: AgentHealthStatus.HEALTHY,
+      lastCheck: new Date(),
+      message: 'Agent is healthy'
+    }
+  },
+  {
+    id: '9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f',
+    name: 'Safari-Agent-1',
+    type: AgentType.BROWSER,
+    status: AgentStatus.AVAILABLE,
+    browser: BrowserType.SAFARI,
+    networkInfo: {
+      ipAddress: '192.168.1.107',
+    },
+    capabilities: ['safari', 'screenshot', 'video', 'performance-metrics'],
+    serverId: 'server-001',
+    created: new Date('2023-05-10T09:45:00'),
+    lastActivity: new Date('2023-06-20T13:15:00'),
+    currentRequest: null,
+    version: '1.2.3',
+    systemInfo: {
+      os: AgentOS.MACOS,
+      osVersion: 'Ventura 13.2',
+      cpuModel: 'Apple M2',
+      cpuCores: 8,
+      totalMemory: 16384, // 16 GB
+      totalDisk: 512000, // 500 GB
+      hostname: 'macbook-air',
+      username: 'testuser'
+    },
+    performanceMetrics: {
+      cpuUsage: 20,
+      memoryUsage: 35,
+      diskUsage: 45,
+      networkUsage: 8,
+      uptime: 172800, // 2 gün
+      lastUpdated: new Date('2023-06-20T13:15:00')
+    },
+    healthCheck: {
+      status: AgentHealthStatus.HEALTHY,
+      lastCheck: new Date('2023-06-20T13:15:00'),
+      message: 'Agent is healthy'
+    }
+  },
+  {
+    id: '2b3c4d5e-6f7g-8h9i-0j1k-2l3m4n5o6p7q',
+    name: 'Android-Agent-1',
+    type: AgentType.MOBILE,
+    status: AgentStatus.AVAILABLE,
+    browser: BrowserType.CHROME,
+    networkInfo: {
+      ipAddress: '192.168.1.108',
+    },
+    capabilities: ['android', 'chrome', 'screenshot', 'video', 'touch-events', 'device-orientation'],
+    serverId: 'server-001',
+    created: new Date('2023-05-25T14:20:00'),
+    lastActivity: new Date('2023-06-20T11:45:00'),
+    currentRequest: null,
+    version: '1.2.3',
+    systemInfo: {
+      os: AgentOS.ANDROID,
+      osVersion: '12',
+      cpuModel: 'Snapdragon 8 Gen 1',
+      cpuCores: 8,
+      totalMemory: 8192, // 8 GB
+      totalDisk: 256000, // 256 GB
+      hostname: 'samsung-s22',
+      username: 'mobile-user'
+    },
+    performanceMetrics: {
+      cpuUsage: 30,
+      memoryUsage: 45,
+      diskUsage: 60,
+      networkUsage: 15,
+      uptime: 86400, // 1 gün
+      lastUpdated: new Date('2023-06-20T11:45:00')
+    },
+    healthCheck: {
+      status: AgentHealthStatus.HEALTHY,
+      lastCheck: new Date('2023-06-20T11:45:00'),
+      message: 'Agent is healthy'
+    }
+  },
+  {
+    id: 'r8s9t0u1-v2w3-x4y5-z6a7-b8c9d0e1f2g3',
+    name: 'API-Agent-2',
+    type: AgentType.API,
+    status: AgentStatus.AVAILABLE,
+    browser: BrowserType.CHROME,
+    networkInfo: {
+      ipAddress: '192.168.1.109',
+    },
+    capabilities: ['api', 'rest', 'graphql', 'oauth', 'performance-testing'],
+    serverId: 'server-001',
+    created: new Date('2023-06-01T10:30:00'),
+    lastActivity: new Date('2023-06-20T15:00:00'),
+    currentRequest: null,
+    version: '1.2.3',
+    systemInfo: {
+      os: AgentOS.LINUX,
+      osVersion: 'Alpine 3.16',
+      cpuModel: 'Intel Xeon E5-2680',
+      cpuCores: 8,
+      totalMemory: 8192, // 8 GB
+      totalDisk: 256000, // 256 GB
+      hostname: 'api-server',
+      username: 'apiuser'
+    },
+    performanceMetrics: {
+      cpuUsage: 10,
+      memoryUsage: 25,
+      diskUsage: 30,
+      networkUsage: 40,
+      uptime: 432000, // 5 gün
+      lastUpdated: new Date('2023-06-20T15:00:00')
+    },
+    healthCheck: {
+      status: AgentHealthStatus.HEALTHY,
+      lastCheck: new Date('2023-06-20T15:00:00'),
+      message: 'Agent is healthy'
+    }
   }
 ];
 
 // İşlenmiş istekler mock verisi
 export const mockProcessedRequests = [
   {
-    id: uuidv4(),
-    testName: 'Login Test',
+    id: 'pr-001-a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6',
+    testName: 'Giriş Testi',
     testCaseId: 'tc-001',
     testSuiteId: 'ts-001',
     projectId: 'proj-001',
     status: ProcessedRequestStatus.SUCCESS,
     browser: BrowserType.CHROME,
-    agentId: mockAgents[0].id,
+    agentId: '0aea406b-dff1-4df9-a613-cfa4a92e56e3', // Chrome-Agent-1
     priority: ProcessedRequestPriority.HIGH,
     source: ProcessedRequestSource.MANUAL,
     startTime: new Date('2023-06-20T09:00:00'),
@@ -276,22 +468,32 @@ export const mockProcessedRequests = [
       cpuUsage: 35,
       memoryUsage: 250,
       networkUsage: 5
+    },
+    description: 'Kullanıcı giriş işleminin test edilmesi',
+    tags: ['regression', 'ui', 'authentication'],
+    result: {
+      passed: true,
+      failedAssertions: 0,
+      totalAssertions: 12,
+      screenshots: ['login-form.png', 'dashboard-after-login.png'],
+      logs: ['Giriş formu görüntülendi', 'Kullanıcı bilgileri girildi', 'Giriş başarılı', 'Dashboard sayfasına yönlendirildi']
     }
   },
   {
-    id: uuidv4(),
-    testName: 'Product Search',
+    id: 'pr-002-b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7',
+    testName: 'Ürün Arama',
     testCaseId: 'tc-002',
     testSuiteId: 'ts-001',
     projectId: 'proj-001',
     status: ProcessedRequestStatus.FAILED,
     error: {
       type: ProcessedRequestErrorType.ASSERTION,
-      message: 'Expected product count to be 5, but got 3',
-      timestamp: new Date('2023-06-20T09:32:45')
+      message: 'Ürün sayısının 5 olması bekleniyordu, ancak 3 bulundu',
+      timestamp: new Date('2023-06-20T09:32:45'),
+      stackTrace: 'at ProductSearchTest.validateProductCount (ProductSearchTest.js:45:12)'
     },
     browser: BrowserType.FIREFOX,
-    agentId: mockAgents[1].id,
+    agentId: '4dd16532-17b6-4e06-9575-56acfd862d50', // Firefox-Agent-1
     priority: ProcessedRequestPriority.MEDIUM,
     source: ProcessedRequestSource.SCHEDULED,
     startTime: new Date('2023-06-20T09:30:00'),
@@ -306,17 +508,26 @@ export const mockProcessedRequests = [
       cpuUsage: 45,
       memoryUsage: 320,
       networkUsage: 8
+    },
+    description: 'Ürün arama işlevinin test edilmesi',
+    tags: ['regression', 'ui', 'search'],
+    result: {
+      passed: false,
+      failedAssertions: 1,
+      totalAssertions: 8,
+      screenshots: ['search-results.png', 'error-state.png'],
+      logs: ['Arama formu görüntülendi', 'Arama terimi girildi', 'Arama sonuçları görüntülendi', 'HATA: Ürün sayısı beklenen değerle eşleşmiyor']
     }
   },
   {
-    id: uuidv4(),
-    testName: 'Checkout Process',
+    id: 'pr-003-c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8',
+    testName: 'Ödeme İşlemi',
     testCaseId: 'tc-003',
     testSuiteId: 'ts-001',
     projectId: 'proj-001',
     status: ProcessedRequestStatus.SUCCESS,
     browser: BrowserType.CHROME,
-    agentId: mockAgents[0].id,
+    agentId: '0aea406b-dff1-4df9-a613-cfa4a92e56e3', // Chrome-Agent-1
     priority: ProcessedRequestPriority.CRITICAL,
     source: ProcessedRequestSource.MANUAL,
     startTime: new Date('2023-06-20T10:15:00'),
@@ -331,22 +542,32 @@ export const mockProcessedRequests = [
       cpuUsage: 55,
       memoryUsage: 380,
       networkUsage: 12
+    },
+    description: 'Ödeme işlemi akışının test edilmesi',
+    tags: ['critical', 'ui', 'payment', 'checkout'],
+    result: {
+      passed: true,
+      failedAssertions: 0,
+      totalAssertions: 18,
+      screenshots: ['cart.png', 'shipping-info.png', 'payment-info.png', 'order-confirmation.png'],
+      logs: ['Sepet görüntülendi', 'Teslimat bilgileri girildi', 'Ödeme bilgileri girildi', 'Sipariş onaylandı', 'Sipariş onay sayfası görüntülendi']
     }
   },
   {
-    id: uuidv4(),
-    testName: 'User Registration',
+    id: 'pr-004-d4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9',
+    testName: 'Kullanıcı Kaydı',
     testCaseId: 'tc-004',
     testSuiteId: 'ts-002',
     projectId: 'proj-001',
     status: ProcessedRequestStatus.TIMEOUT,
     error: {
       type: ProcessedRequestErrorType.TIMEOUT,
-      message: 'Test execution timed out after 5 minutes',
-      timestamp: new Date('2023-06-20T11:05:00')
+      message: 'Test yürütmesi 5 dakika sonra zaman aşımına uğradı',
+      timestamp: new Date('2023-06-20T11:05:00'),
+      stackTrace: 'at TestRunner.executeTest (TestRunner.js:120:18)'
     },
     browser: BrowserType.EDGE,
-    agentId: mockAgents[4].id,
+    agentId: '3d2a4748-5d43-45dd-b200-59ecd6901f3e', // Edge-Agent-1
     priority: ProcessedRequestPriority.HIGH,
     source: ProcessedRequestSource.CI_CD,
     startTime: new Date('2023-06-20T11:00:00'),
@@ -361,17 +582,26 @@ export const mockProcessedRequests = [
       cpuUsage: 65,
       memoryUsage: 420,
       networkUsage: 15
+    },
+    description: 'Yeni kullanıcı kaydı işleminin test edilmesi',
+    tags: ['regression', 'ui', 'registration'],
+    result: {
+      passed: false,
+      failedAssertions: 0,
+      totalAssertions: 5,
+      screenshots: ['registration-form.png', 'loading-state.png'],
+      logs: ['Kayıt formu görüntülendi', 'Kullanıcı bilgileri girildi', 'Kayıt butonu tıklandı', 'HATA: E-posta doğrulama sayfası 5 dakika içinde yüklenemedi']
     }
   },
   {
-    id: uuidv4(),
-    testName: 'API Authentication',
+    id: 'pr-005-e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0',
+    testName: 'API Kimlik Doğrulama',
     testCaseId: 'tc-005',
     testSuiteId: 'ts-003',
     projectId: 'proj-002',
     status: ProcessedRequestStatus.SUCCESS,
-    browser: 'N/A',
-    agentId: mockAgents[2].id,
+    browser: BrowserType.CHROME,
+    agentId: 'b8dad830-3ed6-4464-859f-f720d460c6a5', // API-Agent-1
     priority: ProcessedRequestPriority.MEDIUM,
     source: ProcessedRequestSource.API,
     startTime: new Date('2023-06-20T11:30:00'),
@@ -386,6 +616,197 @@ export const mockProcessedRequests = [
       cpuUsage: 25,
       memoryUsage: 150,
       networkUsage: 3
+    },
+    description: 'API kimlik doğrulama mekanizmasının test edilmesi',
+    tags: ['api', 'authentication', 'security'],
+    result: {
+      passed: true,
+      failedAssertions: 0,
+      totalAssertions: 10,
+      screenshots: [],
+      logs: ['Token isteği gönderildi', 'Token başarıyla alındı', 'Token ile korumalı endpoint erişimi test edildi', 'Geçersiz token ile erişim reddedildi']
+    }
+  },
+  {
+    id: 'pr-006-f6g7h8i9-j0k1-l2m3-n4o5-p6q7r8s9t0u1',
+    testName: 'Kullanıcı Profil Güncelleme',
+    testCaseId: 'tc-007',
+    testSuiteId: 'ts-002',
+    projectId: 'proj-001',
+    status: ProcessedRequestStatus.SUCCESS,
+    browser: BrowserType.FIREFOX,
+    agentId: '4a5b6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d', // Firefox-Agent-2
+    priority: ProcessedRequestPriority.MEDIUM,
+    source: ProcessedRequestSource.SCHEDULED,
+    startTime: new Date('2023-06-20T11:45:00'),
+    endTime: new Date('2023-06-20T11:47:30'),
+    duration: '2m 30s',
+    durationMs: 150000,
+    performance: {
+      setupTime: 2000,
+      executionTime: 146000,
+      teardownTime: 2000,
+      totalTime: 150000,
+      cpuUsage: 40,
+      memoryUsage: 280,
+      networkUsage: 7
+    },
+    description: 'Kullanıcı profil bilgilerinin güncellenmesi ve doğrulanması',
+    tags: ['regression', 'ui', 'user-profile'],
+    result: {
+      passed: true,
+      failedAssertions: 0,
+      totalAssertions: 14,
+      screenshots: ['profile-page.png', 'edit-form.png', 'updated-profile.png'],
+      logs: ['Profil sayfası görüntülendi', 'Düzenleme formu açıldı', 'Profil bilgileri güncellendi', 'Değişiklikler kaydedildi', 'Güncellenmiş profil görüntülendi']
+    }
+  },
+  {
+    id: 'pr-007-g7h8i9j0-k1l2-m3n4-o5p6-q7r8s9t0u1v2',
+    testName: 'Ürün Filtreleme',
+    testCaseId: 'tc-006',
+    testSuiteId: 'ts-001',
+    projectId: 'proj-001',
+    status: ProcessedRequestStatus.PARTIAL_SUCCESS,
+    error: {
+      type: ProcessedRequestErrorType.ASSERTION,
+      message: 'Fiyat filtresi doğru sonuçları göstermedi',
+      timestamp: new Date('2023-06-20T12:05:15'),
+      stackTrace: 'at ProductFilterTest.validatePriceFilter (ProductFilterTest.js:78:10)'
+    },
+    browser: BrowserType.CHROME,
+    agentId: '7f8a9b2c-1d3e-4f5a-6b7c-8d9e0f1a2b3c', // Chrome-Agent-2
+    priority: ProcessedRequestPriority.HIGH,
+    source: ProcessedRequestSource.MANUAL,
+    startTime: new Date('2023-06-20T12:00:00'),
+    endTime: new Date('2023-06-20T12:05:15'),
+    duration: '5m 15s',
+    durationMs: 315000,
+    performance: {
+      setupTime: 2500,
+      executionTime: 310000,
+      teardownTime: 2500,
+      totalTime: 315000,
+      cpuUsage: 50,
+      memoryUsage: 350,
+      networkUsage: 10
+    },
+    description: 'Ürün filtreleme özelliğinin tüm filtre kombinasyonlarıyla test edilmesi',
+    tags: ['regression', 'ui', 'filters'],
+    result: {
+      passed: false,
+      failedAssertions: 1,
+      totalAssertions: 20,
+      screenshots: ['category-filter.png', 'brand-filter.png', 'price-filter.png', 'combined-filters.png'],
+      logs: ['Kategori filtresi test edildi', 'Marka filtresi test edildi', 'HATA: Fiyat filtresi beklenen sonuçları göstermedi', 'Kombinasyon filtreleri test edildi']
+    }
+  },
+  {
+    id: 'pr-008-h8i9j0k1-l2m3-n4o5-p6q7-r8s9t0u1v2w3',
+    testName: 'Mobil Duyarlı Düzen',
+    testCaseId: 'tc-009',
+    testSuiteId: 'ts-002',
+    projectId: 'proj-001',
+    status: ProcessedRequestStatus.SUCCESS,
+    browser: BrowserType.SAFARI,
+    agentId: '9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f', // Safari-Agent-1
+    priority: ProcessedRequestPriority.LOW,
+    source: ProcessedRequestSource.MANUAL,
+    startTime: new Date('2023-06-20T12:15:00'),
+    endTime: new Date('2023-06-20T12:20:30'),
+    duration: '5m 30s',
+    durationMs: 330000,
+    performance: {
+      setupTime: 3000,
+      executionTime: 325000,
+      teardownTime: 2000,
+      totalTime: 330000,
+      cpuUsage: 35,
+      memoryUsage: 260,
+      networkUsage: 8
+    },
+    description: 'Farklı ekran boyutlarında mobil duyarlı düzenin test edilmesi',
+    tags: ['ui', 'responsive', 'mobile'],
+    result: {
+      passed: true,
+      failedAssertions: 0,
+      totalAssertions: 25,
+      screenshots: ['desktop-view.png', 'tablet-view.png', 'mobile-view.png', 'small-mobile-view.png'],
+      logs: ['Desktop görünümü test edildi', 'Tablet görünümü test edildi', 'Mobil görünüm test edildi', 'Küçük mobil görünüm test edildi']
+    }
+  },
+  {
+    id: 'pr-009-i9j0k1l2-m3n4-o5p6-q7r8-s9t0u1v2w3x4',
+    testName: 'Oturum Yönetimi',
+    testCaseId: 'tc-011',
+    testSuiteId: 'ts-002',
+    projectId: 'proj-001',
+    status: ProcessedRequestStatus.SUCCESS,
+    browser: BrowserType.EDGE,
+    agentId: '3d2a4748-5d43-45dd-b200-59ecd6901f3e', // Edge-Agent-1
+    priority: ProcessedRequestPriority.HIGH,
+    source: ProcessedRequestSource.SCHEDULED,
+    startTime: new Date('2023-06-20T12:30:00'),
+    endTime: new Date('2023-06-20T12:34:45'),
+    duration: '4m 45s',
+    durationMs: 285000,
+    performance: {
+      setupTime: 2000,
+      executionTime: 280000,
+      teardownTime: 3000,
+      totalTime: 285000,
+      cpuUsage: 45,
+      memoryUsage: 320,
+      networkUsage: 12
+    },
+    description: 'Oturum yönetimi ve güvenlik kontrollerinin test edilmesi',
+    tags: ['security', 'session-management', 'authentication'],
+    result: {
+      passed: true,
+      failedAssertions: 0,
+      totalAssertions: 22,
+      screenshots: ['login.png', 'session-timeout.png', 'concurrent-login.png', 'logout.png'],
+      logs: ['Oturum açma test edildi', 'Oturum zaman aşımı test edildi', 'Eşzamanlı oturum açma test edildi', 'Oturum kapatma test edildi']
+    }
+  },
+  {
+    id: 'pr-010-j0k1l2m3-n4o5-p6q7-r8s9-t0u1v2w3x4y5',
+    testName: 'API Hız Sınırlama',
+    testCaseId: 'tc-010',
+    testSuiteId: 'ts-003',
+    projectId: 'proj-002',
+    status: ProcessedRequestStatus.FAILED,
+    error: {
+      type: ProcessedRequestErrorType.SYSTEM,
+      message: 'Test sırasında beklenmeyen bir sistem hatası oluştu',
+      timestamp: new Date('2023-06-20T12:45:30'),
+      stackTrace: 'at ApiRateLimitTest.executeRequests (ApiRateLimitTest.js:56:22)'
+    },
+    browser: BrowserType.CHROME,
+    agentId: 'r8s9t0u1-v2w3-x4y5-z6a7-b8c9d0e1f2g3', // API-Agent-2
+    priority: ProcessedRequestPriority.MEDIUM,
+    source: ProcessedRequestSource.MANUAL,
+    startTime: new Date('2023-06-20T12:40:00'),
+    endTime: new Date('2023-06-20T12:45:30'),
+    duration: '5m 30s',
+    durationMs: 330000,
+    performance: {
+      setupTime: 2000,
+      executionTime: 325000,
+      teardownTime: 3000,
+      totalTime: 330000,
+      cpuUsage: 70,
+      memoryUsage: 450,
+      networkUsage: 25
+    },
+    description: 'API hız sınırlama mekanizmasının test edilmesi',
+    tags: ['api', 'performance', 'rate-limiting'],
+    result: {
+      passed: false,
+      failedAssertions: 1,
+      totalAssertions: 15,
+      screenshots: [],
+      logs: ['API endpoint hazırlandı', 'Hız sınırlama testi başlatıldı', 'HATA: Beklenmeyen sistem hatası oluştu', 'Test sonlandırıldı']
     }
   }
 ];
@@ -393,8 +814,8 @@ export const mockProcessedRequests = [
 // Kuyrukta bekleyen istekler mock verisi
 export const mockQueuedRequests = [
   {
-    id: uuidv4(),
-    testName: 'Product Filter Test',
+    id: 'qr-001-a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6',
+    testName: 'Ürün Filtreleme Testi',
     testCaseId: 'tc-006',
     testSuiteId: 'ts-001',
     projectId: 'proj-001',
@@ -410,11 +831,13 @@ export const mockQueuedRequests = [
       waitTimeMs: 900000
     },
     createdBy: 'user-001',
-    createdAt: new Date('2023-06-20T12:00:00')
+    createdAt: new Date('2023-06-20T12:00:00'),
+    description: 'Ürün filtreleme özelliğinin tüm filtre kombinasyonlarıyla test edilmesi',
+    tags: ['regression', 'ui', 'filters']
   },
   {
-    id: uuidv4(),
-    testName: 'User Profile Update',
+    id: 'qr-002-b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7',
+    testName: 'Kullanıcı Profil Güncelleme',
     testCaseId: 'tc-007',
     testSuiteId: 'ts-002',
     projectId: 'proj-001',
@@ -431,11 +854,13 @@ export const mockQueuedRequests = [
       waitTimeMs: 3300000
     },
     createdBy: 'system',
-    createdAt: new Date('2023-06-20T12:05:00')
+    createdAt: new Date('2023-06-20T12:05:00'),
+    description: 'Kullanıcı profil bilgilerinin güncellenmesi ve doğrulanması',
+    tags: ['regression', 'ui', 'user-profile']
   },
   {
-    id: uuidv4(),
-    testName: 'Payment Gateway Integration',
+    id: 'qr-003-c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8',
+    testName: 'Ödeme Geçidi Entegrasyonu',
     testCaseId: 'tc-008',
     testSuiteId: 'ts-001',
     projectId: 'proj-001',
@@ -451,13 +876,15 @@ export const mockQueuedRequests = [
       waitTime: '2m 30s',
       waitTimeMs: 150000
     },
-    assignedAgentId: mockAgents[0].id,
+    assignedAgentId: '0aea406b-dff1-4df9-a613-cfa4a92e56e3', // Chrome-Agent-1
     createdBy: 'ci-pipeline',
-    createdAt: new Date('2023-06-20T12:10:00')
+    createdAt: new Date('2023-06-20T12:10:00'),
+    description: 'Ödeme geçidi entegrasyonunun farklı ödeme yöntemleriyle test edilmesi',
+    tags: ['critical', 'integration', 'payment']
   },
   {
-    id: uuidv4(),
-    testName: 'Mobile Responsive Layout',
+    id: 'qr-004-d4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9',
+    testName: 'Mobil Duyarlı Düzen Testi',
     testCaseId: 'tc-009',
     testSuiteId: 'ts-002',
     projectId: 'proj-001',
@@ -473,11 +900,13 @@ export const mockQueuedRequests = [
       waitTimeMs: 1800000
     },
     createdBy: 'user-002',
-    createdAt: new Date('2023-06-20T12:15:00')
+    createdAt: new Date('2023-06-20T12:15:00'),
+    description: 'Farklı ekran boyutlarında mobil duyarlı düzenin test edilmesi',
+    tags: ['ui', 'responsive', 'mobile']
   },
   {
-    id: uuidv4(),
-    testName: 'API Rate Limiting',
+    id: 'qr-005-e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0',
+    testName: 'API Hız Sınırlama Testi',
     testCaseId: 'tc-010',
     testSuiteId: 'ts-003',
     projectId: 'proj-002',
@@ -485,7 +914,7 @@ export const mockQueuedRequests = [
     priority: RequestPriority.MEDIUM,
     category: RequestCategory.API_TEST,
     source: RequestSource.MANUAL,
-    browser: 'N/A',
+    browser: BrowserType.CHROME,
     timing: {
       queuedAt: new Date('2023-06-20T12:20:00'),
       assignedAt: new Date('2023-06-20T12:25:00'),
@@ -493,9 +922,124 @@ export const mockQueuedRequests = [
       waitTime: '5m 30s',
       waitTimeMs: 330000
     },
-    assignedAgentId: mockAgents[1].id,
+    assignedAgentId: '4dd16532-17b6-4e06-9575-56acfd862d50', // Firefox-Agent-1
     createdBy: 'user-001',
-    createdAt: new Date('2023-06-20T12:20:00')
+    createdAt: new Date('2023-06-20T12:20:00'),
+    description: 'API hız sınırlama mekanizmasının test edilmesi',
+    tags: ['api', 'performance', 'rate-limiting']
+  },
+  {
+    id: 'qr-006-f6g7h8i9-j0k1-l2m3-n4o5-p6q7r8s9t0u1',
+    testName: 'Oturum Yönetimi Testi',
+    testCaseId: 'tc-011',
+    testSuiteId: 'ts-002',
+    projectId: 'proj-001',
+    status: RequestStatus.QUEUED,
+    priority: RequestPriority.HIGH,
+    category: RequestCategory.SECURITY_TEST,
+    source: RequestSource.SCHEDULED,
+    browser: BrowserType.EDGE,
+    timing: {
+      queuedAt: new Date('2023-06-20T12:30:00'),
+      estimatedStartTime: new Date('2023-06-20T13:15:00'),
+      waitTime: '45m',
+      waitTimeMs: 2700000
+    },
+    createdBy: 'system',
+    createdAt: new Date('2023-06-20T12:30:00'),
+    description: 'Oturum yönetimi ve güvenlik kontrollerinin test edilmesi',
+    tags: ['security', 'session-management', 'authentication']
+  },
+  {
+    id: 'qr-007-g7h8i9j0-k1l2-m3n4-o5p6-q7r8s9t0u1v2',
+    testName: 'Performans Yük Testi',
+    testCaseId: 'tc-012',
+    testSuiteId: 'ts-004',
+    projectId: 'proj-002',
+    status: RequestStatus.QUEUED,
+    priority: RequestPriority.MEDIUM,
+    category: RequestCategory.PERFORMANCE_TEST,
+    source: RequestSource.MANUAL,
+    browser: BrowserType.CHROME,
+    timing: {
+      queuedAt: new Date('2023-06-20T12:35:00'),
+      estimatedStartTime: new Date('2023-06-20T14:00:00'),
+      waitTime: '1h 25m',
+      waitTimeMs: 5100000
+    },
+    createdBy: 'user-003',
+    createdAt: new Date('2023-06-20T12:35:00'),
+    description: 'Yüksek kullanıcı yükü altında sistem performansının test edilmesi',
+    tags: ['performance', 'load-testing', 'stress-testing']
+  },
+  {
+    id: 'qr-008-h8i9j0k1-l2m3-n4o5-p6q7-r8s9t0u1v2w3',
+    testName: 'Çoklu Dil Desteği Testi',
+    testCaseId: 'tc-013',
+    testSuiteId: 'ts-002',
+    projectId: 'proj-001',
+    status: RequestStatus.SCHEDULED,
+    priority: RequestPriority.LOW,
+    category: RequestCategory.UI_TEST,
+    source: RequestSource.SCHEDULED,
+    browser: BrowserType.FIREFOX,
+    timing: {
+      queuedAt: new Date('2023-06-20T12:40:00'),
+      scheduledAt: new Date('2023-06-20T15:00:00'),
+      estimatedStartTime: new Date('2023-06-20T15:00:00'),
+      waitTime: '2h 20m',
+      waitTimeMs: 8400000
+    },
+    createdBy: 'system',
+    createdAt: new Date('2023-06-20T12:40:00'),
+    description: 'Farklı dil seçeneklerinin ve çevirilerin doğruluğunun test edilmesi',
+    tags: ['ui', 'localization', 'i18n']
+  },
+  {
+    id: 'qr-009-i9j0k1l2-m3n4-o5p6-q7r8-s9t0u1v2w3x4',
+    testName: 'Veri Tabanı Yedekleme Testi',
+    testCaseId: 'tc-014',
+    testSuiteId: 'ts-003',
+    projectId: 'proj-002',
+    status: RequestStatus.QUEUED,
+    priority: RequestPriority.CRITICAL,
+    category: RequestCategory.SYSTEM_TEST,
+    source: RequestSource.MANUAL,
+    browser: BrowserType.CHROME,
+    timing: {
+      queuedAt: new Date('2023-06-20T12:45:00'),
+      estimatedStartTime: new Date('2023-06-20T13:30:00'),
+      waitTime: '45m',
+      waitTimeMs: 2700000
+    },
+    createdBy: 'user-001',
+    createdAt: new Date('2023-06-20T12:45:00'),
+    description: 'Veri tabanı yedekleme ve geri yükleme işlemlerinin test edilmesi',
+    tags: ['system', 'database', 'backup', 'critical']
+  },
+  {
+    id: 'qr-010-j0k1l2m3-n4o5-p6q7-r8s9-t0u1v2w3x4y5',
+    testName: 'Bildirim Sistemi Testi',
+    testCaseId: 'tc-015',
+    testSuiteId: 'ts-001',
+    projectId: 'proj-001',
+    status: RequestStatus.ASSIGNED,
+    priority: RequestPriority.MEDIUM,
+    category: RequestCategory.INTEGRATION_TEST,
+    source: RequestSource.CI_CD,
+    browser: BrowserType.EDGE,
+    timing: {
+      queuedAt: new Date('2023-06-20T12:50:00'),
+      assignedAt: new Date('2023-06-20T12:55:00'),
+      estimatedStartTime: new Date('2023-06-20T13:00:00'),
+      waitTime: '10m',
+      waitTimeMs: 600000
+    },
+    assignedAgentId: '3d2a4748-5d43-45dd-b200-59ecd6901f3e', // Edge-Agent-1
+    createdBy: 'ci-pipeline',
+    createdAt: new Date('2023-06-20T12:50:00'),
+    description: 'E-posta, SMS ve push bildirim sistemlerinin entegrasyonunun test edilmesi',
+    tags: ['integration', 'notifications', 'email', 'sms', 'push']
   }
 ];
 
@@ -595,7 +1139,7 @@ export const mockVersion = {
 };
 
 // ServerAgent mock verisi (ServerAgentSchema tipinde)
-export const mockServerAgent = {
+export const mockServerAgentSchema = {
   id: 'server-001',
   name: 'Test Automation Server',
   status: 'online',
@@ -617,7 +1161,19 @@ export const mockServerAgent = {
   queueStatus: mockQueueStatusSummary,
   performanceMetrics: mockPerformanceMetrics,
   healthStatus: mockHealthStatus,
-  activeAgents: mockAgents.map(agent => agent.id),
+  // Doğrudan agent ID'lerini kullan
+  activeAgents: [
+    '0aea406b-dff1-4df9-a613-cfa4a92e56e3',
+    '4dd16532-17b6-4e06-9575-56acfd862d50',
+    'b8dad830-3ed6-4464-859f-f720d460c6a5',
+    '34088356-e30a-446c-a38c-3dbcf12d53f6',
+    '3d2a4748-5d43-45dd-b200-59ecd6901f3e',
+    '7f8a9b2c-1d3e-4f5a-6b7c-8d9e0f1a2b3c',
+    '4a5b6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d',
+    '9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f',
+    '2b3c4d5e-6f7g-8h9i-0j1k-2l3m4n5o6p7q',
+    'r8s9t0u1-v2w3-x4y5-z6a7-b8c9d0e1f2g3'
+  ],
   queuedRequests: mockQueuedRequests.map(req => req.id),
   processedRequests: mockProcessedRequests.map(req => req.id),
   tags: ['production', 'main', 'europe'],
@@ -631,8 +1187,8 @@ export const mockServerAgent = {
   createdAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString() // 180 gün önce
 };
 
-// Orijinal ServerAgent nesnesi (eski bileşenler için)
-export const mockServerAgentOriginal: ServerAgent = {
+// ServerAgent nesnesi (API servisi tarafından kullanılır)
+export const mockServerAgent: ServerAgent = {
   id: 'server-001',
   systemResources: mockSystemResource,
   agentStatus: mockAgentStatusSummary,

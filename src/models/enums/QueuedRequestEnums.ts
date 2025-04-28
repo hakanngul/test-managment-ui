@@ -30,6 +30,7 @@ export enum RequestCategory {
   REGRESSION_TEST = 'regression_test',
   SMOKE_TEST = 'smoke_test',
   SANITY_TEST = 'sanity_test',
+  SYSTEM_TEST = 'system_test',
   CUSTOM = 'custom'
 }
 

@@ -1,9 +1,9 @@
 import { ServerAgentSchema } from '../models/database/schemas';
-import { mockServerAgent } from '../mock/serverAgentMock';
+import { mockServerAgentSchema, mockAgents, mockQueuedRequests, mockProcessedRequests } from '../mock/serverAgentMock';
 
 /**
  * API servisi
- * 
+ *
  * Bu servis, backend API'si ile iletişim kurmak için kullanılır.
  * Şu anda mock veriler kullanılıyor, gerçek API entegrasyonu için
  * bu fonksiyonlar gerçek API çağrıları ile değiştirilmelidir.
@@ -14,10 +14,10 @@ const api = {
    */
   getServerAgent: async (): Promise<ServerAgentSchema> => {
     // Mock veri kullanıyoruz
-    console.log('Fetching server agent data (mock)');
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(mockServerAgent as unknown as ServerAgentSchema);
+        // Import edilen mockServerAgentSchema kullan
+        resolve(mockServerAgentSchema as unknown as ServerAgentSchema);
       }, 500);
     });
   },
@@ -27,10 +27,10 @@ const api = {
    */
   getAgentById: async (id: string) => {
     // Mock veri kullanıyoruz
-    console.log(`Fetching agent data for ID: ${id} (mock)`);
     return new Promise((resolve) => {
       setTimeout(() => {
-        const agent = mockServerAgent.activeAgents.find(a => a.id === id);
+        // Import edilen mockAgents kullan
+        const agent = mockAgents.find(a => a.id === id);
         resolve(agent || null);
       }, 300);
     });
@@ -41,10 +41,10 @@ const api = {
    */
   getQueuedRequests: async () => {
     // Mock veri kullanıyoruz
-    console.log('Fetching queued requests (mock)');
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(mockServerAgent.queuedRequests);
+        // Import edilen mockQueuedRequests kullan
+        resolve(mockQueuedRequests);
       }, 300);
     });
   },
@@ -54,10 +54,10 @@ const api = {
    */
   getProcessedRequests: async () => {
     // Mock veri kullanıyoruz
-    console.log('Fetching processed requests (mock)');
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(mockServerAgent.processedRequests);
+        // Import edilen mockProcessedRequests kullan
+        resolve(mockProcessedRequests);
       }, 300);
     });
   },
@@ -67,10 +67,10 @@ const api = {
    */
   getSystemResources: async () => {
     // Mock veri kullanıyoruz
-    console.log('Fetching system resources (mock)');
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(mockServerAgent.systemResources);
+        // Import edilen mockServerAgentSchema kullan
+        resolve(mockServerAgentSchema.systemResources);
       }, 200);
     });
   }

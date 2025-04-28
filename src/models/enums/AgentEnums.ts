@@ -33,7 +33,8 @@ export enum AgentHealthStatus {
   HEALTHY = 'healthy',
   WARNING = 'warning',
   CRITICAL = 'critical',
-  UNKNOWN = 'unknown'
+  UNKNOWN = 'unknown',
+  MAINTENANCE = 'maintenance'
 }
 
 // Agent log level

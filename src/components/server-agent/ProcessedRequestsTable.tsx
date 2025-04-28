@@ -75,8 +75,8 @@ const ProcessedRequestsTable: React.FC<ProcessedRequestsTableProps> = ({
             {requests.length > 0 ? (
               requests
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((request) => (
-                  <TableRow key={request.id}>
+                .map((request, index) => (
+                  <TableRow key={request.id || `processed-request-${index}`}>
                     <TableCell>{request.id}</TableCell>
                     <TableCell>{request.testName || request.name || '-'}</TableCell>
                     <TableCell>{request.browser || '-'}</TableCell>

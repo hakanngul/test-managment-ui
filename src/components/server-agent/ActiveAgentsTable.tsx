@@ -55,8 +55,8 @@ const ActiveAgentsTable: React.FC<ActiveAgentsTableProps> = ({ agents }) => {
         </TableHead>
         <TableBody>
           {agents.length > 0 ? (
-            agents.map((agent) => (
-              <TableRow key={agent.id}>
+            agents.map((agent, index) => (
+              <TableRow key={agent.id || `active-agent-${index}`}>
                 <TableCell>{agent.id}</TableCell>
                 <TableCell>{agent.browser}</TableCell>
                 <TableCell>
