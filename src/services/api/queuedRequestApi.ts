@@ -7,7 +7,7 @@ export const queuedRequestApi = {
   getQueuedRequests: () => fetchData<QueuedRequestSchema[]>('queuedRequestsData'),
 
   // Get queued request by ID
-  getQueuedRequestById: (id: string) => fetchData<QueuedRequestSchema>(`queuedRequests/${id}`),
+  getQueuedRequestById: (id: string) => fetchData<QueuedRequestSchema>(`queuedRequestsData/${id}`),
 
   // Create new queued request
   createQueuedRequest: (data: Omit<QueuedRequestSchema, '_id'>) => fetchData<QueuedRequestSchema>('queuedRequests', {
@@ -65,5 +65,5 @@ export const queuedRequestApi = {
   }),
 
   // Get queued requests data
-  getQueuedRequestsData: () => fetchData<QueuedRequestSchema[]>('queuedRequests').catch(() => []),
+  getQueuedRequestsData: () => fetchData<QueuedRequestSchema[]>('queuedRequestsData').catch(() => []),
 };

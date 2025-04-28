@@ -32,71 +32,9 @@ async function fetchData<T>(endpoint: string, options: RequestInit = {}): Promis
 }
 
 export { fetchData };
-export * from './userApi';
-export * from './projectApi';
-export * from './testCaseApi';
-export * from './testSuiteApi';
-export * from './testRunApi';
-export * from './testResultApi';
-export * from './agentApi';
-export * from './serverAgentApi';
-export * from './queuedRequestApi';
-export * from './processedRequestApi';
-export * from './detailedTestResultsApi';
-export * from './notificationsApi';
-export * from './performanceMetricsApi';
-export * from './testFeaturesApi';
-export * from './executionTimeDataApi';
-export * from './testCountsByDayApi';
-export * from './systemResourcesDataApi';
-export * from './agentStatusDataApi';
-export * from './activeAgentsDataApi';
-export * from './queueStatusDataApi';
-
-// Tüm API servislerini içeren bir nesne oluştur
-import { userApi } from './userApi';
-import { projectApi } from './projectApi';
-import { testCaseApi } from './testCaseApi';
-import { testSuiteApi } from './testSuiteApi';
-import { testRunApi } from './testRunApi';
-import { testResultApi } from './testResultApi';
-import { agentApi } from './agentApi';
-import { serverAgentApi } from './serverAgentApi';
-import { queuedRequestApi } from './queuedRequestApi';
-import { processedRequestApi } from './processedRequestApi';
-import { detailedTestResultsApi } from './detailedTestResultsApi';
-import { notificationsApi } from './notificationsApi';
-import { performanceMetricsApi } from './performanceMetricsApi';
-import { testFeaturesApi } from './testFeaturesApi';
-import { executionTimeDataApi } from './executionTimeDataApi';
-import { testCountsByDayApi } from './testCountsByDayApi';
-import { systemResourcesDataApi } from './systemResourcesDataApi';
-import { agentStatusDataApi } from './agentStatusDataApi';
-import { activeAgentsDataApi } from './activeAgentsDataApi';
-import { queueStatusDataApi } from './queueStatusDataApi';
 
 // Tüm API'leri birleştir
 const api = {
-  ...userApi,
-  ...projectApi,
-  ...testCaseApi,
-  ...testSuiteApi,
-  ...testRunApi,
-  ...testResultApi,
-  ...agentApi,
-  ...serverAgentApi,
-  ...queuedRequestApi,
-  ...processedRequestApi,
-  ...detailedTestResultsApi,
-  ...notificationsApi,
-  ...performanceMetricsApi,
-  ...testFeaturesApi,
-  ...executionTimeDataApi,
-  ...testCountsByDayApi,
-  ...systemResourcesDataApi,
-  ...agentStatusDataApi,
-  ...activeAgentsDataApi,
-  ...queueStatusDataApi,
 
   // Yardımcı fonksiyonlar
   getCategories: () => fetchData<any[]>('testCategories'),
