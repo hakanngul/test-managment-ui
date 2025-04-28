@@ -48,11 +48,7 @@ const TestCasesList: React.FC<TestCasesListProps> = ({
 
   // Test case detaylarına git
   const handleNavigateToDetails = (id: string) => {
-    // Gerçek uygulamada burada detay sayfasına yönlendirme yapılacak
-    console.log(`Test case ${id} detaylarına gidiliyor...`);
-    // Şimdilik alert gösterelim (gerçek uygulamada navigate kullanılacak)
-    alert(`Test case ${id} detaylarına gidiliyor...`);
-    // navigate(`/test-cases/${id}`);
+    navigate(`/test-cases/${id}`);
   };
   // Öncelik rengini belirle
   const getPriorityColor = (priority: TestCasePriority) => {

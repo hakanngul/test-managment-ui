@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard';
 import ServerAgent from './pages/ServerAgent';
 import TestCases from './pages/TestCases';
 import NewTestCase from './pages/NewTestCase';
+import TestCaseDetails from './pages/TestCaseDetails';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 
@@ -31,6 +32,7 @@ function App() {
                   <Route path="server-agent" element={<ServerAgent />} />
                   <Route path="test-cases" element={<TestCases />} />
                   <Route path="test-cases/new" element={<NewTestCase />} />
+                  <Route path="test-cases/:id" element={<TestCaseDetails />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
