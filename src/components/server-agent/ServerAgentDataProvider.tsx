@@ -51,18 +51,12 @@ export const ServerAgentDataProvider: React.FC<ServerAgentDataProviderProps> = (
    * API'den verileri çeker
    */
   const fetchData = async () => {
-    // Eğer zaten veri yükleme işlemi devam ediyorsa ve bu bir otomatik yenileme ise, yeni bir istek başlatma
-    // İlk yüklemede bu kontrolü atla
-    if (loading && serverAgent !== null) return;
-
     try {
       setLoading(true);
       setError(null);
 
       // 1. Server agent verilerini çek
       const serverAgentData = await api.getServerAgent();
-
-      console.log('Server agent data:', serverAgentData); // Debug için
 
       if (!serverAgentData) {
         setError('Server agent data not found');
@@ -77,13 +71,11 @@ export const ServerAgentDataProvider: React.FC<ServerAgentDataProviderProps> = (
       let agentsList: Agent[] = [];
       if (serverAgentData.activeAgents && Array.isArray(serverAgentData.activeAgents)) {
         try {
-          console.log('Active agent IDs:', serverAgentData.activeAgents); // Debug için
           // Tüm agent detaylarını paralel olarak çek
           const agentPromises = (serverAgentData.activeAgents as string[]).map(id => api.getAgentById(id));
           const agentDetails = await Promise.all(agentPromises);
 
           // Geçerli agent'ları dönüştür
-          console.log('Agent details:', agentDetails); // Debug için
           agentsList = agentDetails
             .filter(Boolean)
             .map(agent => {
@@ -191,26 +183,15 @@ export const ServerAgentDataProvider: React.FC<ServerAgentDataProviderProps> = (
     }
   };
 
-  // Initial data fetch and auto refresh every 30 seconds
+  // Initial data fetch only
   useEffect(() => {
     // İlk veri çekme
     let isMounted = true;
-    let intervalId: number | null = null;
 
     const initialFetch = async () => {
       if (isMounted) {
         try {
           await fetchData();
-
-          // Veri başarıyla yüklendikten sonra interval'i başlat
-          if (isMounted) {
-            // 30 saniyede bir otomatik yenileme
-            intervalId = setInterval(() => {
-              if (isMounted) {
-                fetchData();
-              }
-            }, 30000);
-          }
         } catch (error) {
           console.error('Initial data fetch failed:', error);
         }
@@ -222,9 +203,6 @@ export const ServerAgentDataProvider: React.FC<ServerAgentDataProviderProps> = (
     // Cleanup function
     return () => {
       isMounted = false;
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
     };
   }, []);
 

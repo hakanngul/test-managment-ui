@@ -18,7 +18,7 @@ const api = {
       setTimeout(() => {
         // Import edilen mockServerAgentSchema kullan
         resolve(mockServerAgentSchema as unknown as ServerAgentSchema);
-      }, 500);
+      }, 200);
     });
   },
 
@@ -32,7 +32,7 @@ const api = {
         // Import edilen mockAgents kullan
         const agent = mockAgents.find(a => a.id === id);
         resolve(agent || null);
-      }, 300);
+      }, 100);
     });
   },
 
@@ -45,7 +45,7 @@ const api = {
       setTimeout(() => {
         // Import edilen mockQueuedRequests kullan
         resolve(mockQueuedRequests);
-      }, 300);
+      }, 100);
     });
   },
 
@@ -58,7 +58,7 @@ const api = {
       setTimeout(() => {
         // Import edilen mockProcessedRequests kullan
         resolve(mockProcessedRequests);
-      }, 300);
+      }, 100);
     });
   },
 
@@ -71,7 +71,7 @@ const api = {
       setTimeout(() => {
         // Import edilen mockServerAgentSchema kullan
         resolve(mockServerAgentSchema.systemResources);
-      }, 200);
+      }, 100);
     });
   }
 };
