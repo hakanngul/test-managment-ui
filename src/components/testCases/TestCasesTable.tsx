@@ -7,7 +7,9 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Paper
+  Paper,
+  Box,
+  Typography
 } from '@mui/material';
 import { TestCase } from '../../types';
 import TestCaseRow from './TestCaseRow';
@@ -36,9 +38,10 @@ const TestCasesTable: React.FC<TestCasesTableProps> = ({
   getStatusColor
 }) => {
   const paginatedTestCases = testCases.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, testCases.length - page * rowsPerPage);
 
   return (
-    <Paper sx={{ width: '100%', borderRadius: 2 }}>
+    <>
       <TableContainer>
         <Table>
           <TableHead>
@@ -62,19 +65,40 @@ const TestCasesTable: React.FC<TestCasesTableProps> = ({
                 getStatusColor={getStatusColor}
               />
             ))}
+
+            {emptyRows > 0 && (
+              <TableRow style={{ height: 73 * emptyRows }}>
+                <TableCell colSpan={6} />
+              </TableRow>
+            )}
+
+            {testCases.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    No test cases found matching your filters
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={testCases.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={onPageChange}
-        onRowsPerPageChange={onRowsPerPageChange}
-      />
-    </Paper>
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={testCases.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={onPageChange}
+          onRowsPerPageChange={onRowsPerPageChange}
+          labelRowsPerPage="Rows:"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} of ${count}`}
+        />
+      </Box>
+    </>
   );
 };
 

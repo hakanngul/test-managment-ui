@@ -35,6 +35,27 @@ export { fetchData };
 
 // Tüm API'leri birleştir
 const api = {
+  // Test Cases sayfası için API çağrıları
+  getTestCases: () => fetchData<any[]>('testCases').catch(() => {
+    console.error('Failed to fetch test cases, returning empty array');
+    return [];
+  }),
+  getTestCaseById: (id: string) => fetchData<any>(`testCases/${id}`),
+  createTestCase: (data: any) => fetchData<any>('testCases', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  updateTestCase: (id: string, data: any) => fetchData<any>(`testCases/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  deleteTestCase: (id: string) => fetchData<{ success: boolean }>(`testCases/${id}`, {
+    method: 'DELETE',
+  }),
+  getTestCasesByProject: (projectId: string) => fetchData<any[]>(`testCases?projectId=${projectId}`),
+  getTestCasesByStatus: (status: string) => fetchData<any[]>(`testCases?status=${status}`),
+  getTestCasesByPriority: (priority: string) => fetchData<any[]>(`testCases?priority=${priority}`),
+  getTestCasesByTags: (tags: string[]) => fetchData<any[]>(`testCases?tags=${tags.join(',')}`),
 
   // Yardımcı fonksiyonlar
   getCategories: () => fetchData<any[]>('testCategories'),

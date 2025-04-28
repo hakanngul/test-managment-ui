@@ -1,10 +1,12 @@
 import React from 'react';
-import { Box, TextField, InputAdornment, Button, Card } from '@mui/material';
-import { 
-  Search as SearchIcon, 
+import { Box, TextField, InputAdornment, Button, Card, Tooltip, Badge } from '@mui/material';
+import {
+  Search as SearchIcon,
   FilterList as FilterIcon,
-  ArrowDropDown as ArrowDropDownIcon 
+  ArrowDropDown as ArrowDropDownIcon,
+  Add as AddIcon
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 interface TestCasesFilterProps {
   searchQuery: string;
@@ -21,9 +23,12 @@ const TestCasesFilter: React.FC<TestCasesFilterProps> = ({
   onSortClick,
   sortBy
 }) => {
+  const navigate = useNavigate();
+  const activeFiltersCount = 0; // Bu değer filtrelerin sayısına göre güncellenebilir
+
   return (
     <Card sx={{ mb: 3, p: 2, borderRadius: 2 }}>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
         <TextField
           placeholder="Search test cases..."
           variant="outlined"
@@ -40,23 +45,41 @@ const TestCasesFilter: React.FC<TestCasesFilterProps> = ({
           }}
         />
 
-        <Button
-          variant="outlined"
-          startIcon={<FilterIcon />}
-          onClick={onFilterClick}
-          size="small"
-        >
-          Filter
-        </Button>
+        <Tooltip title="Filter test cases">
+          <Badge badgeContent={activeFiltersCount} color="primary" invisible={activeFiltersCount === 0}>
+            <Button
+              variant="outlined"
+              startIcon={<FilterIcon />}
+              onClick={onFilterClick}
+              size="small"
+            >
+              Filter
+            </Button>
+          </Badge>
+        </Tooltip>
 
-        <Button
-          variant="outlined"
-          endIcon={<ArrowDropDownIcon />}
-          onClick={onSortClick}
-          size="small"
-        >
-          Sort by: {sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}
-        </Button>
+        <Tooltip title="Sort test cases">
+          <Button
+            variant="outlined"
+            endIcon={<ArrowDropDownIcon />}
+            onClick={onSortClick}
+            size="small"
+          >
+            Sort by: {sortBy.charAt(0).toUpperCase() + sortBy.slice(1)}
+          </Button>
+        </Tooltip>
+
+        <Tooltip title="Create new test case">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/test-cases/new')}
+            size="small"
+          >
+            New Test Case
+          </Button>
+        </Tooltip>
       </Box>
     </Card>
   );
