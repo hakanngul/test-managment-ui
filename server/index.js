@@ -632,6 +632,58 @@ app.delete('/api/testCases/:id', async (req, res) => {
   }
 });
 
+// Special endpoint for testCases/:id/history - GET
+app.get('/api/testCases/:id/history', async (req, res) => {
+  try {
+    const db = await connectToMongoDB();
+    const id = req.params.id;
+
+    // Get test results for this test case from MongoDB
+    let testResults = await db.collection('testResults').find({ testCaseId: id }).sort({ createdAt: -1 }).toArray();
+
+    // If no data, try lowercase collection
+    if (!testResults || testResults.length === 0) {
+      testResults = await db.collection('TestResults').find({ testCaseId: id }).sort({ createdAt: -1 }).toArray();
+    }
+
+    // Return empty array if nothing found
+    if (!testResults || testResults.length === 0) {
+      return res.json([]);
+    }
+
+    res.json(testResults);
+  } catch (error) {
+    console.error('Error getting test history:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Special endpoint for testCases/:id/steps - GET
+app.get('/api/testCases/:id/steps', async (req, res) => {
+  try {
+    const db = await connectToMongoDB();
+    const id = req.params.id;
+
+    // Get test steps for this test case from MongoDB
+    let testSteps = await db.collection('testSteps').find({ testCaseId: id }).sort({ order: 1 }).toArray();
+
+    // If no data, try lowercase collection
+    if (!testSteps || testSteps.length === 0) {
+      testSteps = await db.collection('TestSteps').find({ testCaseId: id }).sort({ order: 1 }).toArray();
+    }
+
+    // Return empty array if nothing found
+    if (!testSteps || testSteps.length === 0) {
+      return res.json([]);
+    }
+
+    res.json(testSteps);
+  } catch (error) {
+    console.error('Error getting test steps:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Special endpoint for testCases/:id - GET
 app.get('/api/testCases/:id', async (req, res) => {
   try {
@@ -657,6 +709,12 @@ app.get('/api/testCases/:id', async (req, res) => {
       // Return 404 if not found
       return res.status(404).json({ error: `Test case with ID ${id} not found.` });
     }
+
+    // Get test steps for this test case
+    const testSteps = await db.collection('testSteps').find({ testCaseId: id }).sort({ order: 1 }).toArray();
+
+    // Add test steps to test case
+    testCase.steps = testSteps;
 
     res.json(testCase);
   } catch (error) {

@@ -40,7 +40,19 @@ const api = {
     console.error('Failed to fetch test cases, returning empty array');
     return [];
   }),
-  getTestCaseById: (id: string) => fetchData<any>(`testCases/${id}`),
+  getTestCaseById: async (id: string) => {
+    try {
+      // Attempt to fetch from API
+      return await fetchData<any>(`testCases/${id}`);
+    } catch (error) {
+      console.error('Error fetching test case by ID, using mock data:', error);
+
+      // Import mock data
+      const module = await import('../../mocks/testCaseDetailMock');
+      console.log('Using mock test case data');
+      return module.testCaseDetailMock;
+    }
+  },
   createTestCase: (data: any) => fetchData<any>('testCases', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -56,6 +68,17 @@ const api = {
   getTestCasesByStatus: (status: string) => fetchData<any[]>(`testCases?status=${status}`),
   getTestCasesByPriority: (priority: string) => fetchData<any[]>(`testCases?priority=${priority}`),
   getTestCasesByTags: (tags: string[]) => fetchData<any[]>(`testCases?tags=${tags.join(',')}`),
+
+  // Test History API çağrıları
+  getTestHistoryByTestCase: async (testCaseId: string) => {
+    try {
+      // Attempt to fetch from API
+      return await fetchData<any[]>(`testCases/${testCaseId}/history`);
+    } catch (error) {
+      console.error('Error fetching test history:', error);
+      return [];
+    }
+  },
 
   // Yardımcı fonksiyonlar
   getCategories: () => fetchData<any[]>('testCategories'),

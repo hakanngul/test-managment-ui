@@ -51,11 +51,15 @@ export interface TestRun {
 export interface TestResult {
   id: string;
   testCaseId: string;
-  status: 'passed' | 'failed' | 'skipped' | 'blocked';
-  duration: number; // in milliseconds
+  testRunId?: string;
+  status: 'passed' | 'failed' | 'skipped' | 'blocked' | 'running';
+  duration?: number; // in milliseconds
   errorMessage?: string;
   screenshots?: string[];
   logs?: string[];
+  createdAt: string;
+  environment?: string;
+  browser?: string;
 }
 
 export interface Project {
