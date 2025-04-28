@@ -5,3 +5,4 @@ export * from './testRunHistoryMock';
 export * from './testAttachmentsMock';
 export * from './testCommentsMock';
 export * from './testRunsMock';
+export * from './reportsMock';
