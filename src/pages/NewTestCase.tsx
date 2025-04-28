@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -49,9 +49,13 @@ import {
 } from '../components/test-cases';
 import { testRunnerService, TestRunRequest, TestRunResponse } from '../services/TestRunnerService';
 import { BrowserType } from '../models/enums/TestEnums';
+import { mockTestCases } from '../mock/testCasesMock';
 
 const NewTestCase: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Adım yönetimi
   const [activeStep, setActiveStep] = useState(0);
@@ -176,35 +180,86 @@ const NewTestCase: React.FC = () => {
       return;
     }
 
-    // Yeni test case oluştur
-    const newTestCase: Omit<TestCase, 'id'> = {
-      name,
-      description,
-      status,
-      priority,
-      category,
-      tags,
-      createdBy: 'Hakan Gül', // Gerçek uygulamada oturum açmış kullanıcıdan alınacak
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      browser: browserSettings.browser,
-      environment,
-      automated,
-      prerequisites,
-      projectId: 'proj-001', // Gerçek uygulamada seçilen projeden alınacak
-      steps: []
-    };
+    if (isEditMode) {
+      // Test case'i güncelle
+      const updatedTestCase: TestCase = {
+        id: id!, // id parametresi kesinlikle var (isEditMode true olduğu için)
+        name,
+        description,
+        status,
+        priority,
+        category,
+        tags,
+        createdBy: 'Hakan Gül', // Gerçek uygulamada oturum açmış kullanıcıdan alınacak
+        createdAt: new Date(), // Gerçek uygulamada mevcut createdAt değeri korunacak
+        updatedAt: new Date(),
+        browser: browserSettings.browser,
+        environment,
+        automated,
+        prerequisites,
+        projectId: 'proj-001', // Gerçek uygulamada mevcut projectId değeri korunacak
+        steps: testSteps.map(step => ({
+          id: step.id,
+          description: step.description,
+          action: step.action,
+          selector: step.selector,
+          value: step.value,
+          order: step.order
+        }))
+      };
 
-    // Gerçek uygulamada burada API çağrısı yapılacak
-    console.log('Yeni test case oluşturuluyor:', newTestCase);
+      // Gerçek uygulamada burada API çağrısı yapılacak
+      console.log('Test case güncelleniyor:', updatedTestCase);
 
-    // Başarı mesajını göster
-    setShowSuccessAlert(true);
+      // Başarı mesajını göster
+      setSnackbarMessage('Test case başarıyla güncellendi!');
+      setShowSnackbar(true);
+      setShowSuccessAlert(true);
 
-    // 2 saniye sonra test cases sayfasına yönlendir
-    setTimeout(() => {
-      navigate('/test-cases');
-    }, 2000);
+      // 2 saniye sonra test case detay sayfasına yönlendir
+      setTimeout(() => {
+        navigate(`/test-cases/${id}`);
+      }, 2000);
+    } else {
+      // Yeni test case oluştur
+      const newTestCase: Omit<TestCase, 'id'> = {
+        name,
+        description,
+        status,
+        priority,
+        category,
+        tags,
+        createdBy: 'Hakan Gül', // Gerçek uygulamada oturum açmış kullanıcıdan alınacak
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        browser: browserSettings.browser,
+        environment,
+        automated,
+        prerequisites,
+        projectId: 'proj-001', // Gerçek uygulamada seçilen projeden alınacak
+        steps: testSteps.map(step => ({
+          id: step.id,
+          description: step.description,
+          action: step.action,
+          selector: step.selector,
+          value: step.value,
+          order: step.order
+        }))
+      };
+
+      // Gerçek uygulamada burada API çağrısı yapılacak
+      console.log('Yeni test case oluşturuluyor:', newTestCase);
+
+      // Başarı mesajını göster
+      setSnackbarMessage('Test case başarıyla oluşturuldu!');
+      setShowSnackbar(true);
+      setShowSuccessAlert(true);
+
+      // 2 saniye sonra test cases sayfasına yönlendir
+      setTimeout(() => {
+        navigate('/test-cases');
+      }, 2000);
+    }
   };
 
   // Test çalıştırma işlemi
@@ -287,6 +342,57 @@ const NewTestCase: React.FC = () => {
   const handleCloseSnackbar = () => {
     setShowSnackbar(false);
   };
+
+  // Mevcut test case verilerini yükle
+  useEffect(() => {
+    if (id) {
+      setIsEditMode(true);
+      setIsLoading(true);
+
+      // Gerçek uygulamada burada API çağrısı yapılacak
+      setTimeout(() => {
+        const testCase = mockTestCases.find(tc => tc.id === id);
+
+        if (testCase) {
+          // Temel bilgileri doldur
+          setName(testCase.name);
+          setDescription(testCase.description);
+          setStatus(testCase.status);
+          setPriority(testCase.priority);
+          setCategory(testCase.category);
+          setTags(testCase.tags || []);
+          setEnvironment(testCase.environment || 'Development');
+          setAutomated(testCase.automated);
+          setPrerequisites(testCase.prerequisites || []);
+
+          // Test adımlarını doldur
+          if (testCase.steps && testCase.steps.length > 0) {
+            // Test adımlarını TestStep formatına dönüştür
+            const formattedSteps: TestStep[] = testCase.steps.map((step, index) => ({
+              id: step.id || `step-${index}`,
+              action: step.action as TestStepActionType || TestStepActionType.NAVIGATE,
+              description: step.description,
+              selector: step.selector,
+              value: step.value,
+              order: step.order || index + 1
+            }));
+
+            setTestSteps(formattedSteps);
+          }
+
+          // Tarayıcı ayarlarını doldur
+          if (testCase.browser) {
+            setBrowserSettings(prev => ({
+              ...prev,
+              browser: testCase.browser as BrowserType
+            }));
+          }
+        }
+
+        setIsLoading(false);
+      }, 500);
+    }
+  }, [id]);
 
   // Öncelik adını formatla
   const formatPriority = (priority: TestCasePriority): string => {
@@ -690,7 +796,7 @@ const NewTestCase: React.FC = () => {
               </IconButton>
             </Tooltip>
             <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-              Yeni Test Case Oluştur
+              {isEditMode ? 'Test Case Düzenle' : 'Yeni Test Case Oluştur'}
             </Typography>
           </Box>
 
@@ -742,7 +848,9 @@ const NewTestCase: React.FC = () => {
             sx={{ mb: 3 }}
             onClose={() => setShowSuccessAlert(false)}
           >
-            Test case başarıyla oluşturuldu! Test Cases sayfasına yönlendiriliyorsunuz...
+            {isEditMode
+              ? 'Test case başarıyla güncellendi! Test Case detay sayfasına yönlendiriliyorsunuz...'
+              : 'Test case başarıyla oluşturuldu! Test Cases sayfasına yönlendiriliyorsunuz...'}
           </Alert>
         )}
 

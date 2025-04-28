@@ -33,6 +33,7 @@ function App() {
                   <Route path="test-cases" element={<TestCases />} />
                   <Route path="test-cases/new" element={<NewTestCase />} />
                   <Route path="test-cases/:id" element={<TestCaseDetails />} />
+                  <Route path="test-cases/edit/:id" element={<NewTestCase />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
