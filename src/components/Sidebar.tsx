@@ -20,12 +20,10 @@ import {
   PlayArrow as PlayArrowIcon,
   Assignment as AssignmentIcon,
   Assessment as AssessmentIcon,
-  Settings as SettingsIcon,
   HelpOutline as HelpIcon,
   Computer as ComputerIcon,
 } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
-import { Project } from '../types';
 
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -69,7 +67,7 @@ const Sidebar: React.FC = () => {
             label="Select Project"
             onChange={handleProjectChange}
           >
-            {projects.map((project: Project) => (
+            {projects.map((project) => (
               <MenuItem key={project.id} value={project.id}>
                 {project.name}
               </MenuItem>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Box,
   Paper,
@@ -35,11 +35,30 @@ const TestStepExecutor: React.FC<TestStepExecutorProps> = ({
   steps,
   executionStatus
 }) => {
+  // Scroll için referans
+  const stepsContainerRef = useRef<HTMLDivElement>(null);
+  const activeStepRef = useRef<HTMLDivElement>(null);
+
   // Aktif adımı bul
   const activeStep = steps.findIndex(step =>
     step.status === TestStepExecutionStatus.RUNNING ||
     step.status === TestStepExecutionStatus.PENDING
   );
+
+  // Aktif adım değiştiğinde otomatik scroll
+  useEffect(() => {
+    if (activeStepRef.current && stepsContainerRef.current) {
+      // Aktif adımın konumunu al
+      const activeStepElement = activeStepRef.current;
+      const container = stepsContainerRef.current;
+
+      // Smooth scroll ile aktif adıma git
+      activeStepElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  }, [activeStep, steps]);
 
   // Adım durumuna göre ikon ve renk belirle
   const getStepIcon = (status: TestStepExecutionStatus) => {
@@ -125,7 +144,10 @@ const TestStepExecutor: React.FC<TestStepExecutorProps> = ({
         </Typography>
       </Box>
 
-      <Box sx={{ p: 2, flexGrow: 1, overflow: 'auto' }}>
+      <Box
+        ref={stepsContainerRef}
+        sx={{ p: 2, flexGrow: 1, overflow: 'auto', maxHeight: '500px' }}
+      >
         {testCase && steps.length > 0 ? (
           <Stepper
             activeStep={activeStep === -1 ? steps.length : activeStep}
@@ -137,11 +159,11 @@ const TestStepExecutor: React.FC<TestStepExecutorProps> = ({
             }}
           >
             {steps.map((step, index) => (
-              <Step
-                key={step.id}
-                completed={step.status === TestStepExecutionStatus.PASSED}
-                sx={{ mb: 1 }}
-              >
+              <div key={step.id} ref={index === activeStep ? activeStepRef : undefined}>
+                <Step
+                  completed={step.status === TestStepExecutionStatus.PASSED}
+                  sx={{ mb: 1 }}
+                >
                 <StepLabel
                   StepIconComponent={() => getStepIcon(step.status)}
                   sx={{
@@ -211,6 +233,7 @@ const TestStepExecutor: React.FC<TestStepExecutorProps> = ({
                   </Box>
                 </StepContent>
               </Step>
+              </div>
             ))}
           </Stepper>
         ) : (

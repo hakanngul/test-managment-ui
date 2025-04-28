@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { User } from '../types';
+import { UserRole } from '../models/enums/TestEnums';
 
 interface AuthContextProps {
   user: User | null;
@@ -28,7 +29,7 @@ const MOCK_USER: User = {
   id: '1',
   name: 'John Doe',
   email: 'john.doe@example.com',
-  role: 'admin',
+  role: UserRole.ADMIN,
   avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
 };
 
@@ -59,12 +60,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // In a real app, you would make an API call to authenticate the user
       // Simulate an API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // For demo purposes, we'll just check if the email and password are not empty
       if (email && password) {
         setUser(MOCK_USER);

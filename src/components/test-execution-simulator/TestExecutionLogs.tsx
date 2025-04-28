@@ -51,12 +51,44 @@ const TestExecutionLogs: React.FC<TestExecutionLogsProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  // Log satırının türüne göre renk belirle
-  const getLogColor = (log: string) => {
-    if (log.includes('[ERROR]')) return 'error.main';
-    if (log.includes('[WARNING]')) return 'warning.main';
-    if (log.includes('[INFO]')) return 'text.primary';
-    return 'text.secondary';
+  // Log satırının türüne göre renk ve stil belirle
+  const getLogStyle = (log: string) => {
+    // Zaman damgasını ve log türünü ayır
+    const timeStampMatch = log.match(/^(\d{2}:\d{2}:\d{2})/);
+    const logTypeMatch = log.match(/\[(INFO|ERROR|WARNING)\]/);
+
+    const timeStamp = timeStampMatch ? timeStampMatch[1] : '';
+    const logType = logTypeMatch ? logTypeMatch[1] : '';
+    const logContent = log.replace(/^\d{2}:\d{2}:\d{2}\s+\[(INFO|ERROR|WARNING)\]\s*/, '');
+
+    // Log türüne göre renk belirle
+    let color = '#A9B7C6'; // Varsayılan renk
+    let backgroundColor = 'transparent';
+    let borderColor = 'transparent';
+    let fontWeight = 'normal';
+
+    if (logType === 'ERROR') {
+      color = '#FF5252';
+      backgroundColor = 'rgba(255, 82, 82, 0.1)';
+      borderColor = '#FF5252';
+      fontWeight = 'bold';
+    } else if (logType === 'WARNING') {
+      color = '#FFC107';
+      backgroundColor = 'rgba(255, 193, 7, 0.1)';
+      borderColor = '#FFC107';
+    } else if (logType === 'INFO') {
+      color = '#64B5F6';
+    }
+
+    return {
+      color,
+      backgroundColor,
+      borderColor,
+      fontWeight,
+      timeStamp,
+      logType,
+      logContent
+    };
   };
 
   return (
@@ -113,33 +145,85 @@ const TestExecutionLogs: React.FC<TestExecutionLogsProps> = ({
           flexGrow: 1,
           overflow: 'auto',
           bgcolor: '#1E1E1E',
-          fontFamily: 'Consolas, Monaco, "Andale Mono", monospace',
-          fontSize: '0.8rem',
+          fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
+          fontSize: '0.85rem',
           position: 'relative',
-          height: '100%'
+          height: '100%',
+          borderRadius: 0
         }}
       >
         {logs.length > 0 ? (
-          <Box sx={{ p: 2 }}>
-            {logs.map((log, index) => (
-              <Box
-                key={index}
-                sx={{
-                  color: getLogColor(log),
-                  py: 0.25,
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-all',
-                  lineHeight: 1.5,
-                  fontWeight: log.includes('[ERROR]') ? 'bold' : 'normal',
-                  borderLeft: log.includes('[ERROR]') ? '3px solid #f44336' :
-                             log.includes('[WARNING]') ? '3px solid #ff9800' : 'none',
-                  pl: log.includes('[ERROR]') || log.includes('[WARNING]') ? 1 : 0,
-                  mb: 0.5
-                }}
-              >
-                {log}
-              </Box>
-            ))}
+          <Box sx={{ p: 1 }}>
+            {logs.map((log, index) => {
+              const logStyle = getLogStyle(log);
+
+              return (
+                <Box
+                  key={index}
+                  sx={{
+                    py: 0.5,
+                    px: 1,
+                    mb: 0.5,
+                    borderRadius: '4px',
+                    backgroundColor: logStyle.backgroundColor,
+                    borderLeft: `3px solid ${logStyle.borderColor}`,
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                    {/* Zaman Damgası */}
+                    <Box
+                      component="span"
+                      sx={{
+                        color: '#607D8B',
+                        mr: 1.5,
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold',
+                        minWidth: '70px'
+                      }}
+                    >
+                      {logStyle.timeStamp}
+                    </Box>
+
+                    {/* Log Türü */}
+                    {logStyle.logType && (
+                      <Box
+                        component="span"
+                        sx={{
+                          color: logStyle.color,
+                          backgroundColor: logStyle.backgroundColor ? 'rgba(0,0,0,0.2)' : 'transparent',
+                          px: 1,
+                          py: 0.2,
+                          borderRadius: '3px',
+                          fontSize: '0.75rem',
+                          fontWeight: 'bold',
+                          mr: 1.5,
+                          minWidth: '60px',
+                          textAlign: 'center'
+                        }}
+                      >
+                        {logStyle.logType}
+                      </Box>
+                    )}
+                  </Box>
+
+                  {/* Log İçeriği */}
+                  <Box
+                    sx={{
+                      color: logStyle.color,
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      lineHeight: 1.5,
+                      fontWeight: logStyle.fontWeight,
+                      pl: 2
+                    }}
+                  >
+                    {logStyle.logContent}
+                  </Box>
+                </Box>
+              );
+            })}
             <div ref={logsEndRef} />
           </Box>
         ) : (
@@ -158,10 +242,10 @@ const TestExecutionLogs: React.FC<TestExecutionLogsProps> = ({
             <Box sx={{ opacity: 0.5, mb: 2 }}>
               <ClearIcon sx={{ fontSize: 40 }} />
             </Box>
-            <Typography variant="body2" sx={{ fontFamily: 'inherit' }}>
+            <Typography variant="body2" sx={{ fontFamily: 'inherit', color: '#A9B7C6' }}>
               Henüz log kaydı yok
             </Typography>
-            <Typography variant="caption" sx={{ fontFamily: 'inherit', mt: 1 }}>
+            <Typography variant="caption" sx={{ fontFamily: 'inherit', mt: 1, color: '#607D8B' }}>
               Test çalıştırıldığında loglar burada görüntülenecek
             </Typography>
           </Box>

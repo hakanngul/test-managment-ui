@@ -3,12 +3,14 @@ export * from './interfaces/IAgent';
 export * from './interfaces/IQueuedRequest';
 export * from './interfaces/IProcessedRequest';
 export * from './interfaces/IServer';
+export * from './interfaces/IProject';
 
 // Mevcut enumları dışa aktarıyoruz
 export * from './enums/AgentEnums';
 export * from './enums/QueuedRequestEnums';
 export * from './enums/ProcessedRequestEnums';
 export * from './enums/ServerEnums';
+export * from './enums/ProjectEnums';
 
 // TestCaseEnums'dan belirli enum'ları yeniden adlandırarak dışa aktarıyoruz
 import * as OldTestCaseEnums from './enums/TestCaseEnums';
@@ -19,6 +21,7 @@ export {
 // Mevcut modelleri dışa aktarıyoruz
 export * from './SystemResource';
 export * from './ServerAgent';
+export * from './Project';
 
 // Dönüştürme fonksiyonları
 export const toAgent = (data: any) => {
