@@ -20,6 +20,29 @@ interface PerformanceMetricsCardProps {
 
     concurrentTests?: number | { current: number; max: number };
     queueLength?: number;
+
+    // Server agent şemasından gelen alanlar
+    requestsPerMinute?: number;
+    averageResponseTime?: number;
+    successRate?: number;
+    errorRate?: number;
+    testExecutionTime?: {
+      average?: number;
+      min?: number;
+      max?: number;
+      p95?: number;
+    };
+    resourceUtilization?: {
+      cpu?: number;
+      memory?: number;
+      disk?: number;
+      network?: number;
+    };
+    throughput?: number | {
+      total?: number;
+      running?: number;
+      blocked?: number;
+    };
   };
 }
 
@@ -153,6 +176,18 @@ const PerformanceMetricsCard: React.FC<PerformanceMetricsCardProps> = ({ perform
                   {performanceMetrics?.queueLength || 'N/A'}
                 </Typography>
               </Grid>
+
+              {/* Throughput */}
+              {performanceMetrics?.throughput !== undefined && (
+                <Grid item xs={6} md={4}>
+                  <Typography variant="body2" color="text.secondary">Throughput</Typography>
+                  <Typography variant="body1" fontWeight="medium">
+                    {typeof performanceMetrics.throughput === 'object'
+                      ? `${performanceMetrics.throughput.total || 0} req/min`
+                      : `${performanceMetrics.throughput} req/min`}
+                  </Typography>
+                </Grid>
+              )}
             </Grid>
           </Grid>
         </Grid>

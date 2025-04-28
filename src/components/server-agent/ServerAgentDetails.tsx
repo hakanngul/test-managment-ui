@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid, Typography } from '@mui/material';
+import { Grid, Typography, Box, Alert } from '@mui/material';
 import { useServerAgentData } from './ServerAgentDataProvider';
 import { TabsContainer } from './';
 
@@ -9,7 +9,7 @@ import { TabsContainer } from './';
  */
 const ServerAgentDetails: React.FC = () => {
   const { activeAgents, queuedRequests, processedRequests } = useServerAgentData();
-  
+
   // Tab state
   const [tabValue, setTabValue] = useState(0);
   const [processedPage, setProcessedPage] = useState(0);
@@ -30,23 +30,37 @@ const ServerAgentDetails: React.FC = () => {
     setProcessedPage(0);
   };
 
+  // Veri kontrolü
+  const hasActiveAgents = Array.isArray(activeAgents) && activeAgents.length > 0;
+  const hasQueuedRequests = Array.isArray(queuedRequests) && queuedRequests.length > 0;
+  const hasProcessedRequests = Array.isArray(processedRequests) && processedRequests.length > 0;
+  const hasAnyData = hasActiveAgents || hasQueuedRequests || hasProcessedRequests;
+
   return (
     <Grid item xs={12}>
       <Typography variant="h6" gutterBottom sx={{ mt: 2, mb: 2 }}>
         Detaylı Bilgiler
       </Typography>
-      
-      <TabsContainer
-        activeAgents={activeAgents}
-        queuedRequests={queuedRequests}
-        processedRequests={processedRequests}
-        tabValue={tabValue}
-        onTabChange={handleTabChange}
-        processedPage={processedPage}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+
+      {!hasAnyData ? (
+        <Box sx={{ mb: 3 }}>
+          <Alert severity="info">
+            Henüz görüntülenecek detaylı veri bulunmuyor. Agent servisi çalışıyor ancak aktif agent, kuyrukta bekleyen istek veya işlenmiş istek bulunmuyor olabilir.
+          </Alert>
+        </Box>
+      ) : (
+        <TabsContainer
+          activeAgents={activeAgents || []}
+          queuedRequests={queuedRequests || []}
+          processedRequests={processedRequests || []}
+          tabValue={tabValue}
+          onTabChange={handleTabChange}
+          processedPage={processedPage}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      )}
     </Grid>
   );
 };

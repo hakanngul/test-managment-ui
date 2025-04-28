@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Typography } from '@mui/material';
+import { Grid, Typography, Box } from '@mui/material';
 import { useServerAgentData } from './ServerAgentDataProvider';
 import {
   SystemResourcesCard,
@@ -19,7 +19,16 @@ const ServerAgentOverview: React.FC = () => {
   const { lastUpdated, serverAgent } = useServerAgentData();
 
   if (!serverAgent) {
-    return null;
+    return (
+      <Box sx={{ p: 4, textAlign: 'center' }}>
+        <Typography variant="h6" color="text.secondary">
+          Sunucu verisi bulunamadı
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Agent servisi ile bağlantı kurulamadı veya veri alınamadı.
+        </Typography>
+      </Box>
+    );
   }
 
   return (
@@ -86,7 +95,12 @@ const ServerAgentOverview: React.FC = () => {
         {/* Üçüncü Satır: Health Status */}
         <Grid item xs={12}>
           <HealthStatusCard
-            healthStatus={serverAgent.healthStatus}
+            healthStatus={serverAgent.healthStatus || {
+              status: 'healthy',
+              lastCheck: new Date(),
+              uptime: 0,
+              checks: []
+            }}
           />
         </Grid>
       </Grid>

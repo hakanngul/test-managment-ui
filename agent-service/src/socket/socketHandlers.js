@@ -25,7 +25,7 @@ const setupSocketHandlers = (io) => {
     // Subscribe to specific updates
     socket.on('subscribe', (channels) => {
       logger.info(`Client ${socket.id} subscribed to: ${channels.join(', ')}`);
-      
+
       // Join specified channels
       if (Array.isArray(channels)) {
         channels.forEach(channel => {
@@ -37,7 +37,7 @@ const setupSocketHandlers = (io) => {
     // Unsubscribe from specific updates
     socket.on('unsubscribe', (channels) => {
       logger.info(`Client ${socket.id} unsubscribed from: ${channels.join(', ')}`);
-      
+
       // Leave specified channels
       if (Array.isArray(channels)) {
         channels.forEach(channel => {
@@ -58,20 +58,20 @@ const sendInitialData = async (socket) => {
   try {
     // Get agents data
     const agents = await Agent.find({}).lean();
-    
+
     // Get queue data
-    const queuedRequests = await QueuedRequest.find({ 
-      status: { $in: ['QUEUED', 'ASSIGNED', 'RUNNING'] } 
+    const queuedRequests = await QueuedRequest.find({
+      status: { $in: ['QUEUED', 'ASSIGNED', 'RUNNING'] }
     }).sort({ queuePosition: 1 }).lean();
-    
+
     // Get latest system resources
     const systemResources = await SystemResources.findOne({})
       .sort({ timestamp: -1 })
       .lean();
-    
+
     // Get agent launcher status
     const agentLauncher = await AgentLauncher.findOne({}).lean();
-    
+
     // Send data to client
     socket.emit('initial_data', {
       agents,
@@ -79,7 +79,7 @@ const sendInitialData = async (socket) => {
       systemResources,
       agentLauncher
     });
-    
+
   } catch (error) {
     logger.error(`Error sending initial data: ${error.message}`);
   }
@@ -87,60 +87,62 @@ const sendInitialData = async (socket) => {
 
 // Setup MongoDB change streams for real-time updates
 const setupChangeStreams = (io) => {
-  // Agent change stream
-  const agentChangeStream = Agent.watch();
-  agentChangeStream.on('change', (change) => {
-    if (change.operationType === 'update' || change.operationType === 'replace') {
-      // Get updated document
-      Agent.findById(change.documentKey._id).lean()
-        .then(agent => {
-          io.to('agents').emit('agent_update', agent);
-        })
-        .catch(err => logger.error(`Error fetching updated agent: ${err.message}`));
-    } else if (change.operationType === 'insert') {
-      io.to('agents').emit('agent_created', change.fullDocument);
-    } else if (change.operationType === 'delete') {
-      io.to('agents').emit('agent_deleted', { id: change.documentKey._id });
-    }
-  });
+  // Change streams are disabled because they require MongoDB replica set
+  logger.info('Change streams are disabled because they require MongoDB replica set');
 
-  // Queued requests change stream
-  const queueChangeStream = QueuedRequest.watch();
-  queueChangeStream.on('change', (change) => {
-    if (change.operationType === 'update' || change.operationType === 'replace') {
-      // Get updated document
-      QueuedRequest.findById(change.documentKey._id).lean()
-        .then(request => {
-          io.to('queue').emit('queue_update', request);
-        })
-        .catch(err => logger.error(`Error fetching updated queue request: ${err.message}`));
-    } else if (change.operationType === 'insert') {
-      io.to('queue').emit('queue_created', change.fullDocument);
-    } else if (change.operationType === 'delete') {
-      io.to('queue').emit('queue_deleted', { id: change.documentKey._id });
-    }
-  });
+  // Instead, we'll use polling for updates
+  // This is a temporary solution until we can set up a replica set
 
-  // System resources change stream
-  const systemResourcesChangeStream = SystemResources.watch();
-  systemResourcesChangeStream.on('change', (change) => {
-    if (change.operationType === 'insert') {
-      io.to('system').emit('system_resources_update', change.fullDocument);
+  // Poll for agent updates
+  setInterval(async () => {
+    try {
+      const agents = await Agent.find({}).lean();
+      // Hem eski hem de yeni event isimlerini gönder (geriye uyumluluk için)
+      io.to('agents').emit('agents_update', agents);
+      io.to('agents').emit('agent_update_all', agents);
+    } catch (err) {
+      logger.error(`Error polling agents: ${err.message}`);
     }
-  });
+  }, 5000); // Poll every 5 seconds
 
-  // Agent launcher change stream
-  const launcherChangeStream = AgentLauncher.watch();
-  launcherChangeStream.on('change', (change) => {
-    if (change.operationType === 'update' || change.operationType === 'replace') {
-      // Get updated document
-      AgentLauncher.findById(change.documentKey._id).lean()
-        .then(launcher => {
-          io.to('launcher').emit('launcher_update', launcher);
-        })
-        .catch(err => logger.error(`Error fetching updated launcher: ${err.message}`));
+  // Poll for queue updates
+  setInterval(async () => {
+    try {
+      const queuedRequests = await QueuedRequest.find({
+        status: { $in: ['QUEUED', 'ASSIGNED', 'RUNNING'] }
+      }).sort({ queuePosition: 1 }).lean();
+      // Hem eski hem de yeni event isimlerini gönder (geriye uyumluluk için)
+      io.to('queue').emit('queue_update_all', queuedRequests);
+    } catch (err) {
+      logger.error(`Error polling queue: ${err.message}`);
     }
-  });
+  }, 5000); // Poll every 5 seconds
+
+  // Poll for system resources
+  setInterval(async () => {
+    try {
+      const systemResources = await SystemResources.findOne({})
+        .sort({ timestamp: -1 })
+        .lean();
+      if (systemResources) {
+        io.to('system').emit('system_resources_update', systemResources);
+      }
+    } catch (err) {
+      logger.error(`Error polling system resources: ${err.message}`);
+    }
+  }, 10000); // Poll every 10 seconds
+
+  // Poll for launcher updates
+  setInterval(async () => {
+    try {
+      const launcher = await AgentLauncher.findOne({}).lean();
+      if (launcher) {
+        io.to('launcher').emit('launcher_update', launcher);
+      }
+    } catch (err) {
+      logger.error(`Error polling launcher: ${err.message}`);
+    }
+  }, 10000); // Poll every 10 seconds
 };
 
 module.exports = { setupSocketHandlers };

@@ -9,13 +9,21 @@ import {
 
 interface HealthStatusCardProps {
   healthStatus?: {
-    status?: 'healthy' | 'warning' | 'critical' | 'unknown';
-    lastCheck?: Date;
+    status?: 'healthy' | 'warning' | 'critical' | 'unknown' | 'maintenance';
+    lastCheck?: Date | string;
+    uptime?: number;
+    message?: string;
+    checks?: {
+      name: string;
+      status: 'pass' | 'warn' | 'fail';
+      message?: string;
+      timestamp: string | Date;
+    }[];
     issues?: {
       component: string;
       status: 'healthy' | 'warning' | 'critical' | 'unknown';
       message: string;
-      timestamp: Date;
+      timestamp: Date | string;
     }[];
   };
 }
@@ -79,14 +87,16 @@ const HealthStatusCard: React.FC<HealthStatusCardProps> = ({ healthStatus }) => 
               Genel Durum: {getStatusText(healthStatus?.status)}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Son Kontrol: {healthStatus?.lastCheck 
-                ? new Date(healthStatus.lastCheck).toLocaleString('tr-TR') 
+              Son Kontrol: {healthStatus?.lastCheck
+                ? (typeof healthStatus.lastCheck === 'string'
+                  ? new Date(healthStatus.lastCheck).toLocaleString('tr-TR')
+                  : healthStatus.lastCheck.toLocaleString('tr-TR'))
                 : 'Bilinmiyor'}
             </Typography>
           </Box>
           <Box sx={{ ml: 'auto' }}>
-            <Chip 
-              label={getStatusText(healthStatus?.status)} 
+            <Chip
+              label={getStatusText(healthStatus?.status)}
               color={getStatusColor(healthStatus?.status)}
               size="small"
             />
@@ -99,19 +109,20 @@ const HealthStatusCard: React.FC<HealthStatusCardProps> = ({ healthStatus }) => 
           Bileşen Durumları
         </Typography>
 
-        {healthStatus?.issues && healthStatus.issues.length > 0 ? (
+        {(healthStatus?.issues && healthStatus.issues.length > 0) || (healthStatus?.checks && healthStatus.checks.length > 0) ? (
           <Grid container spacing={2}>
-            {healthStatus.issues.map((issue, index) => (
-              <Grid item xs={12} key={index}>
-                <Box sx={{ 
-                  p: 1.5, 
-                  borderRadius: 2, 
+            {/* Issues */}
+            {healthStatus.issues && healthStatus.issues.map((issue, index) => (
+              <Grid item xs={12} key={`issue-${index}`}>
+                <Box sx={{
+                  p: 1.5,
+                  borderRadius: 2,
                   bgcolor: 'background.default',
                   border: 1,
-                  borderColor: issue.status === 'critical' 
-                    ? 'error.light' 
-                    : issue.status === 'warning' 
-                      ? 'warning.light' 
+                  borderColor: issue.status === 'critical'
+                    ? 'error.light'
+                    : issue.status === 'warning'
+                      ? 'warning.light'
                       : 'divider'
                 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -121,8 +132,8 @@ const HealthStatusCard: React.FC<HealthStatusCardProps> = ({ healthStatus }) => 
                     <Typography variant="body2" fontWeight="medium">
                       {issue.component}
                     </Typography>
-                    <Chip 
-                      label={getStatusText(issue.status)} 
+                    <Chip
+                      label={getStatusText(issue.status)}
                       color={getStatusColor(issue.status)}
                       size="small"
                       sx={{ ml: 'auto' }}
@@ -132,17 +143,65 @@ const HealthStatusCard: React.FC<HealthStatusCardProps> = ({ healthStatus }) => 
                     {issue.message}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {new Date(issue.timestamp).toLocaleString('tr-TR')}
+                    {typeof issue.timestamp === 'string'
+                      ? new Date(issue.timestamp).toLocaleString('tr-TR')
+                      : issue.timestamp.toLocaleString('tr-TR')}
+                  </Typography>
+                </Box>
+              </Grid>
+            ))}
+
+            {/* Checks */}
+            {healthStatus.checks && healthStatus.checks.map((check, index) => (
+              <Grid item xs={12} key={`check-${index}`}>
+                <Box sx={{
+                  p: 1.5,
+                  borderRadius: 2,
+                  bgcolor: 'background.default',
+                  border: 1,
+                  borderColor: check.status === 'fail'
+                    ? 'error.light'
+                    : check.status === 'warn'
+                      ? 'warning.light'
+                      : 'success.light'
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Box sx={{ mr: 1 }}>
+                      {check.status === 'pass'
+                        ? <CheckCircleIcon color="success" />
+                        : check.status === 'warn'
+                          ? <WarningIcon color="warning" />
+                          : <ErrorIcon color="error" />}
+                    </Box>
+                    <Typography variant="body2" fontWeight="medium">
+                      {check.name}
+                    </Typography>
+                    <Chip
+                      label={check.status === 'pass' ? 'Başarılı' : check.status === 'warn' ? 'Uyarı' : 'Başarısız'}
+                      color={check.status === 'pass' ? 'success' : check.status === 'warn' ? 'warning' : 'error'}
+                      size="small"
+                      sx={{ ml: 'auto' }}
+                    />
+                  </Box>
+                  {check.message && (
+                    <Typography variant="body2">
+                      {check.message}
+                    </Typography>
+                  )}
+                  <Typography variant="caption" color="text.secondary">
+                    {typeof check.timestamp === 'string'
+                      ? new Date(check.timestamp).toLocaleString('tr-TR')
+                      : check.timestamp.toLocaleString('tr-TR')}
                   </Typography>
                 </Box>
               </Grid>
             ))}
           </Grid>
         ) : (
-          <Box sx={{ 
-            p: 3, 
-            borderRadius: 2, 
-            bgcolor: 'background.default', 
+          <Box sx={{
+            p: 3,
+            borderRadius: 2,
+            bgcolor: 'background.default',
             textAlign: 'center',
             border: 1,
             borderColor: 'divider'

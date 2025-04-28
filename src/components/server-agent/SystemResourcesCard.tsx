@@ -53,6 +53,15 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
     return `${days}g ${hours}s ${minutes}d`;
   };
 
+  // Veri tiplerini kontrol et ve sayıya dönüştür
+  const safeCpuUsage = typeof cpuUsage === 'number' ? cpuUsage : 0;
+  const safeMemoryUsage = typeof memoryUsage === 'number' ? memoryUsage : 0;
+  const safeDiskUsage = typeof diskUsage === 'number' ? diskUsage : undefined;
+  const safeNetworkUsage = typeof networkUsage === 'number' ? networkUsage : undefined;
+  const safeLoadAverage = Array.isArray(loadAverage) ? loadAverage : undefined;
+  const safeProcesses = typeof processes === 'number' ? processes : undefined;
+  const safeUptime = typeof uptime === 'number' ? uptime : undefined;
+
   return (
     <Card sx={{ height: '100%', borderRadius: 2 }}>
       <CardContent>
@@ -70,22 +79,22 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
             <Typography
               variant="body2"
               fontWeight="medium"
-              color={cpuUsage > 80 ? 'error.main' : cpuUsage > 50 ? 'warning.main' : 'success.main'}
+              color={safeCpuUsage > 80 ? 'error.main' : safeCpuUsage > 50 ? 'warning.main' : 'success.main'}
             >
-              {cpuUsage}%
+              {safeCpuUsage}%
             </Typography>
           </Box>
           <LinearProgress
             variant="determinate"
-            value={cpuUsage || 0}
+            value={safeCpuUsage}
             sx={{
               height: 10,
               borderRadius: 5,
               mb: 2,
               bgcolor: 'rgba(0,0,0,0.1)',
               '& .MuiLinearProgress-bar': {
-                bgcolor: cpuUsage > 80 ? theme.palette.error.main :
-                        cpuUsage > 50 ? theme.palette.warning.main :
+                bgcolor: safeCpuUsage > 80 ? theme.palette.error.main :
+                        safeCpuUsage > 50 ? theme.palette.warning.main :
                         theme.palette.success.main
               }
             }}
@@ -97,51 +106,51 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
             <Typography
               variant="body2"
               fontWeight="medium"
-              color={memoryUsage > 80 ? 'error.main' : memoryUsage > 50 ? 'warning.main' : 'success.main'}
+              color={safeMemoryUsage > 80 ? 'error.main' : safeMemoryUsage > 50 ? 'warning.main' : 'success.main'}
             >
-              {memoryUsage}%
+              {safeMemoryUsage}%
             </Typography>
           </Box>
           <LinearProgress
             variant="determinate"
-            value={memoryUsage || 0}
+            value={safeMemoryUsage}
             sx={{
               height: 10,
               borderRadius: 5,
               mb: 2,
               bgcolor: 'rgba(0,0,0,0.1)',
               '& .MuiLinearProgress-bar': {
-                bgcolor: memoryUsage > 80 ? theme.palette.error.main :
-                        memoryUsage > 50 ? theme.palette.warning.main :
+                bgcolor: safeMemoryUsage > 80 ? theme.palette.error.main :
+                        safeMemoryUsage > 50 ? theme.palette.warning.main :
                         theme.palette.success.main
               }
             }}
           />
 
           {/* Disk Kullanımı (varsa) */}
-          {diskUsage !== undefined && (
+          {safeDiskUsage !== undefined && (
             <>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography variant="body2">Disk Kullanımı</Typography>
                 <Typography
                   variant="body2"
                   fontWeight="medium"
-                  color={diskUsage > 80 ? 'error.main' : diskUsage > 50 ? 'warning.main' : 'success.main'}
+                  color={safeDiskUsage > 80 ? 'error.main' : safeDiskUsage > 50 ? 'warning.main' : 'success.main'}
                 >
-                  {diskUsage}%
+                  {safeDiskUsage}%
                 </Typography>
               </Box>
               <LinearProgress
                 variant="determinate"
-                value={diskUsage || 0}
+                value={safeDiskUsage}
                 sx={{
                   height: 10,
                   borderRadius: 5,
                   mb: 2,
                   bgcolor: 'rgba(0,0,0,0.1)',
                   '& .MuiLinearProgress-bar': {
-                    bgcolor: diskUsage > 80 ? theme.palette.error.main :
-                            diskUsage > 50 ? theme.palette.warning.main :
+                    bgcolor: safeDiskUsage > 80 ? theme.palette.error.main :
+                            safeDiskUsage > 50 ? theme.palette.warning.main :
                             theme.palette.success.main
                   }
                 }}
@@ -154,23 +163,23 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
           {/* Ek Sistem Bilgileri */}
           <Grid container spacing={2}>
             {/* Yük Ortalaması */}
-            {loadAverage && loadAverage.length > 0 && (
+            {safeLoadAverage && safeLoadAverage.length > 0 && (
               <Grid item xs={12}>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                   Yük Ortalaması
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <Typography variant="body2">
-                    1 dk: <strong>{loadAverage[0]?.toFixed(2) || 'N/A'}</strong>
+                    1 dk: <strong>{safeLoadAverage[0]?.toFixed(2) || 'N/A'}</strong>
                   </Typography>
-                  {loadAverage.length > 1 && (
+                  {safeLoadAverage.length > 1 && (
                     <Typography variant="body2">
-                      5 dk: <strong>{loadAverage[1]?.toFixed(2) || 'N/A'}</strong>
+                      5 dk: <strong>{safeLoadAverage[1]?.toFixed(2) || 'N/A'}</strong>
                     </Typography>
                   )}
-                  {loadAverage.length > 2 && (
+                  {safeLoadAverage.length > 2 && (
                     <Typography variant="body2">
-                      15 dk: <strong>{loadAverage[2]?.toFixed(2) || 'N/A'}</strong>
+                      15 dk: <strong>{safeLoadAverage[2]?.toFixed(2) || 'N/A'}</strong>
                     </Typography>
                   )}
                 </Box>
@@ -178,39 +187,39 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
             )}
 
             {/* İşlemler */}
-            {processes !== undefined && (
+            {safeProcesses !== undefined && (
               <Grid item xs={6}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <MemoryIcon fontSize="small" sx={{ mr: 1, color: theme.palette.primary.main }} />
                   <Box>
                     <Typography variant="body2" color="text.secondary">İşlemler</Typography>
-                    <Typography variant="body1" fontWeight="medium">{processes}</Typography>
+                    <Typography variant="body1" fontWeight="medium">{safeProcesses}</Typography>
                   </Box>
                 </Box>
               </Grid>
             )}
 
             {/* Çalışma Süresi */}
-            {uptime !== undefined && (
+            {safeUptime !== undefined && (
               <Grid item xs={6}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <TimerIcon fontSize="small" sx={{ mr: 1, color: theme.palette.primary.main }} />
                   <Box>
                     <Typography variant="body2" color="text.secondary">Çalışma Süresi</Typography>
-                    <Typography variant="body1" fontWeight="medium">{formatUptime(uptime)}</Typography>
+                    <Typography variant="body1" fontWeight="medium">{formatUptime(safeUptime)}</Typography>
                   </Box>
                 </Box>
               </Grid>
             )}
 
             {/* Ağ Kullanımı */}
-            {networkUsage !== undefined && (
+            {safeNetworkUsage !== undefined && (
               <Grid item xs={6}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <NetworkCheckIcon fontSize="small" sx={{ mr: 1, color: theme.palette.primary.main }} />
                   <Box>
                     <Typography variant="body2" color="text.secondary">Ağ Kullanımı</Typography>
-                    <Typography variant="body1" fontWeight="medium">{networkUsage} MB</Typography>
+                    <Typography variant="body1" fontWeight="medium">{safeNetworkUsage} MB</Typography>
                   </Box>
                 </Box>
               </Grid>

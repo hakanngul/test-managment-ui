@@ -62,28 +62,29 @@ const startServer = async () => {
   try {
     // Connect to MongoDB
     await connectDB();
-    
+
     // Initialize agent launcher
     await initializeLauncher();
-    
+
     // Start metrics collection
     startMetricsCollection();
-    
-    // Start stale agent check
-    cron.schedule('*/30 * * * * *', async () => { // Every 30 seconds
-      try {
-        await checkStaleAgents();
-      } catch (error) {
-        logger.error(`Error checking stale agents: ${error.message}`);
-      }
-    });
-    
+
+    // Temporarily disable stale agent check for development
+    logger.info('Stale agent check is temporarily disabled');
+    // cron.schedule('*/30 * * * * *', async () => { // Every 30 seconds
+    //   try {
+    //     await checkStaleAgents();
+    //   } catch (error) {
+    //     logger.error(`Error checking stale agents: ${error.message}`);
+    //   }
+    // });
+
     // Start the server
     server.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
       logger.info(`WebSocket server initialized`);
     });
-    
+
   } catch (error) {
     logger.error(`Error starting server: ${error.message}`);
     process.exit(1);
