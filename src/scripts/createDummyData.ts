@@ -299,7 +299,7 @@ function createDummyTestSuites(projects: ProjectSchema[], testCases: TestCaseSch
 /**
  * Dummy test run'lar oluşturur
  */
-function createDummyTestRuns(testSuites: TestSuiteSchema[], projects: ProjectSchema[], users: UserSchema[], count: number = 5): TestRunSchema[] {
+function createDummyTestRuns(testSuites: TestSuiteSchema[], _projects: ProjectSchema[], users: UserSchema[], count: number = 5): TestRunSchema[] {
   const testRuns: TestRunSchema[] = [];
   const statuses = Object.values(TestRunStatus);
   const priorities = Object.values(TestRunPriority);
