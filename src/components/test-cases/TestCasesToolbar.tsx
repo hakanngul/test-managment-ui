@@ -28,6 +28,7 @@ import { TestCaseStatus, TestCasePriority, TestCaseCategory } from '../../models
 
 interface TestCasesToolbarProps {
   selectedCount: number;
+  selectedTestCases: string[]; // Seçili test case ID'leri
   onNewTestCase: () => void;
   onDeleteTestCases: () => void;
   onSearchChange: (term: string) => void;
@@ -50,6 +51,7 @@ interface TestCasesToolbarProps {
 
 const TestCasesToolbar: React.FC<TestCasesToolbarProps> = ({
   selectedCount,
+  selectedTestCases,
   onNewTestCase,
   onDeleteTestCases,
   onSearchChange,
@@ -297,7 +299,20 @@ const TestCasesToolbar: React.FC<TestCasesToolbarProps> = ({
               </Tooltip>
 
               <Tooltip title="Düzenle">
-                <IconButton color="primary">
+                <IconButton
+                  color="primary"
+                  onClick={() => {
+                    // Şimdilik alert gösterelim (gerçek uygulamada navigate kullanılacak)
+                    alert(`Seçili test case'ler düzenleniyor...`);
+                    // Tek bir test case seçiliyse düzenleme sayfasına yönlendir
+                    if (selectedCount === 1) {
+                      const selectedId = selectedTestCases[0];
+                      // Şimdilik alert gösterelim (gerçek uygulamada navigate kullanılacak)
+                      alert(`Test case ${selectedId} düzenleniyor...`);
+                      // navigate(`/test-cases/${selectedId}/edit`);
+                    }
+                  }}
+                >
                   <EditIcon />
                 </IconButton>
               </Tooltip>

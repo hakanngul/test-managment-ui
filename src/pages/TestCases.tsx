@@ -135,6 +135,7 @@ const TestCases: React.FC = () => {
         >
           <TestCasesToolbar
             selectedCount={selectedTestCases.length}
+            selectedTestCases={selectedTestCases}
             onNewTestCase={handleOpenNewTestCase}
             onDeleteTestCases={handleDeleteTestCases}
             onSearchChange={handleSearchChange}

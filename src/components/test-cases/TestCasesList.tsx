@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Table,
@@ -43,6 +44,16 @@ const TestCasesList: React.FC<TestCasesListProps> = ({
   onRunTestCase,
   isLoading
 }) => {
+  const navigate = useNavigate();
+
+  // Test case detaylarına git
+  const handleNavigateToDetails = (id: string) => {
+    // Gerçek uygulamada burada detay sayfasına yönlendirme yapılacak
+    console.log(`Test case ${id} detaylarına gidiliyor...`);
+    // Şimdilik alert gösterelim (gerçek uygulamada navigate kullanılacak)
+    alert(`Test case ${id} detaylarına gidiliyor...`);
+    // navigate(`/test-cases/${id}`);
+  };
   // Öncelik rengini belirle
   const getPriorityColor = (priority: TestCasePriority) => {
     switch (priority) {
@@ -205,6 +216,14 @@ const TestCasesList: React.FC<TestCasesListProps> = ({
                     key={testCase.id}
                     selected={isSelected}
                     sx={{ cursor: 'pointer' }}
+                    onClick={(event) => {
+                      // Checkbox'a tıklanmadıysa detay sayfasına git
+                      if (event.target instanceof HTMLElement &&
+                          !event.target.closest('.MuiCheckbox-root') &&
+                          !event.target.closest('button')) {
+                        handleNavigateToDetails(testCase.id);
+                      }
+                    }}
                   >
                     <TableCell padding="checkbox">
                       <Checkbox
@@ -217,11 +236,11 @@ const TestCasesList: React.FC<TestCasesListProps> = ({
                     <TableCell
                       component="th"
                       scope="row"
-                      onClick={() => onSelectTestCase(testCase.id)}
+                      onClick={() => handleNavigateToDetails(testCase.id)}
                     >
                       {testCase.id}
                     </TableCell>
-                    <TableCell onClick={() => onSelectTestCase(testCase.id)}>
+                    <TableCell onClick={() => handleNavigateToDetails(testCase.id)}>
                       <Box sx={{ maxWidth: 300, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         <Typography variant="body2" fontWeight="medium">
                           {testCase.name}
@@ -233,20 +252,20 @@ const TestCasesList: React.FC<TestCasesListProps> = ({
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell onClick={() => onSelectTestCase(testCase.id)}>
+                    <TableCell onClick={() => handleNavigateToDetails(testCase.id)}>
                       <Chip
                         label={formatPriority(testCase.priority)}
                         size="small"
                         color={getPriorityColor(testCase.priority) as any}
                       />
                     </TableCell>
-                    <TableCell onClick={() => onSelectTestCase(testCase.id)}>
+                    <TableCell onClick={() => handleNavigateToDetails(testCase.id)}>
                       {testCase.category}
                     </TableCell>
-                    <TableCell onClick={() => onSelectTestCase(testCase.id)}>
+                    <TableCell onClick={() => handleNavigateToDetails(testCase.id)}>
                       {formatDate(testCase.lastRun)}
                     </TableCell>
-                    <TableCell onClick={() => onSelectTestCase(testCase.id)}>
+                    <TableCell onClick={() => handleNavigateToDetails(testCase.id)}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         {getResultIcon(testCase.lastResult)}
                         <Typography variant="body2">
@@ -254,7 +273,7 @@ const TestCasesList: React.FC<TestCasesListProps> = ({
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell onClick={() => onSelectTestCase(testCase.id)}>
+                    <TableCell onClick={() => handleNavigateToDetails(testCase.id)}>
                       <Chip
                         label={testCase.automated ? 'Otomatize' : 'Manuel'}
                         size="small"
