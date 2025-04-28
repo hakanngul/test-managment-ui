@@ -8,12 +8,7 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Typography,
-  SelectChangeEvent,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -28,13 +23,7 @@ import { useApp } from '../context/AppContext';
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { projects, currentProject, setCurrentProject, toggleDrawer, isMobile } = useApp();
-
-  const handleProjectChange = (event: SelectChangeEvent<string>) => {
-    const projectId = event.target.value;
-    const selectedProject = projects.find(p => p.id === projectId) || null;
-    setCurrentProject(selectedProject);
-  };
+  const { toggleDrawer, isMobile } = useApp();
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
@@ -55,25 +44,12 @@ const Sidebar: React.FC = () => {
   return (
     <Box sx={{ overflow: 'auto', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-          PROJECT
+        <Typography variant="h6" color="primary" gutterBottom>
+          TestFlow
         </Typography>
-        <FormControl fullWidth size="small">
-          <InputLabel id="project-select-label">Select Project</InputLabel>
-          <Select
-            labelId="project-select-label"
-            id="project-select"
-            value={currentProject?.id || ''}
-            label="Select Project"
-            onChange={handleProjectChange}
-          >
-            {projects.map((project) => (
-              <MenuItem key={project.id} value={project.id}>
-                {project.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Typography variant="body2" color="text.secondary">
+          Test Otomasyon Yönetim Aracı
+        </Typography>
       </Box>
 
       <Divider />

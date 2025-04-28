@@ -34,7 +34,6 @@ import { mockDashboardData } from '../mock/dashboardMock';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { currentProject } = useApp();
 
   // Dialog durumları
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
@@ -70,11 +69,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Proje seçme
-  const handleSelectProject = (projectId: string) => {
-    // Proje seçme işlemi burada yapılacak
-    console.log(`Proje seçildi: ${projectId}`);
-  };
+
 
   return (
     <Box>
@@ -109,26 +104,24 @@ const Dashboard: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Proje Bilgisi */}
-      {currentProject && (
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            mb: 3,
-            borderRadius: 2,
-            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
-            bgcolor: 'primary.lighter'
-          }}
-        >
-          <Typography variant="subtitle1" fontWeight="medium">
-            Aktif Proje: {currentProject.name}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {currentProject.description}
-          </Typography>
-        </Paper>
-      )}
+      {/* Sistem Bilgisi */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: 2,
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          bgcolor: 'primary.lighter'
+        }}
+      >
+        <Typography variant="subtitle1" fontWeight="medium">
+          Test Otomasyon Sistemi
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Tüm test otomasyon süreçlerinizi yönetmek için merkezi kontrol paneli
+        </Typography>
+      </Paper>
 
       {/* Özet Kartları */}
       <DashboardSummaryCards
@@ -182,21 +175,15 @@ const Dashboard: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Proje Durumu, Son Aktiviteler ve En Yavaş Testler */}
+      {/* Son Aktiviteler ve En Yavaş Testler */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
-          <ProjectTestStatusCard
-            data={mockDashboardData.projectTestStatus}
-            onSelectProject={handleSelectProject}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <RecentActivitiesCard
             data={mockDashboardData.recentActivities}
             onViewActivity={handleViewActivity}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6}>
           <SlowestTestsCard
             data={mockDashboardData.slowestTests}
             onViewTest={handleViewTestDetails}

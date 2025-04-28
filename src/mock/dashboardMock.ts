@@ -110,17 +110,6 @@ export interface SlowestTest {
   category: TestCaseCategory;
 }
 
-// Proje bazlı test durumu
-export interface ProjectTestStatus {
-  projectId: string;
-  projectName: string;
-  totalTests: number;
-  passedTests: number;
-  failedTests: number;
-  passRate: number; // Yüzde olarak
-  lastRun: Date;
-}
-
 // Aktivite
 export interface Activity {
   id: string;
@@ -145,7 +134,6 @@ export interface DashboardData {
   browserDistribution: BrowserDistribution[];
   environmentDistribution: EnvironmentDistribution[];
   slowestTests: SlowestTest[];
-  projectTestStatus: ProjectTestStatus[];
   recentActivities: Activity[];
 }
 
@@ -161,7 +149,7 @@ export const mockDashboardData: DashboardData = {
     notRun: 5,
     passRate: 70 // %70
   },
-  
+
   // Test çalıştırma özeti
   testRunSummary: {
     totalRuns: 500,
@@ -172,7 +160,7 @@ export const mockDashboardData: DashboardData = {
     passRate: 85, // %85
     averageDuration: 45000 // 45 saniye
   },
-  
+
   // Otomasyon kapsama oranı
   automationCoverage: {
     totalTestCases: 150,
@@ -180,7 +168,7 @@ export const mockDashboardData: DashboardData = {
     coverageRate: 80, // %80
     lastUpdated: new Date('2023-06-15T10:30:00')
   },
-  
+
   // Son çalıştırma bilgisi
   lastRunInfo: {
     date: new Date('2023-06-18T14:45:00'),
@@ -188,7 +176,7 @@ export const mockDashboardData: DashboardData = {
     totalRuns: 25,
     duration: 1800000 // 30 dakika
   },
-  
+
   // Test durumu dağılımı
   testStatusDistribution: [
     { status: TestCaseResult.PASSED, count: 105, percentage: 70 },
@@ -197,7 +185,7 @@ export const mockDashboardData: DashboardData = {
     { status: TestCaseResult.SKIPPED, count: 5, percentage: 3.3 },
     { status: TestCaseResult.NOT_RUN, count: 5, percentage: 3.3 }
   ],
-  
+
   // Zaman içinde test sonuçları (son 7 gün)
   testResultsOverTime: [
     { date: '2023-06-12', passed: 20, failed: 5, blocked: 2, skipped: 1, total: 28 },
@@ -208,7 +196,7 @@ export const mockDashboardData: DashboardData = {
     { date: '2023-06-17', passed: 21, failed: 4, blocked: 1, skipped: 1, total: 27 },
     { date: '2023-06-18', passed: 23, failed: 3, blocked: 0, skipped: 0, total: 26 }
   ],
-  
+
   // Test kategorisi dağılımı
   testCategoryDistribution: [
     { category: TestCaseCategory.FUNCTIONAL, count: 70, percentage: 46.7 },
@@ -220,7 +208,7 @@ export const mockDashboardData: DashboardData = {
     { category: TestCaseCategory.ACCEPTANCE, count: 3, percentage: 2 },
     { category: TestCaseCategory.SMOKE, count: 2, percentage: 1.3 }
   ],
-  
+
   // Son çalıştırılan testler
   recentTestRuns: [
     {
@@ -279,7 +267,7 @@ export const mockDashboardData: DashboardData = {
       executedBy: 'Hakan Gül'
     }
   ],
-  
+
   // Başarısız testler
   failedTests: [
     {
@@ -310,7 +298,7 @@ export const mockDashboardData: DashboardData = {
       errorMessage: 'Yorum alanında XSS açığı tespit edildi.'
     }
   ],
-  
+
   // Tarayıcı dağılımı
   browserDistribution: [
     { browser: 'Chrome', count: 250, percentage: 50 },
@@ -319,7 +307,7 @@ export const mockDashboardData: DashboardData = {
     { browser: 'Edge', count: 50, percentage: 10 },
     { browser: 'IE', count: 25, percentage: 5 }
   ],
-  
+
   // Ortam dağılımı
   environmentDistribution: [
     { environment: 'Production', count: 200, percentage: 40 },
@@ -327,7 +315,7 @@ export const mockDashboardData: DashboardData = {
     { environment: 'Development', count: 100, percentage: 20 },
     { environment: 'Testing', count: 50, percentage: 10 }
   ],
-  
+
   // En yavaş testler
   slowestTests: [
     {
@@ -352,38 +340,9 @@ export const mockDashboardData: DashboardData = {
       category: TestCaseCategory.FUNCTIONAL
     }
   ],
-  
-  // Proje bazlı test durumu
-  projectTestStatus: [
-    {
-      projectId: '1',
-      projectName: 'E-commerce Website',
-      totalTests: 80,
-      passedTests: 60,
-      failedTests: 20,
-      passRate: 75, // %75
-      lastRun: new Date('2023-06-18T14:45:00')
-    },
-    {
-      projectId: '2',
-      projectName: 'Mobile App',
-      totalTests: 40,
-      passedTests: 30,
-      failedTests: 10,
-      passRate: 75, // %75
-      lastRun: new Date('2023-06-17T16:30:00')
-    },
-    {
-      projectId: '3',
-      projectName: 'Admin Dashboard',
-      totalTests: 30,
-      passedTests: 25,
-      failedTests: 5,
-      passRate: 83.3, // %83.3
-      lastRun: new Date('2023-06-16T11:15:00')
-    }
-  ],
-  
+
+
+
   // Son aktiviteler
   recentActivities: [
     {
