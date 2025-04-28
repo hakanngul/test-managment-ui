@@ -19,8 +19,8 @@ interface ServerAgentContextType {
 // Context oluştur
 const ServerAgentContext = createContext<ServerAgentContextType | undefined>(undefined);
 
-// Context hook'u
-const useServerAgentData = () => {
+// Context hook'u - Ayrı bir fonksiyon olarak tanımla
+function useServerAgentData() {
   const context = useContext(ServerAgentContext);
   if (!context) {
     throw new Error('useServerAgentData must be used within a ServerAgentDataProvider');
@@ -247,8 +247,9 @@ export const ServerAgentDataProvider: React.FC<ServerAgentDataProviderProps> = (
   );
 };
 
+// Default export for the provider
+const ServerAgentDataProviderExport = ServerAgentDataProvider;
+export default ServerAgentDataProviderExport;
+
 // Named export for the hook
 export { useServerAgentData };
-
-// Default export for the provider
-export default ServerAgentDataProvider;

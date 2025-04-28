@@ -10,6 +10,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import ServerAgent from './pages/ServerAgent';
+import TestCases from './pages/TestCases';
+import NewTestCase from './pages/NewTestCase';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 
@@ -27,6 +29,8 @@ function App() {
                   <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="server-agent" element={<ServerAgent />} />
+                  <Route path="test-cases" element={<TestCases />} />
+                  <Route path="test-cases/new" element={<NewTestCase />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
