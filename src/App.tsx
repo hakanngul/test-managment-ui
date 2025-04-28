@@ -15,6 +15,7 @@ import NewTestCase from './pages/NewTestCase';
 import TestCaseDetails from './pages/TestCaseDetails';
 import TestRuns from './pages/TestRuns';
 import Reports from './pages/Reports';
+import TestExecutionSimulator from './pages/TestExecutionSimulator';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 
@@ -38,6 +39,7 @@ function App() {
                   <Route path="test-cases/edit/:id" element={<NewTestCase />} />
                   <Route path="test-runs" element={<TestRuns />} />
                   <Route path="reports" element={<Reports />} />
+                  <Route path="test-execution-simulator" element={<TestExecutionSimulator />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -44,8 +44,6 @@ const Sidebar: React.FC = () => {
     { text: 'Test Cases', icon: <AssignmentIcon />, path: '/test-cases' },
     { text: 'Test Runs', icon: <PlayArrowIcon />, path: '/test-runs' },
     { text: 'Reports', icon: <AssessmentIcon />, path: '/reports' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
-    { text: 'Test Page', icon: <HelpIcon />, path: '/test-page' },
     { text: 'Test Execution Simulator', icon: <PlayArrowIcon />, path: '/test-execution-simulator' },
   ];
 
