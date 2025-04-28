@@ -107,13 +107,16 @@ const api = {
   getServerAgentStatus: () => fetchData<any>('serverAgent'),
 
   // Server Agent sayfası için API çağrıları
+  getServerAgent: () => fetchData<any>('serverAgent'),
   getLatestSystemResourcesData: () => fetchData<any>('systemResources'),
   getLatestAgentStatusData: () => fetchData<any>('agentStatus'),
   getLatestQueueStatusData: () => fetchData<any>('queueStatus'),
   getLatestActiveAgentsData: () => fetchData<any>('activeAgents'),
-  getQueuedRequests: () => fetchData<any[]>('queuedRequests'),
-  getProcessedRequests: () => fetchData<any[]>('processedRequests'),
-  getAgentById: (id: string) => fetchData<any>(`agents/${id}`)
+  getQueuedRequests: () => fetchData<any[]>('queuedRequestsData'),
+  getProcessedRequests: () => fetchData<any[]>('processedRequestsData'),
+  getAgentById: (id: string) => fetchData<any>(`agents/${id}`),
+  getQueuedRequestById: (id: string) => fetchData<any>(`queuedRequestsData/${id}`),
+  getProcessedRequestById: (id: string) => fetchData<any>(`processedRequestsData/${id}`)
 };
 
 export default api;

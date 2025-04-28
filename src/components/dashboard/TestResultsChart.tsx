@@ -35,12 +35,13 @@ const TestResultsChart: React.FC<TestResultsChartProps> = ({
       categories: last7Days,
     },
     colors: ['#4caf50', '#f44336', '#ff9800', '#9e9e9e'],
+    labels: ['Başarılı', 'Başarısız', 'Beklemede', 'Engellenen'],
     legend: {
       position: 'top',
     },
     tooltip: {
       y: {
-        formatter: (value) => `${value} tests`,
+        formatter: (value) => `${value} test`,
       },
     },
   };
@@ -49,31 +50,31 @@ const TestResultsChart: React.FC<TestResultsChartProps> = ({
     <Card>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          Test Results by Day
+          Günlük Test Sonuçları
         </Typography>
         <Chart
           options={testCountsChartOptions}
           series={[
             {
-              name: 'Passed',
+              name: 'Başarılı',
               data: Array.isArray(testCountsByDay)
                 ? testCountsByDay.map((day: any) => day.passed)
                 : testCountsByDay.passed
             },
             {
-              name: 'Failed',
+              name: 'Başarısız',
               data: Array.isArray(testCountsByDay)
                 ? testCountsByDay.map((day: any) => day.failed)
                 : testCountsByDay.failed
             },
             {
-              name: 'Pending',
+              name: 'Beklemede',
               data: Array.isArray(testCountsByDay)
                 ? testCountsByDay.map((day: any) => day.pending)
                 : testCountsByDay.pending
             },
             {
-              name: 'Blocked',
+              name: 'Engellenen',
               data: Array.isArray(testCountsByDay)
                 ? testCountsByDay.map((day: any) => day.blocked)
                 : testCountsByDay.blocked

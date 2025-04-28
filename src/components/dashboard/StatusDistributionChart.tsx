@@ -33,7 +33,7 @@ const StatusDistributionChart: React.FC<StatusDistributionChartProps> = ({
         }
       }
     },
-    labels: ['Passed', 'Failed', 'Pending', 'Blocked'],
+    labels: ['Başarılı', 'Başarısız', 'Beklemede', 'Engellenen'],
     colors: ['#4caf50', '#f44336', '#ff9800', '#9e9e9e'],
     legend: {
       position: 'bottom',
@@ -46,7 +46,7 @@ const StatusDistributionChart: React.FC<StatusDistributionChartProps> = ({
     tooltip: {
       enabled: true,
       y: {
-        formatter: (value) => `${value} tests (${Math.round((value / (passedTests + failedTests + pendingTests + blockedTests)) * 100)}%)`,
+        formatter: (value) => `${value} test (${Math.round((value / (passedTests + failedTests + pendingTests + blockedTests)) * 100)}%)`,
       },
     },
     plotOptions: {
@@ -76,7 +76,7 @@ const StatusDistributionChart: React.FC<StatusDistributionChartProps> = ({
             total: {
               show: true,
               showAlways: true,
-              label: 'Total',
+              label: 'Toplam',
               fontSize: '22px',
               fontFamily: 'Helvetica, Arial, sans-serif',
               fontWeight: 600,
@@ -110,7 +110,7 @@ const StatusDistributionChart: React.FC<StatusDistributionChartProps> = ({
     <Card>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          Test Status Distribution
+          Test Durumu Dağılımı
         </Typography>
         <Chart
           options={successRateChart}

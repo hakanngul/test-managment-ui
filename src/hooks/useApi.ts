@@ -84,6 +84,10 @@ export function useDashboardData() {
   const { data: testEnvironments } = useApi(() => api.getEnvironments());
   const { data: testFeatures } = useApi(() => api.getFeatures());
 
+  // Yeni API çağrıları
+  const { data: executionTimeDataFromApi, loading: executionTimeLoading } = useApi(() => api.getExecutionTimeData());
+  const { data: testCountsByDayFromApi, loading: testCountsLoading } = useApi(() => api.getTestCountsByDay());
+
   // Ensure testCases is always an array
   const apiTestCases = Array.isArray(testCases) ? testCases : [];
 
@@ -93,8 +97,15 @@ export function useDashboardData() {
   // Ensure testResults is always an array
   const apiTestResults = Array.isArray(testResults) ? testResults : [];
 
-  // Generate execution time data based on test results
+  // Generate execution time data based on API or test results
   const executionTimeData = React.useMemo(() => {
+    // Önce API'den gelen veriyi kullan
+    if (executionTimeDataFromApi && Array.isArray(executionTimeDataFromApi) && executionTimeDataFromApi.length > 0) {
+      console.log('Using execution time data from API:', executionTimeDataFromApi);
+      return executionTimeDataFromApi;
+    }
+
+    // API'den veri gelmezse, test sonuçlarından hesapla
     if (apiTestResults.length === 0) {
       return Array(7).fill(0);
     }
@@ -120,10 +131,18 @@ export function useDashboardData() {
       const totalDuration = dayResults.reduce((sum, result) => sum + (result.duration || 0), 0);
       return Math.round((totalDuration / dayResults.length) / 1000); // Convert to seconds
     });
-  }, [apiTestResults]);
+  }, [apiTestResults, executionTimeDataFromApi]);
 
-  // Generate test counts by day based on test runs
+  // Generate test counts by day based on API or test runs
   const testCountsByDay = React.useMemo(() => {
+    // Önce API'den gelen veriyi kullan
+    if (testCountsByDayFromApi && typeof testCountsByDayFromApi === 'object' &&
+        'passed' in testCountsByDayFromApi && Array.isArray((testCountsByDayFromApi as any).passed)) {
+      console.log('Using test counts by day from API:', testCountsByDayFromApi);
+      return testCountsByDayFromApi as any;
+    }
+
+    // API'den veri gelmezse, test sonuçlarından hesapla
     if (apiTestRuns.length === 0) {
       return {
         passed: Array(7).fill(0),
@@ -157,7 +176,12 @@ export function useDashboardData() {
 
       if (dayIndex !== -1 && run.results) {
         // Count by status
-        run.results.forEach((result: { status: string; }) => {
+        run.results.forEach((result: any) => {
+          if (!result || !result.status) {
+            // Skip results without status
+            return;
+          }
+
           const status = result.status.toLowerCase();
           if (status === 'passed' || status === 'pass') {
             counts.passed[dayIndex]++;
@@ -173,7 +197,7 @@ export function useDashboardData() {
     });
 
     return counts;
-  }, [apiTestRuns]);
+  }, [apiTestRuns, testCountsByDayFromApi]);
 
   return {
     testCases: apiTestCases,
@@ -186,7 +210,9 @@ export function useDashboardData() {
     testFeatures,
     executionTimeData,
     testCountsByDay,
-    loading: testCasesLoading || testRunsLoading || testResultsLoading,
+
+    loading: testCasesLoading || testRunsLoading || testResultsLoading ||
+             executionTimeLoading || testCountsLoading,
     error: testCasesError
   };
 }

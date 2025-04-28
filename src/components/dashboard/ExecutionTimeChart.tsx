@@ -33,12 +33,12 @@ const ExecutionTimeChart: React.FC<ExecutionTimeChartProps> = ({
     },
     yaxis: {
       title: {
-        text: 'Execution Time (minutes)',
+        text: 'Çalıştırma Süresi (saniye)',
       },
     },
     tooltip: {
       y: {
-        formatter: (value) => `${value} minutes`,
+        formatter: (value) => `${value} saniye`,
       },
     },
   };
@@ -47,11 +47,11 @@ const ExecutionTimeChart: React.FC<ExecutionTimeChartProps> = ({
     <Card>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          Test Execution Time (Last 7 Days)
+          Test Çalıştırma Süresi (Son 7 Gün)
         </Typography>
         <Chart
           options={executionTimeChartOptions}
-          series={[{ name: 'Execution Time', data: executionTimeData }]}
+          series={[{ name: 'Çalıştırma Süresi', data: executionTimeData }]}
           type="line"
           height={300}
         />
