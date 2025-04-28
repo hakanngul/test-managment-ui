@@ -27,26 +27,7 @@ import {
   Add as AddIcon
 } from '@mui/icons-material';
 
-// Ek dosya türleri
-enum AttachmentType {
-  IMAGE = 'image',
-  DOCUMENT = 'document',
-  CODE = 'code',
-  PDF = 'pdf',
-  OTHER = 'other'
-}
-
-// Ek dosya arayüzü
-interface Attachment {
-  id: string;
-  name: string;
-  type: AttachmentType;
-  url: string;
-  size: number; // byte cinsinden
-  uploadedBy: string;
-  uploadedAt: Date;
-  description?: string;
-}
+import { Attachment, AttachmentType, mockAttachments } from '../../mock/testAttachmentsMock';
 
 interface TestAttachmentsProps {
   testCaseId: string;
@@ -66,60 +47,8 @@ const TestAttachments: React.FC<TestAttachmentsProps> = ({ testCaseId }) => {
         // Gerçek uygulamada burada API çağrısı yapılacak
         setTimeout(() => {
           // Mock veri
-          const mockAttachments: Attachment[] = [
-            {
-              id: 'att-001',
-              name: 'screenshot-login.png',
-              type: AttachmentType.IMAGE,
-              url: 'https://via.placeholder.com/800x600.png?text=Login+Screenshot',
-              size: 256000, // 250 KB
-              uploadedBy: 'Hakan Gül',
-              uploadedAt: new Date('2023-06-18T10:30:00'),
-              description: 'Login sayfası ekran görüntüsü'
-            },
-            {
-              id: 'att-002',
-              name: 'test-data.json',
-              type: AttachmentType.CODE,
-              url: 'https://example.com/test-data.json',
-              size: 1024, // 1 KB
-              uploadedBy: 'Ahmet Yılmaz',
-              uploadedAt: new Date('2023-06-17T14:45:00'),
-              description: 'Test verileri'
-            },
-            {
-              id: 'att-003',
-              name: 'test-report.pdf',
-              type: AttachmentType.PDF,
-              url: 'https://example.com/test-report.pdf',
-              size: 1048576, // 1 MB
-              uploadedBy: 'Mehmet Demir',
-              uploadedAt: new Date('2023-06-16T09:15:00'),
-              description: 'Test raporu'
-            },
-            {
-              id: 'att-004',
-              name: 'error-screenshot.png',
-              type: AttachmentType.IMAGE,
-              url: 'https://via.placeholder.com/800x600.png?text=Error+Screenshot',
-              size: 307200, // 300 KB
-              uploadedBy: 'Hakan Gül',
-              uploadedAt: new Date('2023-06-15T16:20:00'),
-              description: 'Hata ekran görüntüsü'
-            },
-            {
-              id: 'att-005',
-              name: 'test-steps.docx',
-              type: AttachmentType.DOCUMENT,
-              url: 'https://example.com/test-steps.docx',
-              size: 512000, // 500 KB
-              uploadedBy: 'Ayşe Kaya',
-              uploadedAt: new Date('2023-06-14T11:30:00'),
-              description: 'Test adımları dokümanı'
-            }
-          ];
-          
-          setAttachments(mockAttachments);
+          const attachmentsForCase = mockAttachments[testCaseId] || [];
+          setAttachments(attachmentsForCase);
           setIsLoading(false);
         }, 500);
       } catch (error) {
@@ -211,7 +140,7 @@ const TestAttachments: React.FC<TestAttachmentsProps> = ({ testCaseId }) => {
         <Typography variant="h6">
           Ekler
         </Typography>
-        
+
         <Button
           variant="contained"
           color="primary"
@@ -221,7 +150,7 @@ const TestAttachments: React.FC<TestAttachmentsProps> = ({ testCaseId }) => {
           Yeni Ek Ekle
         </Button>
       </Box>
-      
+
       {isLoading ? (
         <Box sx={{ width: '100%', mt: 2 }}>
           <LinearProgress />
@@ -238,7 +167,7 @@ const TestAttachments: React.FC<TestAttachmentsProps> = ({ testCaseId }) => {
                 <ListItemIcon>
                   {getAttachmentIcon(attachment.type)}
                 </ListItemIcon>
-                
+
                 <ListItemText
                   primary={attachment.name}
                   secondary={
@@ -254,7 +183,7 @@ const TestAttachments: React.FC<TestAttachmentsProps> = ({ testCaseId }) => {
                     </React.Fragment>
                   }
                 />
-                
+
                 <ListItemSecondaryAction>
                   {attachment.type === AttachmentType.IMAGE && (
                     <IconButton edge="end" onClick={() => handlePreview(attachment)}>
@@ -273,7 +202,7 @@ const TestAttachments: React.FC<TestAttachmentsProps> = ({ testCaseId }) => {
           ))}
         </List>
       )}
-      
+
       {/* Önizleme Modalı */}
       <Dialog
         open={previewOpen}
@@ -299,9 +228,9 @@ const TestAttachments: React.FC<TestAttachmentsProps> = ({ testCaseId }) => {
         <DialogContent>
           {selectedAttachment?.type === AttachmentType.IMAGE && (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-              <img 
-                src={selectedAttachment.url} 
-                alt={selectedAttachment.name} 
+              <img
+                src={selectedAttachment.url}
+                alt={selectedAttachment.name}
                 style={{ maxWidth: '100%', maxHeight: '70vh' }}
               />
             </Box>

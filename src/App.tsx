@@ -13,6 +13,7 @@ import ServerAgent from './pages/ServerAgent';
 import TestCases from './pages/TestCases';
 import NewTestCase from './pages/NewTestCase';
 import TestCaseDetails from './pages/TestCaseDetails';
+import TestRuns from './pages/TestRuns';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 
@@ -34,6 +35,7 @@ function App() {
                   <Route path="test-cases/new" element={<NewTestCase />} />
                   <Route path="test-cases/:id" element={<TestCaseDetails />} />
                   <Route path="test-cases/edit/:id" element={<NewTestCase />} />
+                  <Route path="test-runs" element={<TestRuns />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>

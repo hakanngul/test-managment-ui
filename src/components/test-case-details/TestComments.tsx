@@ -25,16 +25,7 @@ import {
   Delete as DeleteIcon
 } from '@mui/icons-material';
 
-// Yorum arayüzü
-interface Comment {
-  id: string;
-  testCaseId: string;
-  content: string;
-  author: string;
-  authorAvatar?: string;
-  createdAt: Date;
-  updatedAt?: Date;
-}
+import { Comment, mockComments } from '../../mock/testCommentsMock';
 
 interface TestCommentsProps {
   testCaseId: string;
@@ -59,34 +50,8 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
         // Gerçek uygulamada burada API çağrısı yapılacak
         setTimeout(() => {
           // Mock veri
-          const mockComments: Comment[] = [
-            {
-              id: 'comment-001',
-              testCaseId,
-              content: 'Bu test case, login işleminin tüm senaryolarını kapsamıyor. Hatalı şifre girişi durumunu da eklemeliyiz.',
-              author: 'Hakan Gül',
-              authorAvatar: 'https://i.pravatar.cc/150?img=1',
-              createdAt: new Date('2023-06-18T10:30:00')
-            },
-            {
-              id: 'comment-002',
-              testCaseId,
-              content: 'Haklısın, hatalı şifre senaryosunu da ekleyelim. Ayrıca şifre sıfırlama akışını da test etmeliyiz.',
-              author: 'Ahmet Yılmaz',
-              authorAvatar: 'https://i.pravatar.cc/150?img=2',
-              createdAt: new Date('2023-06-18T11:15:00')
-            },
-            {
-              id: 'comment-003',
-              testCaseId,
-              content: 'Test adımlarını güncelledim. Şimdi hem hatalı şifre hem de şifre sıfırlama senaryolarını içeriyor.',
-              author: 'Hakan Gül',
-              authorAvatar: 'https://i.pravatar.cc/150?img=1',
-              createdAt: new Date('2023-06-18T14:45:00')
-            }
-          ];
-          
-          setComments(mockComments);
+          const commentsForCase = mockComments[testCaseId] || [];
+          setComments(commentsForCase);
           setIsLoading(false);
         }, 500);
       } catch (error) {
@@ -112,7 +77,7 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
   // Yeni yorum gönder
   const handleSubmitComment = () => {
     if (!newComment.trim()) return;
-    
+
     // Yeni yorum oluştur
     const comment: Comment = {
       id: `comment-${Date.now()}`,
@@ -122,10 +87,10 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
       authorAvatar: 'https://i.pravatar.cc/150?img=1', // Gerçek uygulamada oturum açmış kullanıcıdan alınacak
       createdAt: new Date()
     };
-    
+
     // Yorumları güncelle
     setComments([...comments, comment]);
-    
+
     // Formu temizle
     setNewComment('');
   };
@@ -155,18 +120,18 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
   // Yorum düzenlemeyi kaydet
   const handleSaveEdit = () => {
     if (!editingComment || !editContent.trim()) return;
-    
+
     // Yorumları güncelle
-    setComments(comments.map(comment => 
-      comment.id === editingComment.id 
-        ? { 
-            ...comment, 
-            content: editContent, 
-            updatedAt: new Date() 
-          } 
+    setComments(comments.map(comment =>
+      comment.id === editingComment.id
+        ? {
+            ...comment,
+            content: editContent,
+            updatedAt: new Date()
+          }
         : comment
     ));
-    
+
     // Düzenleme modunu kapat
     setEditingComment(null);
     setEditContent('');
@@ -191,10 +156,10 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
   // Yorumu sil
   const handleDeleteComment = () => {
     if (!commentToDelete) return;
-    
+
     // Yorumları güncelle
     setComments(comments.filter(comment => comment.id !== commentToDelete.id));
-    
+
     // Modalı kapat
     setDeleteDialogOpen(false);
     setCommentToDelete(null);
@@ -211,7 +176,7 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
       <Typography variant="h6" gutterBottom>
         Yorumlar
       </Typography>
-      
+
       {isLoading ? (
         <Box sx={{ width: '100%', mt: 2 }}>
           <LinearProgress />
@@ -229,15 +194,15 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
                 <Card key={comment.id} variant="outlined" sx={{ mb: 2 }}>
                   <CardHeader
                     avatar={
-                      <Avatar 
-                        src={comment.authorAvatar} 
+                      <Avatar
+                        src={comment.authorAvatar}
                         alt={comment.author}
                       >
                         {comment.author.charAt(0)}
                       </Avatar>
                     }
                     action={
-                      <IconButton 
+                      <IconButton
                         aria-label="comment-menu"
                         onClick={(e) => handleOpenMenu(e, comment.id)}
                       >
@@ -260,14 +225,14 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
                           sx={{ mb: 2 }}
                         />
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                          <Button 
-                            variant="outlined" 
+                          <Button
+                            variant="outlined"
                             onClick={handleCancelEdit}
                           >
                             İptal
                           </Button>
-                          <Button 
-                            variant="contained" 
+                          <Button
+                            variant="contained"
                             onClick={handleSaveEdit}
                             disabled={!editContent.trim()}
                           >
@@ -280,7 +245,7 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
                         {comment.content}
                       </Typography>
                     )}
-                    
+
                     {comment.updatedAt && (
                       <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
                         Düzenlenme: {formatDate(comment.updatedAt)}
@@ -291,12 +256,12 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
               ))}
             </Box>
           )}
-          
+
           {/* Yeni Yorum Formu */}
           <Divider sx={{ mb: 3 }} />
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-            <Avatar 
-              src="https://i.pravatar.cc/150?img=1" 
+            <Avatar
+              src="https://i.pravatar.cc/150?img=1"
               alt="Hakan Gül"
             >
               H
@@ -313,8 +278,8 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
                 sx={{ mb: 1 }}
               />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button 
-                  variant="contained" 
+                <Button
+                  variant="contained"
                   endIcon={<SendIcon />}
                   onClick={handleSubmitComment}
                   disabled={!newComment.trim()}
@@ -326,7 +291,7 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
           </Box>
         </Box>
       )}
-      
+
       {/* Yorum Menüsü */}
       <Menu
         anchorEl={anchorEl}
@@ -342,7 +307,7 @@ const TestComments: React.FC<TestCommentsProps> = ({ testCaseId }) => {
           Sil
         </MenuItem>
       </Menu>
-      
+
       {/* Silme Onay Modalı */}
       <Dialog
         open={deleteDialogOpen}

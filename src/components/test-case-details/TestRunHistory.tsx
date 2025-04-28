@@ -33,22 +33,7 @@ import {
   Public as PublicIcon
 } from '@mui/icons-material';
 import { TestCaseResult } from '../../models/interfaces/ITestCase';
-
-// Test çalıştırma geçmişi için arayüz
-interface TestRun {
-  id: string;
-  testCaseId: string;
-  result: TestCaseResult;
-  startTime: Date;
-  endTime: Date;
-  duration: number; // milisaniye cinsinden
-  browser: string;
-  environment: string;
-  executedBy: string;
-  errorMessage?: string;
-  logs?: string[];
-  screenshots?: string[];
-}
+import { TestRun, mockTestRuns } from '../../mock/testRunHistoryMock';
 
 interface TestRunHistoryProps {
   testCaseId: string;
@@ -67,74 +52,8 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
         // Gerçek uygulamada burada API çağrısı yapılacak
         setTimeout(() => {
           // Mock veri
-          const mockTestRuns: TestRun[] = [
-            {
-              id: 'run-001',
-              testCaseId,
-              result: TestCaseResult.PASSED,
-              startTime: new Date('2023-06-18T09:10:00'),
-              endTime: new Date('2023-06-18T09:15:00'),
-              duration: 300000, // 5 dakika
-              browser: 'Chrome',
-              environment: 'Production',
-              executedBy: 'Hakan Gül',
-              logs: [
-                '09:10:00 - Test başlatıldı',
-                '09:10:05 - Adım 1 başarıyla tamamlandı',
-                '09:10:30 - Adım 2 başarıyla tamamlandı',
-                '09:11:15 - Adım 3 başarıyla tamamlandı',
-                '09:12:00 - Adım 4 başarıyla tamamlandı',
-                '09:13:45 - Adım 5 başarıyla tamamlandı',
-                '09:15:00 - Test başarıyla tamamlandı'
-              ],
-              screenshots: [
-                'screenshot-1.png',
-                'screenshot-2.png'
-              ]
-            },
-            {
-              id: 'run-002',
-              testCaseId,
-              result: TestCaseResult.FAILED,
-              startTime: new Date('2023-06-15T14:20:00'),
-              endTime: new Date('2023-06-15T14:25:00'),
-              duration: 300000, // 5 dakika
-              browser: 'Firefox',
-              environment: 'Staging',
-              executedBy: 'Ahmet Yılmaz',
-              errorMessage: 'Element bulunamadı: #login-button',
-              logs: [
-                '14:20:00 - Test başlatıldı',
-                '14:20:05 - Adım 1 başarıyla tamamlandı',
-                '14:20:30 - Adım 2 başarıyla tamamlandı',
-                '14:21:15 - Adım 3 başarıyla tamamlandı',
-                '14:22:00 - HATA: Element bulunamadı: #login-button',
-                '14:25:00 - Test başarısız oldu'
-              ],
-              screenshots: [
-                'error-screenshot.png'
-              ]
-            },
-            {
-              id: 'run-003',
-              testCaseId,
-              result: TestCaseResult.BLOCKED,
-              startTime: new Date('2023-06-10T11:30:00'),
-              endTime: new Date('2023-06-10T11:32:00'),
-              duration: 120000, // 2 dakika
-              browser: 'Chrome',
-              environment: 'Development',
-              executedBy: 'Mehmet Demir',
-              errorMessage: 'Test ortamına erişilemiyor',
-              logs: [
-                '11:30:00 - Test başlatıldı',
-                '11:30:05 - HATA: Test ortamına erişilemiyor',
-                '11:32:00 - Test engellendi'
-              ]
-            }
-          ];
-          
-          setTestRuns(mockTestRuns);
+          const testRunsForCase = mockTestRuns[testCaseId] || [];
+          setTestRuns(testRunsForCase);
           setIsLoading(false);
         }, 500);
       } catch (error) {
@@ -192,11 +111,11 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
     const seconds = Math.floor(milliseconds / 1000);
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    
+
     if (minutes === 0) {
       return `${remainingSeconds} saniye`;
     }
-    
+
     return `${minutes} dakika ${remainingSeconds} saniye`;
   };
 
@@ -213,7 +132,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
       <Typography variant="h6" gutterBottom>
         Çalıştırma Geçmişi
       </Typography>
-      
+
       {isLoading ? (
         <Box sx={{ width: '100%', mt: 2 }}>
           <LinearProgress />
@@ -239,9 +158,9 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
             <TableBody>
               {testRuns.map((run) => (
                 <React.Fragment key={run.id}>
-                  <TableRow 
+                  <TableRow
                     hover
-                    sx={{ 
+                    sx={{
                       '& > *': { borderBottom: 'unset' },
                       cursor: 'pointer',
                       bgcolor: openRows[run.id] ? 'action.hover' : 'inherit'
@@ -273,7 +192,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                     <TableCell>{run.environment}</TableCell>
                     <TableCell>{run.executedBy}</TableCell>
                   </TableRow>
-                  
+
                   <TableRow>
                     <TableCell colSpan={7} sx={{ py: 0 }}>
                       <Collapse in={openRows[run.id]} timeout="auto" unmountOnExit>
@@ -287,7 +206,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                     Çalıştırma Detayları
                                   </Typography>
                                   <Divider sx={{ mb: 2 }} />
-                                  
+
                                   <Grid container spacing={2}>
                                     <Grid item xs={12}>
                                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -300,7 +219,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                         </Typography>
                                       </Box>
                                     </Grid>
-                                    
+
                                     <Grid item xs={12}>
                                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <CalendarTodayIcon fontSize="small" color="action" />
@@ -312,7 +231,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                         </Typography>
                                       </Box>
                                     </Grid>
-                                    
+
                                     <Grid item xs={12}>
                                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <AccessTimeIcon fontSize="small" color="action" />
@@ -324,7 +243,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                         </Typography>
                                       </Box>
                                     </Grid>
-                                    
+
                                     <Grid item xs={12}>
                                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <ComputerIcon fontSize="small" color="action" />
@@ -336,7 +255,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                         </Typography>
                                       </Box>
                                     </Grid>
-                                    
+
                                     <Grid item xs={12}>
                                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <PublicIcon fontSize="small" color="action" />
@@ -349,7 +268,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                       </Box>
                                     </Grid>
                                   </Grid>
-                                  
+
                                   {run.errorMessage && (
                                     <Box sx={{ mt: 2 }}>
                                       <Typography variant="subtitle2" color="error" gutterBottom>
@@ -363,7 +282,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                 </CardContent>
                               </Card>
                             </Grid>
-                            
+
                             {/* Loglar */}
                             <Grid item xs={12} md={6}>
                               <Card variant="outlined" sx={{ height: '100%' }}>
@@ -372,12 +291,12 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                     Loglar
                                   </Typography>
                                   <Divider sx={{ mb: 2 }} />
-                                  
+
                                   {run.logs && run.logs.length > 0 ? (
-                                    <Box 
-                                      sx={{ 
-                                        bgcolor: 'background.default', 
-                                        p: 2, 
+                                    <Box
+                                      sx={{
+                                        bgcolor: 'background.default',
+                                        p: 2,
                                         borderRadius: 1,
                                         maxHeight: 200,
                                         overflow: 'auto',
@@ -399,7 +318,7 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                 </CardContent>
                               </Card>
                             </Grid>
-                            
+
                             {/* Ekran Görüntüleri */}
                             {run.screenshots && run.screenshots.length > 0 && (
                               <Grid item xs={12}>
@@ -409,10 +328,10 @@ const TestRunHistory: React.FC<TestRunHistoryProps> = ({ testCaseId }) => {
                                       Ekran Görüntüleri
                                     </Typography>
                                     <Divider sx={{ mb: 2 }} />
-                                    
+
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                                       {run.screenshots.map((screenshot, index) => (
-                                        <Button 
+                                        <Button
                                           key={index}
                                           variant="outlined"
                                           size="small"
