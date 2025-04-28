@@ -161,7 +161,7 @@ const TestExecutionSimulator: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="xl" sx={{ overflow: 'hidden' }}>
       <Box sx={{ py: 2 }}>
         {/* Başlık ve Breadcrumbs */}
         <Box sx={{ mb: 3 }}>
@@ -205,7 +205,7 @@ const TestExecutionSimulator: React.FC = () => {
                   executionError={executionError}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sx={{ height: 'auto', overflow: 'visible' }}>
                 <TestStepExecutor
                   testCase={selectedTestCase}
                   steps={executionSteps}
@@ -222,7 +222,7 @@ const TestExecutionSimulator: React.FC = () => {
           </Grid>
 
           {/* Sağ Panel - Loglar */}
-          <Grid item xs={12} md={12} lg={3}>
+          <Grid item xs={12} md={12} lg={3} sx={{ height: 'auto', overflow: 'visible' }}>
             <TestExecutionLogs
               logs={executionLogs}
               onClearLogs={handleClearLogs}

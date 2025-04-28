@@ -125,7 +125,7 @@ const TestStepExecutor: React.FC<TestStepExecutorProps> = ({
         border: '1px solid',
         borderColor: 'divider',
         mb: 2,
-        minHeight: '400px'
+        height: '500px' // Sabit yükseklik
       }}
     >
       <Box
@@ -146,7 +146,12 @@ const TestStepExecutor: React.FC<TestStepExecutorProps> = ({
 
       <Box
         ref={stepsContainerRef}
-        sx={{ p: 2, flexGrow: 1, overflow: 'auto', maxHeight: '500px' }}
+        sx={{
+          p: 2,
+          flexGrow: 1,
+          overflow: 'auto',
+          height: 'calc(100% - 80px)' // Header yüksekliğini çıkararak
+        }}
       >
         {testCase && steps.length > 0 ? (
           <Stepper

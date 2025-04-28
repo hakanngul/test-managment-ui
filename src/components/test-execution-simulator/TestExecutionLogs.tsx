@@ -95,7 +95,7 @@ const TestExecutionLogs: React.FC<TestExecutionLogsProps> = ({
     <Paper
       elevation={2}
       sx={{
-        height: '100%',
+        height: '500px', // Sabit yükseklik
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 2,
@@ -148,7 +148,7 @@ const TestExecutionLogs: React.FC<TestExecutionLogsProps> = ({
           fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
           fontSize: '0.85rem',
           position: 'relative',
-          height: '100%',
+          height: 'calc(100% - 80px)', // Header yüksekliğini çıkararak
           borderRadius: 0
         }}
       >
