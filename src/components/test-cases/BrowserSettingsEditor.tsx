@@ -22,6 +22,9 @@ export interface BrowserSettings {
   width: number;
   height: number;
   timeout: number;
+  takeScreenshots?: boolean; // Ekran görüntüsü alma özelliği
+  screenshotOnFailure?: boolean; // Sadece hata durumunda ekran görüntüsü al
+  screenshotPath?: string; // Ekran görüntülerinin kaydedileceği yol
   userAgent?: string;
   args?: string[];
   ignoreHTTPSErrors?: boolean;
@@ -106,6 +109,21 @@ const BrowserSettingsEditor: React.FC<BrowserSettingsEditorProps> = ({ settings,
     onChange({ ...settings, recordHAR });
   };
 
+  // Ekran görüntüsü alma ayarını değiştir
+  const handleTakeScreenshotsChange = (takeScreenshots: boolean) => {
+    onChange({ ...settings, takeScreenshots });
+  };
+
+  // Sadece hata durumunda ekran görüntüsü alma ayarını değiştir
+  const handleScreenshotOnFailureChange = (screenshotOnFailure: boolean) => {
+    onChange({ ...settings, screenshotOnFailure });
+  };
+
+  // Ekran görüntüsü kaydetme yolunu güncelle
+  const handleScreenshotPathChange = (screenshotPath: string) => {
+    onChange({ ...settings, screenshotPath });
+  };
+
   // Cihaz ölçek faktörünü güncelle
   const handleDeviceScaleFactorChange = (deviceScaleFactor: string) => {
     const numFactor = parseFloat(deviceScaleFactor);
@@ -126,19 +144,28 @@ const BrowserSettingsEditor: React.FC<BrowserSettingsEditorProps> = ({ settings,
 
   // Proxy sunucusunu güncelle
   const handleProxyServerChange = (server: string) => {
-    const proxy = { ...settings.proxy, server };
+    // Eğer proxy tanımlı değilse, yeni bir proxy objesi oluştur
+    const proxy = settings.proxy
+      ? { ...settings.proxy, server }
+      : { server };
     onChange({ ...settings, proxy });
   };
 
   // Proxy kullanıcı adını güncelle
   const handleProxyUsernameChange = (username: string) => {
-    const proxy = { ...settings.proxy, username };
+    // Eğer proxy tanımlı değilse, server için boş bir değer ata
+    const proxy = settings.proxy
+      ? { ...settings.proxy, username }
+      : { server: '', username };
     onChange({ ...settings, proxy });
   };
 
   // Proxy şifresini güncelle
   const handleProxyPasswordChange = (password: string) => {
-    const proxy = { ...settings.proxy, password };
+    // Eğer proxy tanımlı değilse, server için boş bir değer ata
+    const proxy = settings.proxy
+      ? { ...settings.proxy, password }
+      : { server: '', password };
     onChange({ ...settings, proxy });
   };
 
@@ -176,16 +203,28 @@ const BrowserSettingsEditor: React.FC<BrowserSettingsEditorProps> = ({ settings,
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={settings.headless}
-                onChange={(e) => handleHeadlessChange(e.target.checked)}
-                color="primary"
-              />
-            }
-            label="Headless Mod"
-          />
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={settings.headless}
+                  onChange={(e) => handleHeadlessChange(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label="Headless Mod"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={settings.takeScreenshots || false}
+                  onChange={(e) => handleTakeScreenshotsChange(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label="Ekran Görüntüsü Al"
+            />
+          </Box>
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
@@ -300,6 +339,34 @@ const BrowserSettingsEditor: React.FC<BrowserSettingsEditorProps> = ({ settings,
           />
         </Grid>
 
+        {settings.takeScreenshots && (
+          <>
+            <Grid item xs={12} sm={6} md={4}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={settings.screenshotOnFailure || false}
+                    onChange={(e) => handleScreenshotOnFailureChange(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label="Sadece Hata Durumunda Ekran Görüntüsü Al"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                fullWidth
+                label="Ekran Görüntüsü Kaydetme Yolu"
+                value={settings.screenshotPath || ''}
+                onChange={(e) => handleScreenshotPathChange(e.target.value)}
+                placeholder="screenshots/"
+                helperText="Boş bırakılırsa varsayılan konum kullanılır"
+              />
+            </Grid>
+          </>
+        )}
+
         <Grid item xs={12} sm={6} md={4}>
           <FormControlLabel
             control={
@@ -382,6 +449,12 @@ const BrowserSettingsEditor: React.FC<BrowserSettingsEditorProps> = ({ settings,
               )}
               {settings.recordVideo && (
                 <Chip label="Video Kaydı" color="secondary" variant="outlined" />
+              )}
+              {settings.takeScreenshots && (
+                <Chip label="Ekran Görüntüsü Alma" color="secondary" variant="outlined" />
+              )}
+              {settings.takeScreenshots && settings.screenshotOnFailure && (
+                <Chip label="Hata Durumunda Ekran Görüntüsü" color="secondary" variant="outlined" />
               )}
               {settings.isMobile && (
                 <Chip label="Mobil Emülasyon" color="secondary" variant="outlined" />

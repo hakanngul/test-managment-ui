@@ -1,4 +1,3 @@
-import { BrowserType } from '../models/enums/TestEnums';
 import { TestStep, TestStepActionType } from '../components/test-cases/TestStepsEditor';
 import { BrowserSettings } from '../components/test-cases/BrowserSettingsEditor';
 

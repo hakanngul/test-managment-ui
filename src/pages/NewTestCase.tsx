@@ -40,8 +40,13 @@ import {
   TestCasePriority,
   TestCaseCategory
 } from '../models/interfaces/ITestCase';
-import TestStepsEditor, { TestStep, TestStepActionType } from '../components/test-cases/TestStepsEditor';
-import BrowserSettingsEditor, { BrowserSettings } from '../components/test-cases/BrowserSettingsEditor';
+import {
+  TestStepsEditor,
+  BrowserSettingsEditor,
+  TestStep,
+  TestStepActionType,
+  BrowserSettings
+} from '../components/test-cases';
 import { testRunnerService, TestRunRequest, TestRunResponse } from '../services/TestRunnerService';
 import { BrowserType } from '../models/enums/TestEnums';
 
@@ -74,7 +79,10 @@ const NewTestCase: React.FC = () => {
     height: 768,
     timeout: 30000,
     recordVideo: true,
-    ignoreHTTPSErrors: false
+    ignoreHTTPSErrors: false,
+    takeScreenshots: true,
+    screenshotOnFailure: false,
+    screenshotPath: 'screenshots/'
   });
 
   // Test çalıştırma
@@ -582,6 +590,21 @@ const NewTestCase: React.FC = () => {
                     <Typography variant="body1" gutterBottom>
                       <strong>Video Kaydı:</strong> {browserSettings.recordVideo ? 'Evet' : 'Hayır'}
                     </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      <strong>Ekran Görüntüsü Al:</strong> {browserSettings.takeScreenshots ? 'Evet' : 'Hayır'}
+                    </Typography>
+                    {browserSettings.takeScreenshots && (
+                      <>
+                        <Typography variant="body1" gutterBottom>
+                          <strong>Sadece Hata Durumunda:</strong> {browserSettings.screenshotOnFailure ? 'Evet' : 'Hayır'}
+                        </Typography>
+                        {browserSettings.screenshotPath && (
+                          <Typography variant="body1" gutterBottom>
+                            <strong>Kaydetme Yolu:</strong> {browserSettings.screenshotPath}
+                          </Typography>
+                        )}
+                      </>
+                    )}
                     <Typography variant="body1" gutterBottom>
                       <strong>HTTPS Hatalarını Yok Say:</strong> {browserSettings.ignoreHTTPSErrors ? 'Evet' : 'Hayır'}
                     </Typography>
