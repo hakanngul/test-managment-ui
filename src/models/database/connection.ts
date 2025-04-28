@@ -1,17 +1,15 @@
 import { MongoClient, Db } from 'mongodb';
 
-// MongoDB connection string
+// MongoDB bağlantı bilgileri
 const MONGODB_URI = 'mongodb://admin:admin@localhost:27017/testautomationdb?authSource=admin';
-
-// Database name
 const DB_NAME = 'testautomationdb';
 
-// MongoDB client instance
+// MongoDB istemci örneği
 let client: MongoClient | null = null;
 let db: Db | null = null;
 
 /**
- * Connect to MongoDB
+ * MongoDB'ye bağlanır
  */
 export async function connectToMongoDB(): Promise<Db> {
   if (db) {
@@ -21,18 +19,18 @@ export async function connectToMongoDB(): Promise<Db> {
   try {
     client = new MongoClient(MONGODB_URI);
     await client.connect();
-    console.log('Connected to MongoDB');
+    console.log('MongoDB bağlantısı başarılı');
     
     db = client.db(DB_NAME);
     return db;
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
+    console.error('MongoDB bağlantı hatası:', error);
     throw error;
   }
 }
 
 /**
- * Get MongoDB database instance
+ * MongoDB veritabanı örneğini döndürür
  */
 export async function getDb(): Promise<Db> {
   if (!db) {
@@ -42,14 +40,14 @@ export async function getDb(): Promise<Db> {
 }
 
 /**
- * Close MongoDB connection
+ * MongoDB bağlantısını kapatır
  */
 export async function closeMongoDBConnection(): Promise<void> {
   if (client) {
     await client.close();
     client = null;
     db = null;
-    console.log('MongoDB connection closed');
+    console.log('MongoDB bağlantısı kapatıldı');
   }
 }
 

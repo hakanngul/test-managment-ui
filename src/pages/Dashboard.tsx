@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
   } = useDashboardData();
 
   // Transform API test cases to our format
-  const testCases = apiTestCases ? apiTestCases.map((test: any) => {
+  const testCases = apiTestCases.map((test: any) => {
     // Map status values to expected values for the chart
     let mappedStatus = test.status;
     if (test.status === 'active' || test.status === 'pass') mappedStatus = 'Passed';
@@ -61,7 +61,7 @@ const Dashboard: React.FC = () => {
       duration: test.duration || 0,
       environment: test.environment || 'Development'
     };
-  }) : [];
+  });
 
   // Get last 7 days for chart
   const last7Days = Array.from({ length: 7 }).map((_, i) => {

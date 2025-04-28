@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { connectToMongoDB } from '../services/mongodb';
+import { connectToMongoDB } from '../models/database/connection';
 import { Alert, Snackbar, CircularProgress, Box } from '@mui/material';
 
 interface MongoDBProviderProps {

@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "api": "node server/index.js",
     "dev:all": "concurrently \"npm run api\" \"npm run dev\"",
-    "init-mongodb": "tsx src/scripts/initMongoDB.ts"
+    "init-database": "tsx src/scripts/initDatabase.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",

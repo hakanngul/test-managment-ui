@@ -84,9 +84,18 @@ export function useDashboardData() {
   const { data: testEnvironments } = useApi(() => api.getEnvironments());
   const { data: testFeatures } = useApi(() => api.getFeatures());
 
+  // Ensure testCases is always an array
+  const apiTestCases = Array.isArray(testCases) ? testCases : [];
+
+  // Ensure testRuns is always an array
+  const apiTestRuns = Array.isArray(testRuns) ? testRuns : [];
+
+  // Ensure testResults is always an array
+  const apiTestResults = Array.isArray(testResults) ? testResults : [];
+
   // Generate execution time data based on test results
   const executionTimeData = React.useMemo(() => {
-    if (!testResults || testResults.length === 0) {
+    if (apiTestResults.length === 0) {
       return Array(7).fill(0);
     }
 
@@ -100,7 +109,7 @@ export function useDashboardData() {
 
     // Calculate average duration for each day
     return last7Days.map(day => {
-      const dayResults = testResults.filter(result => {
+      const dayResults = apiTestResults.filter(result => {
         const resultDate = new Date(result.startTime || result.createdAt);
         resultDate.setHours(0, 0, 0, 0);
         return resultDate.getTime() === day;
@@ -111,11 +120,11 @@ export function useDashboardData() {
       const totalDuration = dayResults.reduce((sum, result) => sum + (result.duration || 0), 0);
       return Math.round((totalDuration / dayResults.length) / 1000); // Convert to seconds
     });
-  }, [testResults]);
+  }, [apiTestResults]);
 
   // Generate test counts by day based on test runs
   const testCountsByDay = React.useMemo(() => {
-    if (!testRuns || testRuns.length === 0) {
+    if (apiTestRuns.length === 0) {
       return {
         passed: Array(7).fill(0),
         failed: Array(7).fill(0),
@@ -141,7 +150,7 @@ export function useDashboardData() {
     };
 
     // Count tests by status for each day
-    testRuns.forEach(run => {
+    apiTestRuns.forEach(run => {
       const runDate = new Date(run.startTime || run.createdAt);
       runDate.setHours(0, 0, 0, 0);
       const dayIndex = last7Days.findIndex(day => day === runDate.getTime());
@@ -164,12 +173,12 @@ export function useDashboardData() {
     });
 
     return counts;
-  }, [testRuns]);
+  }, [apiTestRuns]);
 
   return {
-    testCases,
-    testRuns,
-    testResults,
+    testCases: apiTestCases,
+    testRuns: apiTestRuns,
+    testResults: apiTestResults,
     testCategories,
     testPriorities,
     testStatuses,

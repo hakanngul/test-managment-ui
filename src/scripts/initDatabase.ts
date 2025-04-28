@@ -1,74 +1,44 @@
-import { MongoClient, Db } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
-import { COLLECTIONS } from '../models';
+import { 
+  connectToMongoDB, 
+  closeMongoDBConnection, 
+  COLLECTIONS 
+} from '../models/database';
+
 import {
+  UserSchema,
   UserRole,
   UserStatus,
-  TestCaseStatus,
-  TestCasePriority,
-  BrowserType,
-  TestStepActionType,
-  TestSuiteStatus,
-  TestSuitePriority,
-  TestSuiteExecutionMode,
-  TestRunStatus,
-  TestRunPriority,
+  ProjectSchema,
   ProjectStatus,
   ProjectPriority,
   ProjectCategory,
   ProjectMemberRole,
   ProjectEnvironment,
+  TestCaseSchema,
+  TestCaseStatus,
+  TestCasePriority,
+  BrowserType,
+  TestStepSchema,
+  TestStepActionType,
+  TestStepTargetType,
+  TestSuiteSchema,
+  TestSuiteStatus,
+  TestSuitePriority,
+  TestSuiteExecutionMode,
+  TestRunSchema,
+  TestRunStatus,
+  TestRunPriority,
+  AgentSchema,
   AgentStatus,
-  AgentType
-} from '../models';
-
-// MongoDB connection string
-const MONGODB_URI = 'mongodb://admin:admin@localhost:27017/testautomationdb?authSource=admin';
-
-// Database name
-const DB_NAME = 'testautomationdb';
-
-// MongoDB client instance
-let client: MongoClient | null = null;
-let db: Db | null = null;
+  AgentType,
+  ServerAgentSchema
+} from '../models/database/schemas';
 
 /**
- * Connect to MongoDB
+ * Varsayılan admin kullanıcısı oluşturur
  */
-async function connectToMongoDB(): Promise<Db> {
-  if (db) {
-    return db;
-  }
-
-  try {
-    client = new MongoClient(MONGODB_URI);
-    await client.connect();
-    console.log('Connected to MongoDB');
-
-    db = client.db(DB_NAME);
-    return db;
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    throw error;
-  }
-}
-
-/**
- * Close MongoDB connection
- */
-async function closeMongoDBConnection(): Promise<void> {
-  if (client) {
-    await client.close();
-    client = null;
-    db = null;
-    console.log('MongoDB connection closed');
-  }
-}
-
-/**
- * Create default admin user
- */
-function createDefaultAdminUser() {
+function createDefaultAdminUser(): UserSchema {
   const now = new Date();
   return {
     id: uuidv4(),
@@ -76,7 +46,7 @@ function createDefaultAdminUser() {
     email: 'admin@example.com',
     role: UserRole.ADMIN,
     status: UserStatus.ACTIVE,
-    password: 'admin', // In a real application, this would be hashed
+    password: 'admin', // Gerçek uygulamada hash'lenmiş olmalı
     createdAt: now,
     updatedAt: now,
     emailVerified: true
@@ -84,9 +54,9 @@ function createDefaultAdminUser() {
 }
 
 /**
- * Create default project
+ * Varsayılan proje oluşturur
  */
-function createDefaultProject(adminUserId: string) {
+function createDefaultProject(adminUserId: string): ProjectSchema {
   const now = new Date();
   return {
     id: uuidv4(),
@@ -126,9 +96,9 @@ function createDefaultProject(adminUserId: string) {
 }
 
 /**
- * Create default test case
+ * Varsayılan test case oluşturur
  */
-function createDefaultTestCase(projectId: string, adminUserId: string) {
+function createDefaultTestCase(projectId: string, adminUserId: string): TestCaseSchema {
   const now = new Date();
   return {
     id: uuidv4(),
@@ -139,36 +109,44 @@ function createDefaultTestCase(projectId: string, adminUserId: string) {
     steps: [
       {
         id: uuidv4(),
+        order: 1,
         action: TestStepActionType.NAVIGATE,
         target: 'https://example.com/login',
-        value: '',
+        targetType: TestStepTargetType.NONE,
         description: 'Navigate to login page'
       },
       {
         id: uuidv4(),
+        order: 2,
         action: TestStepActionType.TYPE,
         target: 'input[name="username"]',
-        value: 'admin',
+        targetType: TestStepTargetType.CSS_SELECTOR,
+        value: 'testuser',
         description: 'Enter username'
       },
       {
         id: uuidv4(),
+        order: 3,
         action: TestStepActionType.TYPE,
         target: 'input[name="password"]',
+        targetType: TestStepTargetType.CSS_SELECTOR,
         value: 'password',
         description: 'Enter password'
       },
       {
         id: uuidv4(),
+        order: 4,
         action: TestStepActionType.CLICK,
         target: 'button[type="submit"]',
-        value: '',
+        targetType: TestStepTargetType.CSS_SELECTOR,
         description: 'Click login button'
       },
       {
         id: uuidv4(),
+        order: 5,
         action: TestStepActionType.ASSERT_TEXT,
         target: '.welcome-message',
+        targetType: TestStepTargetType.CSS_SELECTOR,
         value: 'Welcome',
         description: 'Verify welcome message'
       }
@@ -180,14 +158,20 @@ function createDefaultTestCase(projectId: string, adminUserId: string) {
     browserPool: false,
     createdBy: adminUserId,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
+    executionStats: {
+      totalRuns: 0,
+      passCount: 0,
+      failCount: 0,
+      passRate: 0
+    }
   };
 }
 
 /**
- * Create default test suite
+ * Varsayılan test suite oluşturur
  */
-function createDefaultTestSuite(projectId: string, testCaseIds: string[], adminUserId: string) {
+function createDefaultTestSuite(projectId: string, testCaseIds: string[], adminUserId: string): TestSuiteSchema {
   const now = new Date();
   return {
     id: uuidv4(),
@@ -212,9 +196,9 @@ function createDefaultTestSuite(projectId: string, testCaseIds: string[], adminU
 }
 
 /**
- * Create default test run
+ * Varsayılan test run oluşturur
  */
-function createDefaultTestRun(testSuiteId: string, _projectId: string, adminUserId: string) {
+function createDefaultTestRun(testSuiteId: string, projectId: string, adminUserId: string): TestRunSchema {
   const now = new Date();
   return {
     id: uuidv4(),
@@ -222,6 +206,7 @@ function createDefaultTestRun(testSuiteId: string, _projectId: string, adminUser
     description: 'Test run for authentication functionality',
     status: TestRunStatus.PENDING,
     priority: TestRunPriority.HIGH,
+    projectId: projectId,
     testSuiteId: testSuiteId,
     environment: 'testing',
     tags: ['authentication', 'critical'],
@@ -230,15 +215,18 @@ function createDefaultTestRun(testSuiteId: string, _projectId: string, adminUser
     browserPool: false,
     createdBy: adminUserId,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
+    results: []
   };
 }
 
 /**
- * Create default server agent
+ * Varsayılan server agent oluşturur
  */
-function createDefaultServerAgent() {
+function createDefaultServerAgent(): ServerAgentSchema {
   const now = new Date();
+  const agentId = uuidv4();
+  
   return {
     id: uuidv4(),
     serverId: 'server-001',
@@ -252,106 +240,119 @@ function createDefaultServerAgent() {
       total: 1,
       available: 1,
       busy: 0,
-      limit: 5
+      offline: 0,
+      error: 0,
+      maintenance: 0
     },
     queueStatus: {
       queued: 0,
       processing: 0,
       total: 0
     },
-    activeAgents: [
-      {
-        id: uuidv4(),
-        name: 'Agent 1',
-        type: AgentType.BROWSER,
-        status: AgentStatus.AVAILABLE,
-        browser: BrowserType.CHROMIUM,
-        networkInfo: {
-          ipAddress: '127.0.0.1',
-          port: 9222,
-          connected: true
-        },
-        capabilities: ['browser', 'screenshot', 'video'],
-        serverId: 'server-001',
-        created: now,
-        lastActivity: now,
-        currentRequest: null,
-        version: '1.0.0'
-      }
-    ],
+    activeAgents: [agentId],
     queuedRequests: [],
-    processedRequests: []
+    processedRequests: [],
+    version: '1.0.0'
   };
 }
 
 /**
- * Initialize MongoDB with model-based collections and default data
+ * Varsayılan agent oluşturur
  */
-async function initMongoDB() {
-  try {
-    // Connect to MongoDB
-    db = await connectToMongoDB();
+function createDefaultAgent(serverId: string): AgentSchema {
+  const now = new Date();
+  return {
+    id: uuidv4(),
+    name: 'Agent 1',
+    type: AgentType.BROWSER,
+    status: AgentStatus.AVAILABLE,
+    browser: BrowserType.CHROMIUM,
+    networkInfo: {
+      ipAddress: '127.0.0.1',
+      port: 9222,
+      connected: true
+    },
+    capabilities: ['browser', 'screenshot', 'video'],
+    serverId: serverId,
+    created: now,
+    lastActivity: now,
+    version: '1.0.0'
+  };
+}
 
-    // Drop existing collections
+/**
+ * MongoDB veritabanını model tabanlı koleksiyonlar ve varsayılan verilerle başlatır
+ */
+async function initDatabase() {
+  try {
+    // MongoDB'ye bağlan
+    const db = await connectToMongoDB();
+
+    // Mevcut koleksiyonları düşür
     const collections = await db.listCollections().toArray();
     for (const collection of collections) {
       await db.collection(collection.name).drop();
-      console.log(`Dropped collection: ${collection.name}`);
+      console.log(`Koleksiyon düşürüldü: ${collection.name}`);
     }
 
-    // Create collections based on model structure
+    // Model yapısına göre koleksiyonlar oluştur
     for (const [_key, value] of Object.entries(COLLECTIONS)) {
       await db.createCollection(value);
-      console.log(`Created collection: ${value}`);
+      console.log(`Koleksiyon oluşturuldu: ${value}`);
     }
 
-    // Create default admin user
+    // Varsayılan admin kullanıcısı oluştur
     const adminUser = createDefaultAdminUser();
     await db.collection(COLLECTIONS.USERS).insertOne(adminUser);
-    console.log(`Created default admin user: ${adminUser.email}`);
+    console.log(`Varsayılan admin kullanıcısı oluşturuldu: ${adminUser.email}`);
 
-    // Create default project
+    // Varsayılan proje oluştur
     const project = createDefaultProject(adminUser.id);
     await db.collection(COLLECTIONS.PROJECTS).insertOne(project);
-    console.log(`Created default project: ${project.name}`);
+    console.log(`Varsayılan proje oluşturuldu: ${project.name}`);
 
-    // Create default test case
+    // Varsayılan test case oluştur
     const testCase = createDefaultTestCase(project.id, adminUser.id);
     await db.collection(COLLECTIONS.TEST_CASES).insertOne(testCase);
-    console.log(`Created default test case: ${testCase.title}`);
+    console.log(`Varsayılan test case oluşturuldu: ${testCase.title}`);
 
-    // Create default test suite
+    // Varsayılan test suite oluştur
     const testSuite = createDefaultTestSuite(project.id, [testCase.id], adminUser.id);
     await db.collection(COLLECTIONS.TEST_SUITES).insertOne(testSuite);
-    console.log(`Created default test suite: ${testSuite.name}`);
+    console.log(`Varsayılan test suite oluşturuldu: ${testSuite.name}`);
 
-    // Create default test run
+    // Varsayılan test run oluştur
     const testRun = createDefaultTestRun(testSuite.id, project.id, adminUser.id);
     await db.collection(COLLECTIONS.TEST_RUNS).insertOne(testRun);
-    console.log(`Created default test run: ${testRun.name}`);
+    console.log(`Varsayılan test run oluşturuldu: ${testRun.name}`);
 
-    // Create default server agent
+    // Varsayılan server agent oluştur
     const serverAgent = createDefaultServerAgent();
     await db.collection(COLLECTIONS.SERVER_AGENT).insertOne(serverAgent);
-    console.log(`Created default server agent: ${serverAgent.serverId}`);
+    console.log(`Varsayılan server agent oluşturuldu: ${serverAgent.serverId}`);
 
-    // Create indexes for better performance
+    // Varsayılan agent oluştur
+    const agent = createDefaultAgent(serverAgent.serverId);
+    await db.collection(COLLECTIONS.AGENTS).insertOne(agent);
+    console.log(`Varsayılan agent oluşturuldu: ${agent.name}`);
+
+    // Daha iyi performans için indeksler oluştur
     await db.collection(COLLECTIONS.TEST_CASES).createIndex({ status: 1 });
     await db.collection(COLLECTIONS.TEST_CASES).createIndex({ updatedAt: -1 });
     await db.collection(COLLECTIONS.TEST_RUNS).createIndex({ startTime: -1 });
     await db.collection(COLLECTIONS.TEST_RUNS).createIndex({ testCaseId: 1 });
     await db.collection(COLLECTIONS.USERS).createIndex({ email: 1 }, { unique: true });
     await db.collection(COLLECTIONS.PROJECTS).createIndex({ name: 1 });
-    console.log('Created indexes for better performance');
+    console.log('Daha iyi performans için indeksler oluşturuldu');
 
-    console.log('MongoDB initialization completed successfully');
+    console.log('MongoDB başlatma işlemi başarıyla tamamlandı');
   } catch (error) {
-    console.error('Error initializing MongoDB:', error);
+    console.error('MongoDB başlatma hatası:', error);
   } finally {
-    // Close MongoDB connection
+    // MongoDB bağlantısını kapat
     await closeMongoDBConnection();
   }
 }
 
-// Run the initialization
-initMongoDB();
+// Başlatma işlemini çalıştır
+initDatabase();

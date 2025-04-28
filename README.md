@@ -17,6 +17,7 @@ A modern test automation platform for managing test cases, test suites, and test
 
 - Node.js (v14 or higher)
 - npm (v6 or higher)
+- Docker (for MongoDB)
 
 ### Installation
 
@@ -29,7 +30,31 @@ npm install
 
 ### Running the Application
 
-You can run the application in two ways:
+You can run the application in several ways:
+
+#### Development Mode with MongoDB
+
+1. Start MongoDB using Docker:
+
+```bash
+./start-mongodb.sh
+```
+
+2. Initialize the database with sample data:
+
+```bash
+npm run init-database
+```
+
+3. Run the frontend and API server concurrently:
+
+```bash
+npm run dev:all
+```
+
+This will start:
+- Vite development server at http://localhost:5173
+- Express API server at http://localhost:3001
 
 #### Development Mode with Mock Data
 
@@ -51,27 +76,27 @@ If you want to run only the frontend:
 npm run dev
 ```
 
-#### JSON Server Only
+#### API Server Only
 
-If you want to run only the JSON Server:
+If you want to run only the API server:
 
 ```bash
-npm run server
+npm run api
 ```
 
-## JSON Server
+## API Server
 
-The application uses JSON Server to provide a mock API. All mock data is stored in `data/db.json`.
+The application uses Express and MongoDB to provide a RESTful API.
 
 ### Available Endpoints
 
-- `/users` - User data
-- `/projects` - Project data
-- `/testCases` - Test case data
-- `/testSuites` - Test suite data
-- `/testRuns` - Test run data
-- `/serverAgent` - Server agent status
-- `/notifications` - Notification data
+- `/api/users` - User data
+- `/api/projects` - Project data
+- `/api/testCases` - Test case data
+- `/api/testSuites` - Test suite data
+- `/api/testRuns` - Test run data
+- `/api/serverAgent` - Server agent status
+- `/api/notifications` - Notification data
 
 ### Example API Requests
 
@@ -107,8 +132,14 @@ Content-Type: application/json
   - `/components` - Reusable UI components
   - `/pages` - Application pages
   - `/services` - API services
+  - `/models` - Data models
+    - `/database` - MongoDB schemas and repositories
+      - `/schemas` - MongoDB schema definitions
+      - `/repository` - MongoDB repository classes
   - `/types` - TypeScript type definitions
   - `/utils` - Utility functions
+  - `/scripts` - Utility scripts
+- `/server` - Express API server
 - `/data` - Mock data for JSON Server
 - `/public` - Static assets
 
@@ -119,4 +150,6 @@ Content-Type: application/json
 - Material-UI
 - React Router
 - ApexCharts
-- JSON Server
+- Express.js
+- MongoDB
+- JSON Server (for development)
