@@ -67,8 +67,8 @@ const ActiveAgentsTable: React.FC<ActiveAgentsTableProps> = ({ agents }) => {
                     color={getStatusColor(agent.status)}
                   />
                 </TableCell>
-                <TableCell>{agent.created.toLocaleString('tr-TR')}</TableCell>
-                <TableCell>{agent.lastActivity.toLocaleString('tr-TR')}</TableCell>
+                <TableCell>{agent.created instanceof Date ? agent.created.toLocaleString('tr-TR') : new Date(agent.created).toLocaleString('tr-TR')}</TableCell>
+                <TableCell>{agent.lastActivity instanceof Date ? agent.lastActivity.toLocaleString('tr-TR') : new Date(agent.lastActivity).toLocaleString('tr-TR')}</TableCell>
                 <TableCell>{agent.currentRequest || '-'}</TableCell>
               </TableRow>
             ))

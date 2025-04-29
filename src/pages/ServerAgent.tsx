@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Container, Alert, Snackbar, Button } from '@mui/material';
-import agentSocketService from '../services/AgentSocketService';
+import React from 'react';
+import { Box, Container } from '@mui/material';
 
 // Yeni bileşenleri içe aktarıyoruz
 import {
@@ -26,20 +25,34 @@ const ServerAgentContent: React.FC = () => {
 
   // WebSocket bağlantı durumunu izle
   useEffect(() => {
-    const checkConnection = () => {
+    // Bağlantı durumu değişikliklerini dinle
+    const handleConnectionChange = (connected: boolean) => {
+      setConnectionError(!connected);
+      setSnackbarOpen(!connected);
+    };
+
+    // Bağlantı durumu değişikliklerini dinlemek için event listener ekle
+    window.addEventListener('agent-socket-connection-change', ((event: CustomEvent) => {
+      handleConnectionChange(event.detail.connected);
+    }) as EventListener);
+
+    // İlk kontrol
+    const isConnected = agentSocketService.isConnected();
+    setConnectionError(!isConnected);
+    setSnackbarOpen(!isConnected);
+
+    // Periyodik kontrol (yedek olarak)
+    const interval = setInterval(() => {
       const isConnected = agentSocketService.isConnected();
       setConnectionError(!isConnected);
       setSnackbarOpen(!isConnected);
-    };
-
-    // İlk kontrol
-    checkConnection();
-
-    // Periyodik kontrol
-    const interval = setInterval(checkConnection, 5000);
+    }, 10000); // 10 saniyede bir kontrol et (daha az sıklıkta)
 
     return () => {
       clearInterval(interval);
+      window.removeEventListener('agent-socket-connection-change', ((event: CustomEvent) => {
+        handleConnectionChange(event.detail.connected);
+      }) as EventListener);
     };
   }, []);
 
