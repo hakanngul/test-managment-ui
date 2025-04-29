@@ -1,0 +1,29 @@
+{
+  "name": "test-agent-launcher",
+  "version": "1.0.0",
+  "description": "Test automation agent launcher with browser support",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn src/index.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0",
+    "socket.io": "^4.6.0",
+    "uuid": "^9.0.0",
+    "playwright": "^1.30.0",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^18.13.0",
+    "@types/uuid": "^9.0.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.9.5",
+    "jest": "^29.4.2",
+    "ts-jest": "^29.0.5"
+  }
+}

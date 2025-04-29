@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, FormControl, FormControlLabel, Switch, TextField, Button, Typography, Paper } from '@mui/material';
+import { Box, FormControlLabel, Switch, TextField, Button, Typography, Paper } from '@mui/material';
 import api from '../../services/api';
 
 /**
