@@ -25,7 +25,7 @@ const SlowestTestsCard: React.FC<SlowestTestsCardProps> = ({
   const formatDuration = (ms: number): string => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
-    
+
     if (minutes > 0) {
       return `${minutes} dk ${seconds % 60} sn`;
     } else {
@@ -62,13 +62,13 @@ const SlowestTestsCard: React.FC<SlowestTestsCardProps> = ({
           En Yavaş Testler
         </Typography>
       </Box>
-      
+
       <List sx={{ overflow: 'auto', flex: 1, maxHeight: 350, p: 0 }}>
         {data.map((test, index) => (
           <React.Fragment key={test.id}>
             <ListItem
               alignItems="flex-start"
-              sx={{ 
+              sx={{
                 py: 1.5,
                 cursor: 'pointer',
                 '&:hover': {
@@ -79,27 +79,31 @@ const SlowestTestsCard: React.FC<SlowestTestsCardProps> = ({
             >
               <ListItemText
                 primary={
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="body2" fontWeight="medium">
-                      {test.name}
-                    </Typography>
-                    <Chip
-                      label={formatDuration(test.averageDuration)}
-                      color="warning"
-                      size="small"
-                      sx={{ fontWeight: 'medium' }}
-                    />
-                  </Box>
+                  <Typography component="div" variant="body2">
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2" fontWeight="medium" component="span">
+                        {test.name}
+                      </Typography>
+                      <Chip
+                        label={formatDuration(test.averageDuration)}
+                        color="warning"
+                        size="small"
+                        sx={{ fontWeight: 'medium' }}
+                      />
+                    </Box>
+                  </Typography>
                 }
                 secondary={
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      Kategori: {CATEGORY_NAMES[test.category]}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Son Çalıştırma: {new Intl.DateTimeFormat('tr-TR').format(test.lastRun)}
-                    </Typography>
-                  </Box>
+                  <Typography component="div" variant="body2">
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary" component="span">
+                        Kategori: {CATEGORY_NAMES[test.category]}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" component="span">
+                        Son Çalıştırma: {new Intl.DateTimeFormat('tr-TR').format(test.lastRun)}
+                      </Typography>
+                    </Box>
+                  </Typography>
                 }
               />
             </ListItem>

@@ -31,25 +31,25 @@ const RecentActivitiesCard: React.FC<RecentActivitiesCardProps> = ({
   const formatDate = (date: Date): string => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
-    
+
     // 1 saatten az
     if (diff < 3600000) {
       const minutes = Math.floor(diff / 60000);
       return `${minutes} dakika önce`;
     }
-    
+
     // 1 günden az
     if (diff < 86400000) {
       const hours = Math.floor(diff / 3600000);
       return `${hours} saat önce`;
     }
-    
+
     // 1 haftadan az
     if (diff < 604800000) {
       const days = Math.floor(diff / 86400000);
       return `${days} gün önce`;
     }
-    
+
     // Diğer durumlar
     return new Intl.DateTimeFormat('tr-TR', {
       day: '2-digit',
@@ -90,13 +90,13 @@ const RecentActivitiesCard: React.FC<RecentActivitiesCardProps> = ({
           Son Aktiviteler
         </Typography>
       </Box>
-      
+
       <List sx={{ overflow: 'auto', flex: 1, maxHeight: 350, p: 0 }}>
         {data.map((activity, index) => (
           <React.Fragment key={activity.id}>
             <ListItem
               alignItems="flex-start"
-              sx={{ 
+              sx={{
                 py: 1.5,
                 cursor: activity.relatedId ? 'pointer' : 'default',
                 '&:hover': {
@@ -115,17 +115,19 @@ const RecentActivitiesCard: React.FC<RecentActivitiesCardProps> = ({
                   </Typography>
                 }
                 secondary={
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
-                    <Typography variant="caption" color="text.secondary" component="span">
-                      {activity.user}
-                    </Typography>
-                    <Chip
-                      label={formatDate(activity.timestamp)}
-                      size="small"
-                      variant="outlined"
-                      sx={{ height: 20, fontSize: '0.7rem' }}
-                    />
-                  </Box>
+                  <Typography component="div" variant="body2">
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary" component="span">
+                        {activity.user}
+                      </Typography>
+                      <Chip
+                        label={formatDate(activity.timestamp)}
+                        size="small"
+                        variant="outlined"
+                        sx={{ height: 20, fontSize: '0.7rem' }}
+                      />
+                    </Box>
+                  </Typography>
                 }
               />
             </ListItem>

@@ -247,61 +247,59 @@ export const ServerAgentDataProvider: React.FC<ServerAgentDataProviderProps> = (
 
         setLastUpdated(new Date().toLocaleString('tr-TR'));
       }
-    }, 2000); // 2 saniyede bir güncelle
+    }, 5000); // 5 saniyede bir güncelle
 
-    // Her 10 saniyede bir agent durumlarını güncelle
+    // Her 30 saniyede bir agent durumlarını güncelle
     const agentsInterval = setInterval(() => {
-      if (isMounted) {
+      if (isMounted && activeAgents.length > 0) {
         // Rastgele bir agent'ın durumunu değiştir
-        if (activeAgents.length > 0) {
-          const randomIndex = Math.floor(Math.random() * activeAgents.length);
-          const randomAgent = activeAgents[randomIndex];
+        const randomIndex = Math.floor(Math.random() * activeAgents.length);
+        const randomAgent = activeAgents[randomIndex];
 
-          // Rastgele bir durum seç
-          const statuses = ['available', 'busy', 'offline', 'error'];
-          const currentStatusIndex = statuses.indexOf(randomAgent.status);
-          const newStatusIndex = (currentStatusIndex + 1) % statuses.length;
-          const newStatus = statuses[newStatusIndex];
+        // Rastgele bir durum seç
+        const statuses = ['available', 'busy', 'offline', 'error'];
+        const currentStatusIndex = statuses.indexOf(randomAgent.status);
+        const newStatusIndex = (currentStatusIndex + 1) % statuses.length;
+        const newStatus = statuses[newStatusIndex];
 
-          // Agent'ı güncelle
-          const updatedAgents = [...activeAgents];
-          updatedAgents[randomIndex] = {
-            ...randomAgent,
-            status: newStatus,
-            lastActivity: new Date() // Doğrudan Date nesnesi kullan
+        // Agent'ı güncelle
+        const updatedAgents = [...activeAgents];
+        updatedAgents[randomIndex] = {
+          ...randomAgent,
+          status: newStatus,
+          lastActivity: new Date() // Doğrudan Date nesnesi kullan
+        };
+
+        setActiveAgents(updatedAgents);
+
+        // Server agent durumunu da güncelle
+        setServerAgent(prev => {
+          if (!prev) return prev;
+
+          // Agent durumlarını say
+          const available = updatedAgents.filter(a => a.status === 'available').length;
+          const busy = updatedAgents.filter(a => a.status === 'busy').length;
+          const offline = updatedAgents.filter(a => a.status === 'offline').length;
+          const error = updatedAgents.filter(a => a.status === 'error').length;
+
+          return {
+            ...prev,
+            agentStatus: {
+              ...prev.agentStatus,
+              total: updatedAgents.length,
+              available,
+              busy,
+              offline,
+              error,
+              maintenance: 0
+            },
+            lastUpdated: new Date().toISOString()
           };
+        });
 
-          setActiveAgents(updatedAgents);
-
-          // Server agent durumunu da güncelle
-          setServerAgent(prev => {
-            if (!prev) return prev;
-
-            // Agent durumlarını say
-            const available = updatedAgents.filter(a => a.status === 'available').length;
-            const busy = updatedAgents.filter(a => a.status === 'busy').length;
-            const offline = updatedAgents.filter(a => a.status === 'offline').length;
-            const error = updatedAgents.filter(a => a.status === 'error').length;
-
-            return {
-              ...prev,
-              agentStatus: {
-                ...prev.agentStatus,
-                total: updatedAgents.length,
-                available,
-                busy,
-                offline,
-                error,
-                maintenance: 0
-              },
-              lastUpdated: new Date().toISOString()
-            };
-          });
-
-          setLastUpdated(new Date().toLocaleString('tr-TR'));
-        }
+        setLastUpdated(new Date().toLocaleString('tr-TR'));
       }
-    }, 10000); // 10 saniyede bir güncelle
+    }, 30000); // 30 saniyede bir güncelle
 
     // Cleanup function
     return () => {
@@ -309,7 +307,7 @@ export const ServerAgentDataProvider: React.FC<ServerAgentDataProviderProps> = (
       clearInterval(systemResourcesInterval);
       clearInterval(agentsInterval);
     };
-  }, [activeAgents]);
+  }, []); // Boş bağımlılık dizisi - sadece bir kez çalışır
 
   // Context değeri
   const value: ServerAgentContextType = {
