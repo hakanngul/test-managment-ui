@@ -9,7 +9,8 @@ import {
   ErrorDisplay,
   ServerAgentOverview,
   ServerAgentDetails,
-  useServerAgentData
+  useServerAgentData,
+  DataSourceSelector
 } from '../components/server-agent';
 
 /**
@@ -41,6 +42,8 @@ const ServerAgentContent: React.FC = () => {
 
       {!loading && !error && (
         <Box sx={{ mt: 3 }}>
+          {/* Veri Kaynağı Seçici */}
+          <DataSourceSelector />
 
           {/* Genel Bakış Bölümü */}
           <ServerAgentOverview />

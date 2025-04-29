@@ -5,7 +5,7 @@ import { SystemResource } from '../SystemResource';
 
 /**
  * Server Agent şeması
- * 
+ *
  * Bu şema, MongoDB'deki serverAgent koleksiyonunun yapısını tanımlar
  */
 export interface ServerAgentSchema {
@@ -111,3 +111,97 @@ export interface ServerAgentSchema {
   lastUpdated: string;
   createdAt: string;
 }
+
+/**
+ * Boş bir ServerAgentSchema nesnesi oluşturur
+ * Bu, API çağrıları başarısız olduğunda kullanılır
+ */
+export const createEmptyServerAgentSchema = (): ServerAgentSchema => {
+  return {
+    id: 'unknown',
+    name: 'Agent Launcher',
+    status: 'OFFLINE',
+    version: {
+      current: '1.0.0',
+      updateAvailable: false
+    },
+    systemResources: {
+      cpuUsage: 0,
+      memoryUsage: 0
+    },
+    agentStatus: {
+      total: 0,
+      available: 0,
+      busy: 0,
+      offline: 0,
+      error: 0,
+      maintenance: 0
+    },
+    queueStatus: {
+      queued: 0,
+      processing: 0,
+      total: 0,
+      highPriority: 0,
+      mediumPriority: 0,
+      lowPriority: 0,
+      estimatedWaitTime: 0
+    },
+    performanceMetrics: {
+      testExecutionTime: {
+        average: 0,
+        min: 0,
+        max: 0,
+        p95: 0
+      },
+      requestsPerMinute: 0,
+      averageResponseTime: 0,
+      successRate: 0,
+      errorRate: 0,
+      resourceUtilization: {
+        cpu: 0,
+        memory: 0,
+        disk: 0,
+        network: 0
+      },
+      concurrentTests: {
+        current: 0,
+        max: 5
+      }
+    },
+    healthStatus: {
+      status: 'healthy',
+      lastCheck: new Date().toISOString(),
+      uptime: 0,
+      checks: []
+    },
+    config: {
+      maxConcurrentTests: 5,
+      queueLimit: 100,
+      testTimeout: 300000,
+      retryPolicy: {
+        enabled: true,
+        maxRetries: 3,
+        retryInterval: 5000
+      },
+      logging: {
+        level: 'info',
+        retention: 7
+      },
+      security: {
+        authEnabled: false,
+        sslEnabled: false
+      },
+      notifications: {
+        email: false,
+        slack: false,
+        webhook: false
+      }
+    },
+    activeAgents: [],
+    queuedRequests: [],
+    processedRequests: [],
+    lastUpdated: new Date().toISOString(),
+    createdAt: new Date().toISOString()
+  };
+};
+

@@ -22,3 +22,4 @@ export { default as ProcessedRequestsTable } from './ProcessedRequestsTable';
 export { default as ServerAgentDataProvider, useServerAgentData } from './ServerAgentDataProvider';
 export { default as ServerAgentOverview } from './ServerAgentOverview';
 export { default as ServerAgentDetails } from './ServerAgentDetails';
+export { default as DataSourceSelector } from './DataSourceSelector';
