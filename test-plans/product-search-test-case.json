@@ -1,0 +1,101 @@
+{
+  "id": "tc-002",
+  "name": "Ürün Arama Testi",
+  "description": "Kullanıcının ürün arama özelliğini kullanarak ürünleri bulabildiğini doğrular.",
+  "status": "ACTIVE",
+  "priority": "MEDIUM",
+  "category": "FUNCTIONAL",
+  "tags": ["search", "product", "ui"],
+  "createdBy": "Ahmet Yılmaz",
+  "createdAt": "2023-09-05T11:20:00.000Z",
+  "updatedAt": "2023-11-20T16:30:00.000Z",
+  "lastRun": "2023-11-17T10:45:00.000Z",
+  "lastResult": "FAILED",
+  "browser": "Firefox",
+  "environment": "Staging",
+  "estimatedDuration": 90,
+  "actualDuration": 105,
+  "steps": [
+    {
+      "id": "step-1",
+      "order": 1,
+      "description": "Ana sayfaya git",
+      "expectedResult": "Ana sayfa görüntülenir",
+      "action": "NAVIGATE",
+      "selector": null,
+      "value": "https://example.com",
+      "status": "PASSED",
+      "duration": 1500
+    },
+    {
+      "id": "step-2",
+      "order": 2,
+      "description": "Arama kutusuna tıkla",
+      "expectedResult": "Arama kutusu aktif hale gelir",
+      "action": "CLICK",
+      "selector": "#searchBox",
+      "value": null,
+      "status": "PASSED",
+      "duration": 600
+    },
+    {
+      "id": "step-3",
+      "order": 3,
+      "description": "Arama terimini gir",
+      "expectedResult": "Arama kutusuna metin girilir",
+      "action": "TYPE",
+      "selector": "#searchBox",
+      "value": "akıllı telefon",
+      "status": "PASSED",
+      "duration": 1200
+    },
+    {
+      "id": "step-4",
+      "order": 4,
+      "description": "Ara butonuna tıkla",
+      "expectedResult": "Arama işlemi başlatılır",
+      "action": "CLICK",
+      "selector": "#searchButton",
+      "value": null,
+      "status": "PASSED",
+      "duration": 500
+    },
+    {
+      "id": "step-5",
+      "order": 5,
+      "description": "Arama sonuçlarının yüklendiğini kontrol et",
+      "expectedResult": "Arama sonuçları sayfası görüntülenir",
+      "action": "ASSERT_URL",
+      "selector": null,
+      "value": "https://example.com/search?q=akıllı%20telefon",
+      "status": "PASSED",
+      "duration": 1800
+    },
+    {
+      "id": "step-6",
+      "order": 6,
+      "description": "Sonuç listesinde ürünlerin görüntülendiğini kontrol et",
+      "expectedResult": "En az bir ürün görüntülenir",
+      "action": "ASSERT_ELEMENT",
+      "selector": ".product-item",
+      "value": null,
+      "status": "PASSED",
+      "duration": 1000
+    },
+    {
+      "id": "step-7",
+      "order": 7,
+      "description": "Sonuç sayısının doğru olduğunu kontrol et",
+      "expectedResult": "Sonuç sayısı gösterilir ve sıfırdan büyüktür",
+      "action": "ASSERT_TEXT",
+      "selector": ".results-count",
+      "value": "0 sonuç",
+      "status": "FAILED",
+      "duration": 800
+    }
+  ],
+  "prerequisites": ["Sistemde kayıtlı ürünler"],
+  "testSuiteId": "ts-001",
+  "projectId": "proj-001",
+  "automated": true
+}

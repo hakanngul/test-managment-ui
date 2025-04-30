@@ -1,0 +1,79 @@
+{
+  "id": "tc-001",
+  "name": "Kullanıcı Girişi Testi",
+  "description": "Kullanıcının sisteme başarılı bir şekilde giriş yapabildiğini doğrular.",
+  "status": "ACTIVE",
+  "priority": "HIGH",
+  "category": "FUNCTIONAL",
+  "tags": ["login", "authentication", "security"],
+  "createdBy": "Hakan Gül",
+  "createdAt": "2023-08-15T10:30:00.000Z",
+  "updatedAt": "2023-11-10T14:45:00.000Z",
+  "lastRun": "2023-11-18T09:15:00.000Z",
+  "lastResult": "PASSED",
+  "browser": "Chrome",
+  "environment": "Production",
+  "estimatedDuration": 60,
+  "actualDuration": 45,
+  "steps": [
+    {
+      "id": "step-1",
+      "order": 1,
+      "description": "Login sayfasına git",
+      "expectedResult": "Login sayfası görüntülenir",
+      "action": "NAVIGATE",
+      "selector": null,
+      "value": "https://example.com/login",
+      "status": "PASSED",
+      "duration": 1200
+    },
+    {
+      "id": "step-2",
+      "order": 2,
+      "description": "Kullanıcı adını gir",
+      "expectedResult": "Kullanıcı adı alanına metin girilir",
+      "action": "TYPE",
+      "selector": "#username",
+      "value": "testuser",
+      "status": "PASSED",
+      "duration": 800
+    },
+    {
+      "id": "step-3",
+      "order": 3,
+      "description": "Şifreyi gir",
+      "expectedResult": "Şifre alanına metin girilir",
+      "action": "TYPE",
+      "selector": "#password",
+      "value": "password123",
+      "status": "PASSED",
+      "duration": 750
+    },
+    {
+      "id": "step-4",
+      "order": 4,
+      "description": "Giriş butonuna tıkla",
+      "expectedResult": "Giriş işlemi başlatılır",
+      "action": "CLICK",
+      "selector": "#loginButton",
+      "value": null,
+      "status": "PASSED",
+      "duration": 500
+    },
+    {
+      "id": "step-5",
+      "order": 5,
+      "description": "Dashboard sayfasının yüklendiğini kontrol et",
+      "expectedResult": "Dashboard sayfası görüntülenir",
+      "action": "ASSERT_URL",
+      "selector": null,
+      "value": "https://example.com/dashboard",
+      "status": "PASSED",
+      "duration": 1500
+    }
+  ],
+  "prerequisites": ["Geçerli kullanıcı hesabı"],
+  "testSuiteId": "ts-001",
+  "projectId": "proj-001",
+  "automated": true
+}
