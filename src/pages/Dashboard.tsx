@@ -19,7 +19,6 @@ import {
   Refresh as RefreshIcon,
   DateRange as DateRangeIcon
 } from '@mui/icons-material';
-import DashboardSummaryCards from '../components/dashboard/DashboardSummaryCards';
 import TestStatusDistributionChart from '../components/dashboard/TestStatusDistributionChart';
 import TestResultsOverTimeChart from '../components/dashboard/TestResultsOverTimeChart';
 import TestCategoryDistributionChart from '../components/dashboard/TestCategoryDistributionChart';
@@ -27,9 +26,10 @@ import RecentTestRunsTable from '../components/dashboard/RecentTestRunsTable';
 import FailedTestsTable from '../components/dashboard/FailedTestsTable';
 import BrowserEnvironmentDistributionChart from '../components/dashboard/BrowserEnvironmentDistributionChart';
 import RecentActivitiesCard from '../components/dashboard/RecentActivitiesCard';
-import ProjectTestStatusCard from '../components/dashboard/ProjectTestStatusCard';
 import SlowestTestsCard from '../components/dashboard/SlowestTestsCard';
 import { mockDashboardData } from '../mock/dashboardMock';
+import SmartTestStatusCard from '../components/cards/smarts/SmartTestStatusCard';
+import { SmartAutomationCoverageCard, SmartLastRunCard, SmartTestRunCard } from '../components/cards/smarts';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
   };
 
   // Hata mesajını görüntüleme
-  const handleViewError = (testId: string, errorMessage: string) => {
+  const handleViewError = (_testId: string, errorMessage: string) => {
     setSelectedErrorMessage(errorMessage);
     setErrorDialogOpen(true);
   };
@@ -123,12 +123,14 @@ const Dashboard: React.FC = () => {
       </Paper>
 
       {/* Özet Kartları */}
-      <DashboardSummaryCards
-        testStatusSummary={mockDashboardData.testStatusSummary}
-        testRunSummary={mockDashboardData.testRunSummary}
-        automationCoverage={mockDashboardData.automationCoverage}
-        lastRunInfo={mockDashboardData.lastRunInfo}
-      />
+
+      <Grid container spacing={3}>
+        <SmartTestStatusCard />
+        <SmartTestRunCard />
+        <SmartAutomationCoverageCard />
+        <SmartLastRunCard />
+      </Grid>
+
 
       <Divider sx={{ my: 4 }} />
 
