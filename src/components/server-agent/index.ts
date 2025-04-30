@@ -7,6 +7,7 @@ export { default as ErrorDisplay } from './ErrorDisplay';
 export { default as SystemResourcesCard } from './SystemResourcesCard';
 export { default as AgentStatusCard } from './AgentStatusCard';
 export { default as QueueStatusCard } from './QueueStatusCard';
+export { default as QueueComponent } from './QueueComponent';
 export { default as PerformanceMetricsCard } from './PerformanceMetricsCard';
 export { default as HealthStatusCard } from './HealthStatusCard';
 

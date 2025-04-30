@@ -144,16 +144,15 @@ const TestExecutionResults: React.FC<{ execution: TestExecution | null }> = ({ e
 // Test logları bileşeni
 const TestExecutionLogs: React.FC<{ logs: string[]; onClearLogs: () => void }> = ({ logs, onClearLogs }) => {
   return (
-    <Paper sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
         <Typography variant="h6">Execution Logs</Typography>
         <Button size="small" onClick={onClearLogs}>Clear</Button>
       </Box>
       <Box
         sx={{
-          flexGrow: 1,
           overflow: 'auto',
-          maxHeight: '500px',
+          height: '200px', // Yatay görünüm için sabit yükseklik
           bgcolor: 'grey.900',
           color: 'grey.300',
           p: 1,
@@ -228,6 +227,7 @@ const ExampleSimulator: React.FC = () => {
     ]
   });
   const [isRunning, setIsRunning] = useState(false);
+  // ExecutionStatus durumunu takip et (bildirim ve UI güncellemeleri için kullanılır)
   const [executionStatus, setExecutionStatus] = useState<ExecutionStatus>(ExecutionStatus.QUEUED);
   // Test adımlarını başlangıçta göstermek için test adımlarını hazırla
   const initialSteps: TestStepExecution[] = test.steps.map((step, index) => ({
@@ -550,15 +550,28 @@ const ExampleSimulator: React.FC = () => {
           </Grid>
 
           {/* Orta Panel - Test Adımları ve Sonuçlar */}
-          <Grid item xs={12} md={8} lg={6}>
+          <Grid item xs={12} md={8} lg={9}>
             <Paper sx={{ p: 2 }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h6">
                   Test Steps
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {isRunning ? 'Running test...' : executionResult ? 'Test completed' : 'Ready to run'}
-                </Typography>
+                <Box display="flex" alignItems="center">
+                  <Chip
+                    label={executionStatus}
+                    color={
+                      executionStatus === ExecutionStatus.COMPLETED ? 'success' :
+                      executionStatus === ExecutionStatus.FAILED ? 'error' :
+                      executionStatus === ExecutionStatus.RUNNING ? 'info' :
+                      executionStatus === ExecutionStatus.ABORTED ? 'warning' : 'default'
+                    }
+                    size="small"
+                    sx={{ mr: 1 }}
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    {isRunning ? 'Running test...' : executionResult ? 'Test completed' : 'Ready to run'}
+                  </Typography>
+                </Box>
               </Box>
 
               {executionError && (
@@ -590,8 +603,8 @@ const ExampleSimulator: React.FC = () => {
             </Paper>
           </Grid>
 
-          {/* Sağ Panel - Loglar */}
-          <Grid item xs={12} md={12} lg={3} sx={{ height: 'auto', overflow: 'visible' }}>
+          {/* Alt Panel - Loglar (Yatay) */}
+          <Grid item xs={12} sx={{ mt: 2 }}>
             <TestExecutionLogs
               logs={executionLogs}
               onClearLogs={handleClearLogs}

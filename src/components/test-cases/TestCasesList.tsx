@@ -34,6 +34,7 @@ interface TestCasesListProps {
   onSelectAllTestCases: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onRunTestCase: (id: string) => void;
   isLoading: boolean;
+  runningTests?: string[];
 }
 
 const TestCasesList: React.FC<TestCasesListProps> = ({
@@ -42,7 +43,8 @@ const TestCasesList: React.FC<TestCasesListProps> = ({
   onSelectTestCase,
   onSelectAllTestCases,
   onRunTestCase,
-  isLoading
+  isLoading,
+  runningTests = []
 }) => {
   const navigate = useNavigate();
 
@@ -278,16 +280,17 @@ const TestCasesList: React.FC<TestCasesListProps> = ({
                       />
                     </TableCell>
                     <TableCell align="right">
-                      <Tooltip title="Çalıştır">
+                      <Tooltip title={runningTests.includes(testCase.id) ? "Test çalışıyor..." : "Çalıştır"}>
                         <Button
                           variant="contained"
-                          color="success"
+                          color={runningTests.includes(testCase.id) ? "warning" : "success"}
                           size="small"
-                          startIcon={<PlayArrowIcon />}
+                          startIcon={runningTests.includes(testCase.id) ? <CircularProgress size={16} color="inherit" /> : <PlayArrowIcon />}
                           onClick={(e) => {
                             e.stopPropagation();
                             onRunTestCase(testCase.id);
                           }}
+                          disabled={runningTests.includes(testCase.id)}
                           sx={{
                             borderRadius: 1.5,
                             textTransform: 'none',
@@ -297,7 +300,7 @@ const TestCasesList: React.FC<TestCasesListProps> = ({
                             }
                           }}
                         >
-                          Çalıştır
+                          {runningTests.includes(testCase.id) ? "Çalışıyor..." : "Çalıştır"}
                         </Button>
                       </Tooltip>
                     </TableCell>

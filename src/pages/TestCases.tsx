@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Typography, Paper } from '@mui/material';
+import { Container, Box, Typography, Paper, Snackbar, Alert } from '@mui/material';
 import TestCasesToolbar from '../components/test-cases/TestCasesToolbar';
 import TestCasesList from '../components/test-cases/TestCasesList';
 import { mockTestCases, filterTestCases } from '../mock/testCasesMock';
 import { TestCase, TestCaseStatus, TestCasePriority, TestCaseCategory } from '../models/interfaces/ITestCase';
+import { testRunnerService } from '../services/TestRunnerService';
 
 const TestCases: React.FC = () => {
   const [testCases, setTestCases] = useState<TestCase[]>([]);
@@ -11,6 +12,16 @@ const TestCases: React.FC = () => {
   const [selectedTestCases, setSelectedTestCases] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'info' | 'warning' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'info'
+  });
+  const [runningTests, setRunningTests] = useState<string[]>([]);
   const [filters, setFilters] = useState<{
     status: TestCaseStatus[];
     priority: TestCasePriority[];
@@ -93,10 +104,94 @@ const TestCases: React.FC = () => {
   };
 
   // Test case'i çalıştır
-  const handleRunTestCase = (id: string) => {
-    // Gerçek uygulamada burada API çağrısı yapılacak
-    console.log(`Test case ${id} çalıştırılıyor...`);
-    // Burada test case'in durumunu güncelleyebilirsiniz
+  const handleRunTestCase = async (id: string) => {
+    try {
+      // Zaten çalışıyorsa uyarı ver
+      if (runningTests.includes(id)) {
+        setSnackbar({
+          open: true,
+          message: 'Bu test zaten çalışıyor veya kuyruğa alınmış.',
+          severity: 'warning'
+        });
+        return;
+      }
+
+      // Çalışan testler listesine ekle
+      setRunningTests(prev => [...prev, id]);
+
+      // Test case'i bul
+      const testCase = testCases.find(tc => tc.id === id);
+      if (!testCase) {
+        throw new Error('Test case bulunamadı');
+      }
+
+      // Test çalıştırma isteği oluştur
+      const testRunRequest = {
+        id: `run-${Date.now()}-${id}`,
+        name: testCase.name,
+        description: testCase.description || '',
+        browserSettings: {
+          browser: 'chrome',
+          headless: true,
+          width: 1280,
+          height: 720,
+          timeout: 30000
+        },
+        steps: testCase.steps || [],
+        testCaseId: id,
+        priority: testCase.priority || 'medium',
+        tags: testCase.tags || []
+      };
+
+      // Test çalıştırma isteği gönder
+      const response = await testRunnerService.runTest(testRunRequest);
+
+      // Başarılı yanıt
+      setSnackbar({
+        open: true,
+        message: `Test "${testCase.name}" başarıyla kuyruğa alındı. Kuyruk pozisyonu: ${response.queuePosition || 'N/A'}`,
+        severity: 'success'
+      });
+
+      // Test case'in durumunu güncelle
+      setTestCases(prev => prev.map(tc => {
+        if (tc.id === id) {
+          return { ...tc, status: TestCaseStatus.RUNNING };
+        }
+        return tc;
+      }));
+
+      // 5 saniye sonra çalışan testler listesinden çıkar (gerçek uygulamada bu webhook veya polling ile yapılır)
+      setTimeout(() => {
+        setRunningTests(prev => prev.filter(testId => testId !== id));
+
+        // Test case'in durumunu güncelle
+        setTestCases(prev => prev.map(tc => {
+          if (tc.id === id) {
+            return { ...tc, status: TestCaseStatus.COMPLETED };
+          }
+          return tc;
+        }));
+      }, 5000);
+
+    } catch (error) {
+      console.error('Test çalıştırma hatası:', error);
+
+      // Hata mesajı göster
+      setSnackbar({
+        open: true,
+        message: `Test çalıştırılırken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,
+        severity: 'error'
+      });
+
+      // Çalışan testler listesinden çıkar
+      setRunningTests(prev => prev.filter(testId => testId !== id));
+    }
+  };
+
+  // Snackbar'ı kapat
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   // Arama terimini güncelle
@@ -151,9 +246,27 @@ const TestCases: React.FC = () => {
             onSelectAllTestCases={handleSelectAllTestCases}
             onRunTestCase={handleRunTestCase}
             isLoading={isLoading}
+            runningTests={runningTests}
           />
         </Paper>
       </Box>
+
+      {/* Bildirim */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

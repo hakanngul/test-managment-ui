@@ -56,6 +56,8 @@ export interface QueueStatusSummary {
   mediumPriority: number;
   lowPriority: number;
   estimatedWaitTime: number; // in milliseconds
+  maxSize?: number; // Maksimum kuyruk boyutu
+  length?: number; // Kuyruktaki test sayısı
 }
 
 // Queued request model
@@ -68,34 +70,35 @@ export interface QueuedRequest {
   testCaseId?: string;
   testSuiteId?: string;
   projectId?: string;
-  
+
   // Status and category
   status: RequestStatus;
   priority: RequestPriority;
   category: RequestCategory | string;
   source?: RequestSource;
-  
+  position?: number; // Kuyruk pozisyonu
+
   // Environment
   browser: string;
   environment?: RequestEnvironment;
-  
+
   // Timing
   timing: RequestTiming;
-  
+
   // Dependencies and retry
   dependencies?: RequestDependency[];
   retryConfig?: RequestRetryConfig;
-  
+
   // Payload and metadata
   payload?: any; // test data
   tags?: string[];
   metadata?: Record<string, any>;
-  
+
   // User information
   createdBy?: string; // User ID
   createdAt?: Date;
   updatedAt?: Date;
-  
+
   // Agent assignment
   assignedAgentId?: string;
 }
@@ -107,30 +110,30 @@ export interface QueuedRequestCreate {
   testCaseId?: string;
   testSuiteId?: string;
   projectId?: string;
-  
+
   // Status and category
   status?: RequestStatus;
   priority: RequestPriority;
   category: RequestCategory | string;
   source?: RequestSource;
-  
+
   // Environment
   browser: string;
   environment?: RequestEnvironment;
-  
+
   // Timing
   estimatedDuration?: number;
   timeout?: number;
-  
+
   // Dependencies and retry
   dependencies?: RequestDependency[];
   retryConfig?: RequestRetryConfig;
-  
+
   // Payload and metadata
   payload?: any;
   tags?: string[];
   metadata?: Record<string, any>;
-  
+
   // User information
   createdBy?: string;
 }
@@ -139,23 +142,23 @@ export interface QueuedRequestCreate {
 export interface QueuedRequestUpdate {
   status?: RequestStatus;
   priority?: RequestPriority;
-  
+
   // Timing
   scheduledAt?: Date;
   assignedAt?: Date;
   startedAt?: Date;
   estimatedStartTime?: Date;
-  
+
   // Dependencies and retry
   dependencies?: RequestDependency[];
   retryConfig?: RequestRetryConfig;
-  
+
   // Metadata
   tags?: string[];
   metadata?: Record<string, any>;
-  
+
   // Agent assignment
   assignedAgentId?: string;
-  
+
   updatedAt?: Date;
 }

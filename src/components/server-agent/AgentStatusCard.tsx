@@ -14,7 +14,7 @@ interface AgentStatusProps {
   offline: number;
   error: number;
   maintenance: number;
-  limit: number;
+  limit?: number;
 }
 
 const AgentStatusCard: React.FC<AgentStatusProps> = ({
@@ -24,7 +24,7 @@ const AgentStatusCard: React.FC<AgentStatusProps> = ({
   offline,
   error,
   maintenance,
-  limit
+  limit = 10
 }) => {
   const theme = useTheme();
 
@@ -32,7 +32,7 @@ const AgentStatusCard: React.FC<AgentStatusProps> = ({
   const usagePercentage = total > 0 ? Math.min((busy / total) * 100, 100) : 0;
 
   // Kullanılabilirlik oranını hesapla
-  const availabilityPercentage = total > 0 ? Math.min((available / total) * 100, 100) : 0;
+  const availabilityPercentage = total > 0 ? Math.min(((total - offline) / total) * 100, 100) : 0;
 
   return (
     <Card sx={{ height: '100%', borderRadius: 2 }}>
@@ -142,17 +142,6 @@ const AgentStatusCard: React.FC<AgentStatusProps> = ({
               <Box>
                 <Typography variant="body2" color="text.secondary">Hata Durumunda</Typography>
                 <Typography variant="body1" fontWeight="medium">{error}</Typography>
-              </Box>
-            </Box>
-          </Grid>
-
-          {/* Bakım Durumundaki Agent'lar */}
-          <Grid item xs={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <BuildIcon sx={{ mr: 1, color: theme.palette.info.main }} />
-              <Box>
-                <Typography variant="body2" color="text.secondary">Bakımda</Typography>
-                <Typography variant="body1" fontWeight="medium">{maintenance}</Typography>
               </Box>
             </Box>
           </Grid>

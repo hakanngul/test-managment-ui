@@ -49,6 +49,34 @@ class TestRunnerService {
   // Test çalıştırma isteği gönder
   async runTest(request: TestRunRequest): Promise<TestRunResponse> {
     try {
+      // Önce kuyruk durumunu kontrol et
+      try {
+        const queueStatusResponse = await fetch(`${this.apiUrl}/queue-status`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (queueStatusResponse.ok) {
+          const queueStatus = await queueStatusResponse.json();
+
+          // Kuyruk dolu mu kontrol et
+          if (queueStatus.length >= queueStatus.maxSize) {
+            throw new Error('Test kuyruğu dolu. Lütfen daha sonra tekrar deneyin.');
+          }
+        }
+      } catch (queueError) {
+        // Kuyruk durumu alınamazsa, devam et
+        console.warn('Kuyruk durumu kontrol edilemedi:', queueError);
+      }
+
+      // Benzersiz ID kontrolü
+      if (!request.id || request.id.trim() === '') {
+        request.id = `run-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      }
+
+      // Test çalıştırma isteği gönder
       const response = await fetch(`${this.apiUrl}/test-runs`, {
         method: 'POST',
         headers: {
@@ -58,8 +86,26 @@ class TestRunnerService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Test çalıştırma isteği başarısız oldu');
+        let errorMessage = 'Test çalıştırma isteği başarısız oldu';
+
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+
+          // Özel hata durumlarını kontrol et
+          if (response.status === 409) {
+            errorMessage = 'Bu test zaten çalışıyor veya kuyruğa alınmış.';
+          } else if (response.status === 429) {
+            errorMessage = 'Çok fazla istek gönderildi. Lütfen daha sonra tekrar deneyin.';
+          } else if (response.status === 503) {
+            errorMessage = 'Test çalıştırma servisi şu anda kullanılamıyor.';
+          }
+        } catch (e) {
+          // JSON parse hatası, response body boş olabilir
+          errorMessage = `HTTP error! status: ${response.status}`;
+        }
+
+        throw new Error(errorMessage);
       }
 
       return await response.json();

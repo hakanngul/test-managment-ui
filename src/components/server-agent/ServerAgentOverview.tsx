@@ -5,6 +5,7 @@ import {
   SystemResourcesCard,
   AgentStatusCard,
   QueueStatusCard,
+  QueueComponent,
   PerformanceMetricsCard,
   HealthStatusCard,
   ServerVersionCard
@@ -47,7 +48,7 @@ const ServerAgentOverview: React.FC = () => {
             offline={serverAgent.agentStatus?.offline || 0}
             error={serverAgent.agentStatus?.error || 0}
             maintenance={serverAgent.agentStatus?.maintenance || 0}
-            limit={serverAgent.agentStatus?.total || 1}
+            limit={10}
           />
         </Grid>
 
@@ -60,6 +61,7 @@ const ServerAgentOverview: React.FC = () => {
             mediumPriority={serverAgent.queueStatus?.mediumPriority || 0}
             lowPriority={serverAgent.queueStatus?.lowPriority || 0}
             estimatedWaitTime={serverAgent.queueStatus?.estimatedWaitTime || 0}
+            maxSize={serverAgent.queueStatus?.maxSize || 100}
           />
         </Grid>
 
@@ -92,8 +94,12 @@ const ServerAgentOverview: React.FC = () => {
           />
         </Grid>
 
-        {/* Üçüncü Satır: Health Status */}
-        <Grid item xs={12}>
+        {/* Üçüncü Satır: Queue Component ve Health Status */}
+        <Grid item xs={12} md={6}>
+          <QueueComponent />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
           <HealthStatusCard
             healthStatus={serverAgent.healthStatus || {
               status: 'healthy',

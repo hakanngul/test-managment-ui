@@ -14,6 +14,7 @@ interface QueueStatusProps {
   mediumPriority?: number;
   lowPriority?: number;
   estimatedWaitTime?: number;
+  maxSize?: number;
 }
 
 const QueueStatusCard: React.FC<QueueStatusProps> = ({
@@ -23,7 +24,8 @@ const QueueStatusCard: React.FC<QueueStatusProps> = ({
   highPriority = 0,
   mediumPriority = 0,
   lowPriority = 0,
-  estimatedWaitTime = 0
+  estimatedWaitTime = 0,
+  maxSize = 100
 }) => {
   const theme = useTheme();
 
@@ -131,7 +133,8 @@ const QueueStatusCard: React.FC<QueueStatusProps> = ({
           borderRadius: 2,
           bgcolor: 'background.default',
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
+          mb: 2
         }}>
           <AccessTimeIcon sx={{ mr: 1, color: theme.palette.warning.main }} />
           <Box>
@@ -142,6 +145,26 @@ const QueueStatusCard: React.FC<QueueStatusProps> = ({
               {formatWaitTime(estimatedWaitTime)}
             </Typography>
           </Box>
+        </Box>
+
+        {/* Maksimum Kapasite */}
+        <Box sx={{
+          p: 2,
+          borderRadius: 2,
+          bgcolor: 'background.default',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <SpeedIcon sx={{ mr: 1, color: theme.palette.info.main }} />
+            <Typography variant="body2" color="text.secondary">
+              Maksimum Kapasite
+            </Typography>
+          </Box>
+          <Typography variant="body1" fontWeight="medium">
+            {maxSize}
+          </Typography>
         </Box>
       </CardContent>
     </Card>
