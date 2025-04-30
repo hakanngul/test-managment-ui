@@ -19,7 +19,6 @@ import {
   Refresh as RefreshIcon,
   DateRange as DateRangeIcon
 } from '@mui/icons-material';
-import { useApp } from '../context/AppContext';
 import DashboardSummaryCards from '../components/dashboard/DashboardSummaryCards';
 import TestStatusDistributionChart from '../components/dashboard/TestStatusDistributionChart';
 import TestResultsOverTimeChart from '../components/dashboard/TestResultsOverTimeChart';
