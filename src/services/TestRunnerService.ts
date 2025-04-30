@@ -1,5 +1,6 @@
 import { TestStep, TestStepActionType } from '../components/test-cases/TestStepsEditor';
 import { BrowserSettings } from '../components/test-cases/BrowserSettingsEditor';
+import { ExampleTest } from '../mock/exampleSimulatorMock';
 
 // Test çalıştırma isteği arayüzü
 export interface TestRunRequest {
@@ -26,13 +27,23 @@ export interface TestRunResponse {
   agentId?: string;
 }
 
+// API yanıt arayüzü
+export interface ApiResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+  error?: string;
+}
+
 // Test çalıştırma servisi
 class TestRunnerService {
   private apiUrl: string;
+  private exampleTestApiUrl: string;
 
   constructor() {
-    // Gerçek uygulamada bu değer .env dosyasından alınabilir
+    // Gerçek uygulamada bu değerler .env dosyasından alınabilir
     this.apiUrl = 'http://localhost:3001/api';
+    this.exampleTestApiUrl = 'http://localhost:3000/run-test';
   }
 
   // Test çalıştırma isteği gönder
@@ -247,6 +258,60 @@ class TestRunnerService {
     }
 
     return { isValid: errors.length === 0, errors };
+  }
+
+  // Example Test formatındaki testi çalıştır
+  async runExampleTest(test: ExampleTest): Promise<ApiResponse> {
+    try {
+      console.log(`[TestRunnerService] Example Test API'ye gönderiliyor: ${test.name}`);
+
+      const response = await fetch(this.exampleTestApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(test),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Bilinmeyen hata' }));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`[TestRunnerService] Example Test başarıyla gönderildi. Yanıt:`, data);
+
+      return {
+        success: true,
+        message: 'Test başarıyla API\'ye gönderildi.',
+        data: data
+      };
+    } catch (error) {
+      console.error('[TestRunnerService] Example Test çalıştırma hatası:', error);
+      return {
+        success: false,
+        message: 'Test çalıştırılırken bir hata oluştu.',
+        error: error instanceof Error ? error.message : String(error)
+      };
+    }
+  }
+
+  // API URL'lerini güncelle
+  setApiUrls(apiUrl: string, exampleTestApiUrl?: string): void {
+    this.apiUrl = apiUrl;
+    if (exampleTestApiUrl) {
+      this.exampleTestApiUrl = exampleTestApiUrl;
+    }
+  }
+
+  // Example Test API URL'sini güncelle
+  setExampleTestApiUrl(url: string): void {
+    this.exampleTestApiUrl = url;
+  }
+
+  // Eşdeğer curl komutunu oluştur
+  generateCurlCommand(url: string, data: any): string {
+    return `curl -X POST ${url} -H "Content-Type: application/json" -d '${JSON.stringify(data)}'`;
   }
 }
 

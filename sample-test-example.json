@@ -1,0 +1,43 @@
+{
+  "name": "Example.com Test",
+  "description": "Navigate to Example.com and check elements",
+  "browserPreference": "chromium",
+  "headless": true,
+  "takeScreenshots": false,
+  "steps": [
+    {
+      "action": "navigate",
+      "value": "https://example.com",
+      "description": "Navigate to Example.com"
+    },
+    {
+      "action": "wait",
+      "value": "1000",
+      "description": "Wait for page to load"
+    },
+    {
+      "action": "takeScreenshot",
+      "description": "Take screenshot of Example.com"
+    },
+    {
+      "action": "click",
+      "target": "a[href='https://www.iana.org/domains/example']",
+      "strategy": "css",
+      "description": "Click on More information link"
+    },
+    {
+      "action": "wait",
+      "value": "2000",
+      "description": "Wait for IANA page to load"
+    },
+    {
+      "action": "takeScreenshot",
+      "description": "Take screenshot of IANA page"
+    },
+    {
+      "action": "wait",
+      "value": "10000",
+      "description": "Wait for IANA page to load"
+    }
+  ]
+}

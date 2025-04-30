@@ -16,6 +16,7 @@ import TestCaseDetails from './pages/TestCaseDetails';
 import TestRuns from './pages/TestRuns';
 import Reports from './pages/Reports';
 import TestExecutionSimulator from './pages/TestExecutionSimulator';
+import ExampleSimulator from './pages/ExampleSimulator';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 
@@ -40,6 +41,7 @@ function App() {
                   <Route path="test-runs" element={<TestRuns />} />
                   <Route path="reports" element={<Reports />} />
                   <Route path="test-execution-simulator" element={<TestExecutionSimulator />} />
+                  <Route path="example-simulator" element={<ExampleSimulator />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
