@@ -7,7 +7,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip as RechartsTooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Cell
 } from 'recharts';
 import { Refresh as RefreshIcon } from '@mui/icons-material';
 import { TestCaseCategory } from '../../models/interfaces/ITestCase';
@@ -29,11 +30,25 @@ const SmartTestCategoryDistributionChart: React.FC = () => {
     [TestCaseCategory.EXPLORATORY]: 'Keşif'
   };
 
+  // Kategori renkleri - farklı renkler kullanıyoruz
+  const CATEGORY_COLORS = [
+    '#3f51b5', // Indigo
+    '#f44336', // Red
+    '#4caf50', // Green
+    '#ff9800', // Orange
+    '#9c27b0', // Purple
+    '#03a9f4', // Light Blue
+    '#e91e63', // Pink
+    '#009688', // Teal
+    '#ffc107'  // Amber
+  ];
+
   // Grafik verilerini hazırla
   const chartData = distributionData.map(item => ({
     name: CATEGORY_NAMES[item.category],
     count: item.count,
-    percentage: item.percentage
+    percentage: item.percentage,
+    category: item.category
   }));
 
   // Özel tooltip içeriği
@@ -158,20 +173,33 @@ const SmartTestCategoryDistributionChart: React.FC = () => {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={true} vertical={false} />
-            <XAxis type="number" tick={{ fontSize: 12 }} />
+            <XAxis 
+              type="number" 
+              tick={{ fontSize: 12 }}
+              domain={[0, 'dataMax']}
+              tickCount={6}
+            />
             <YAxis 
               dataKey="name" 
               type="category" 
               tick={{ fontSize: 12 }}
               width={100}
+              axisLine={true}
+              tickLine={true}
             />
             <RechartsTooltip content={<CustomTooltip />} />
             <Bar 
               dataKey="count" 
-              fill="#3f51b5" 
               radius={[0, 4, 4, 0]}
               barSize={20}
-            />
+            >
+              {chartData.map((_entry, index) => (
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} 
+                />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </Box>
