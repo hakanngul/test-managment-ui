@@ -4,10 +4,8 @@ import { useServerAgentData } from './ServerAgentDataProvider';
 import {
   SystemResourcesCard,
   AgentStatusCard,
-  QueueStatusCard,
   QueueComponent,
   PerformanceMetricsCard,
-  HealthStatusCard,
   ServerVersionCard
 } from './';
 
@@ -17,7 +15,7 @@ import {
  * yapılandırma ve sürüm bilgilerini gösterir
  */
 const ServerAgentOverview: React.FC = () => {
-  const { lastUpdated, serverAgent } = useServerAgentData();
+  const { lastUpdated, serverAgent, connected } = useServerAgentData();
 
   if (!serverAgent) {
     return (
@@ -49,25 +47,25 @@ const ServerAgentOverview: React.FC = () => {
             error={serverAgent.agentStatus?.error || 0}
             maintenance={serverAgent.agentStatus?.maintenance || 0}
             limit={10}
+            connected={connected}
           />
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <QueueStatusCard
-            queued={serverAgent.queueStatus?.queued || 0}
-            processing={serverAgent.queueStatus?.processing || 0}
-            total={serverAgent.queueStatus?.total || 0}
-            highPriority={serverAgent.queueStatus?.highPriority || 0}
-            mediumPriority={serverAgent.queueStatus?.mediumPriority || 0}
-            lowPriority={serverAgent.queueStatus?.lowPriority || 0}
-            estimatedWaitTime={serverAgent.queueStatus?.estimatedWaitTime || 0}
-            maxSize={serverAgent.queueStatus?.maxSize || 100}
-          />
+          <QueueComponent />
         </Grid>
 
         <Grid item xs={12} md={4}>
           <PerformanceMetricsCard
-            performanceMetrics={serverAgent.performanceMetrics}
+            performanceMetrics={{
+              ...serverAgent.performanceMetrics,
+              cpuUsage: serverAgent.systemResources?.cpuUsage,
+              memoryUsage: serverAgent.systemResources?.memoryUsage,
+              diskUsage: serverAgent.systemResources?.diskUsage,
+              networkUsage: serverAgent.systemResources?.networkUsage,
+              uptime: serverAgent.systemResources?.uptime,
+              activeProcesses: serverAgent.systemResources?.processes
+            }}
           />
         </Grid>
 
@@ -91,22 +89,6 @@ const ServerAgentOverview: React.FC = () => {
             version={serverAgent.version}
             tags={serverAgent.tags}
             metadata={serverAgent.metadata}
-          />
-        </Grid>
-
-        {/* Üçüncü Satır: Queue Component ve Health Status */}
-        <Grid item xs={12} md={6}>
-          <QueueComponent />
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <HealthStatusCard
-            healthStatus={serverAgent.healthStatus || {
-              status: 'healthy',
-              lastCheck: new Date(),
-              uptime: 0,
-              checks: []
-            }}
           />
         </Grid>
       </Grid>

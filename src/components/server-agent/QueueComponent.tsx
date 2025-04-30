@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box, List, ListItem, ListItemText, Divider, Chip, Paper } from '@mui/material';
 import { useServerAgentData } from './ServerAgentDataProvider';
+import { ConnectionStatusChip } from '../common';
 
 /**
  * Kuyruk durumunu gösteren bileşen
@@ -33,30 +34,25 @@ const QueueComponent: React.FC = () => {
   return (
     <Card sx={{ height: '100%', borderRadius: 2, mb: 3 }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Test Kuyruğu
-          {connected && (
-            <Chip 
-              label="Canlı" 
-              color="success" 
-              size="small" 
-              sx={{ ml: 1, height: 20 }} 
-            />
-          )}
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+          <Typography variant="h6">
+            Test Kuyruğu
+          </Typography>
+          <ConnectionStatusChip connected={connected} />
+        </Box>
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Paper sx={{ p: 2, flex: 1, mr: 1, bgcolor: 'primary.light', color: 'primary.contrastText', textAlign: 'center' }}>
             <Typography variant="h5">{queueLength}</Typography>
             <Typography variant="body2">Kuyruktaki Test Sayısı</Typography>
           </Paper>
-          
+
           <Paper sx={{ p: 2, flex: 1, ml: 1, bgcolor: 'info.light', color: 'info.contrastText', textAlign: 'center' }}>
             <Typography variant="h5">{maxQueueSize}</Typography>
             <Typography variant="body2">Maksimum Kuyruk Boyutu</Typography>
           </Paper>
         </Box>
-        
+
         <Box sx={{ p: 2, mb: 2, bgcolor: 'background.default', borderRadius: 1 }}>
           <Typography variant="body2" color="text.secondary">
             Tahmini Bekleme Süresi
@@ -65,12 +61,12 @@ const QueueComponent: React.FC = () => {
             {formatWaitTime(estimatedWaitTime)}
           </Typography>
         </Box>
-        
+
         <Typography variant="subtitle1" gutterBottom>
           Kuyruktaki Testler
         </Typography>
-        
-        <Box sx={{ maxHeight: 500, overflow: 'auto', bgcolor: 'background.default', borderRadius: 1 }}>
+
+        <Box sx={{ maxHeight: 280, overflow: 'auto', bgcolor: 'background.default', borderRadius: 1 }}>
           {queuedRequests.length === 0 ? (
             <Box sx={{ p: 2, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
@@ -86,11 +82,11 @@ const QueueComponent: React.FC = () => {
                     <ListItemText
                       primary={
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Chip 
-                            label={`Sıra: ${index + 1}`} 
-                            size="small" 
-                            color="primary" 
-                            sx={{ mr: 1 }} 
+                          <Chip
+                            label={`Sıra: ${index + 1}`}
+                            size="small"
+                            color="primary"
+                            sx={{ mr: 1 }}
                           />
                           <Typography variant="body1">
                             {test.testName || `Test-${test.id}`}
@@ -100,10 +96,10 @@ const QueueComponent: React.FC = () => {
                       secondary={
                         <Box sx={{ mt: 0.5 }}>
                           <Typography variant="body2" component="span" color="text.secondary">
-                            ID: {test.id} | 
+                            ID: {test.id} |
                           </Typography>
                           <Typography variant="body2" component="span" color="text.secondary" sx={{ ml: 1 }}>
-                            Öncelik: {test.priority === 'high' ? 'Yüksek' : test.priority === 'medium' ? 'Orta' : 'Düşük'} | 
+                            Öncelik: {test.priority === 'high' ? 'Yüksek' : test.priority === 'medium' ? 'Orta' : 'Düşük'} |
                           </Typography>
                           <Typography variant="body2" component="span" color="text.secondary" sx={{ ml: 1 }}>
                             Eklenme: {new Date(test.timing.queuedAt).toLocaleTimeString()}

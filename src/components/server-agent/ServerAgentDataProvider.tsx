@@ -612,6 +612,93 @@ export const ServerAgentDataProvider: React.FC<ServerAgentDataProviderProps> = (
       setLastUpdated(new Date().toLocaleString('tr-TR'));
     });
 
+    // Performans metriklerini dinle
+    socketInstance.on('performanceMetrics', (data) => {
+      console.log('Performans metrikleri alındı:', data);
+
+      // Performans metriklerini güncelle
+      setServerAgent(prev => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          performanceMetrics: {
+            ...prev.performanceMetrics,
+            requestsPerMinute: data.requestsPerMinute || prev.performanceMetrics.requestsPerMinute,
+            averageResponseTime: data.averageResponseTime || prev.performanceMetrics.averageResponseTime,
+            successRate: data.successRate || prev.performanceMetrics.successRate,
+            errorRate: data.errorRate || prev.performanceMetrics.errorRate,
+            testExecutionTime: {
+              ...prev.performanceMetrics.testExecutionTime,
+              average: data.testExecutionTime?.average || prev.performanceMetrics.testExecutionTime.average,
+              min: data.testExecutionTime?.min || prev.performanceMetrics.testExecutionTime.min,
+              max: data.testExecutionTime?.max || prev.performanceMetrics.testExecutionTime.max,
+              p95: data.testExecutionTime?.p95 || prev.performanceMetrics.testExecutionTime.p95
+            },
+            resourceUtilization: {
+              ...prev.performanceMetrics.resourceUtilization,
+              cpu: data.resourceUtilization?.cpu || prev.performanceMetrics.resourceUtilization.cpu,
+              memory: data.resourceUtilization?.memory || prev.performanceMetrics.resourceUtilization.memory,
+              disk: data.resourceUtilization?.disk || prev.performanceMetrics.resourceUtilization.disk,
+              network: data.resourceUtilization?.network || prev.performanceMetrics.resourceUtilization.network
+            },
+            concurrentTests: {
+              ...prev.performanceMetrics.concurrentTests,
+              current: data.concurrentTests?.current || prev.performanceMetrics.concurrentTests.current,
+              max: data.concurrentTests?.max || prev.performanceMetrics.concurrentTests.max
+            }
+          },
+          lastUpdated: new Date().toISOString()
+        };
+      });
+
+      setLastUpdated(new Date().toLocaleString('tr-TR'));
+    });
+
+    // Agent performans metriklerini dinle
+    socketInstance.on('agentPerformance', (data) => {
+      console.log('Agent performans metrikleri alındı:', data);
+
+      // Agent performans metriklerini güncelle
+      setServerAgent(prev => {
+        if (!prev) return prev;
+
+        // Gelen veri formatına göre performans metriklerini güncelle
+        const cpuUsage = data.cpu !== undefined ? data.cpu :
+                        (data.cpuUsage !== undefined ? data.cpuUsage :
+                        prev.performanceMetrics.resourceUtilization.cpu);
+
+        const memoryUsage = data.memory !== undefined ? data.memory :
+                           (data.memoryUsage !== undefined ? data.memoryUsage :
+                           prev.performanceMetrics.resourceUtilization.memory);
+
+        const diskUsage = data.disk !== undefined ? data.disk :
+                         (data.diskUsage !== undefined ? data.diskUsage :
+                         prev.performanceMetrics.resourceUtilization.disk);
+
+        const networkUsage = data.network !== undefined ? data.network :
+                            (data.networkUsage !== undefined ? data.networkUsage :
+                            prev.performanceMetrics.resourceUtilization.network);
+
+        return {
+          ...prev,
+          performanceMetrics: {
+            ...prev.performanceMetrics,
+            resourceUtilization: {
+              ...prev.performanceMetrics.resourceUtilization,
+              cpu: cpuUsage,
+              memory: memoryUsage,
+              disk: diskUsage,
+              network: networkUsage
+            }
+          },
+          lastUpdated: new Date().toISOString()
+        };
+      });
+
+      setLastUpdated(new Date().toLocaleString('tr-TR'));
+    });
+
     // Kuyruk durumunu dinle
     socketInstance.on('queueStatus', (data) => {
       console.log('Kuyruk durumu alındı:', data);
@@ -732,6 +819,25 @@ export const ServerAgentDataProvider: React.FC<ServerAgentDataProviderProps> = (
     return () => {
       isMounted = false;
       if (socketInstance) {
+        // Tüm olay dinleyicilerini kaldır
+        socketInstance.off('connect');
+        socketInstance.off('disconnect');
+        socketInstance.off('agentStatus');
+        socketInstance.off('agentStateChanged');
+        socketInstance.off('agentCrashed');
+        socketInstance.off('agentCreated');
+        socketInstance.off('agentRemoved');
+        socketInstance.off('testQueued');
+        socketInstance.off('testStart');
+        socketInstance.off('testComplete');
+        socketInstance.off('testError');
+        socketInstance.off('testTimeout');
+        socketInstance.off('systemResources');
+        socketInstance.off('performanceMetrics');
+        socketInstance.off('agentPerformance');
+        socketInstance.off('queueStatus');
+
+        // Bağlantıyı kapat
         socketInstance.disconnect();
       }
     };

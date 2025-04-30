@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, Typography, Grid, Paper, Box, LinearProgress, Divider, useTheme } from '@mui/material';
 import {
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  Warning as WarningIcon,
-  Build as BuildIcon
+  Cancel as CancelIcon
 } from '@mui/icons-material';
+import { io } from 'socket.io-client';
+import { ConnectionStatusChip } from '../common';
 
 interface AgentStatusProps {
   total: number;
@@ -15,6 +14,7 @@ interface AgentStatusProps {
   error: number;
   maintenance: number;
   limit?: number;
+  connected?: boolean; // WebSocket bağlantı durumu
 }
 
 const AgentStatusCard: React.FC<AgentStatusProps> = ({
@@ -23,9 +23,43 @@ const AgentStatusCard: React.FC<AgentStatusProps> = ({
   busy,
   offline,
   error,
-  limit = 10
+  limit = 10,
+  connected = false // Varsayılan olarak bağlantı yok
 }) => {
   const theme = useTheme();
+  const [socketConnected, setSocketConnected] = useState(connected);
+
+  // WebSocket bağlantısını kur
+  useEffect(() => {
+    // Eğer connected prop'u verilmişse, onu kullan
+    if (connected !== undefined) {
+      setSocketConnected(connected);
+      return;
+    }
+
+    // Aksi takdirde kendi WebSocket bağlantısını kur
+    const socketInstance = io('http://localhost:3001', {
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
+    });
+
+    // Bağlantı durumunu izle
+    socketInstance.on('connect', () => {
+      console.log('WebSocket sunucusuna bağlandı (AgentStatusCard)');
+      setSocketConnected(true);
+    });
+
+    socketInstance.on('disconnect', () => {
+      console.log('WebSocket sunucusu ile bağlantı kesildi (AgentStatusCard)');
+      setSocketConnected(false);
+    });
+
+    // Cleanup function
+    return () => {
+      socketInstance.disconnect();
+    };
+  }, [connected]);
 
   // Kullanım oranını hesapla
   const usagePercentage = total > 0 ? Math.min((busy / total) * 100, 100) : 0;
@@ -36,9 +70,12 @@ const AgentStatusCard: React.FC<AgentStatusProps> = ({
   return (
     <Card sx={{ height: '100%', borderRadius: 2 }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Agent Durumu
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+          <Typography variant="h6">
+            Agent Durumu
+          </Typography>
+          <ConnectionStatusChip connected={socketConnected} />
+        </Box>
 
         <Grid container spacing={2} sx={{ mt: 1 }}>
           {/* Toplam Agent */}
