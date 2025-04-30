@@ -17,6 +17,9 @@ import TestRuns from './pages/TestRuns';
 import Reports from './pages/Reports';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
+import SmartErrorDialog from './components/common/SmartErrorDialog';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import { ErrorDialogProvider } from './context/ErrorDialogContext';
 
 function App() {
   return (
@@ -24,25 +27,30 @@ function App() {
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <AuthProvider>
-          <AppProvider>
-            <Router>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                  <Route index element={<Navigate to="/dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="server-agent" element={<ServerAgent />} />
-                  <Route path="test-cases" element={<TestCases />} />
-                  <Route path="test-cases/new" element={<NewTestCase />} />
-                  <Route path="test-cases/:id" element={<TestCaseDetails />} />
-                  <Route path="test-cases/edit/:id" element={<NewTestCase />} />
-                  <Route path="test-runs" element={<TestRuns />} />
-                  <Route path="reports" element={<Reports />} />
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Router>
-          </AppProvider>
+          <ErrorDialogProvider>
+            <ErrorBoundary>
+              <AppProvider>
+                <Router>
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                      <Route index element={<Navigate to="/dashboard" replace />} />
+                      <Route path="dashboard" element={<Dashboard />} />
+                      <Route path="server-agent" element={<ServerAgent />} />
+                      <Route path="test-cases" element={<TestCases />} />
+                      <Route path="test-cases/new" element={<NewTestCase />} />
+                      <Route path="test-cases/:id" element={<TestCaseDetails />} />
+                      <Route path="test-cases/edit/:id" element={<NewTestCase />} />
+                      <Route path="test-runs" element={<TestRuns />} />
+                      <Route path="reports" element={<Reports />} />
+                    </Route>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                  <SmartErrorDialog />
+                </Router>
+              </AppProvider>
+            </ErrorBoundary>
+          </ErrorDialogProvider>
         </AuthProvider>
       </LocalizationProvider>
     </ThemeProvider>

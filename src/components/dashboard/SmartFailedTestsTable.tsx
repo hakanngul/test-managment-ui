@@ -29,20 +29,16 @@ import {
 } from '@mui/icons-material';
 import { TestCaseCategory, TestCasePriority } from '../../models/interfaces/ITestCase';
 import { useFailedTestsData } from '../../hooks/cardsHooks/useFailedTestsData';
+import { useErrorDialog } from '../../context/ErrorDialogContext';
 
-const SmartFailedTestsTable: React.FC = () => {
+interface SmartFailedTestsTableProps {
+  onViewError?: (errorMessage: string) => void;
+}
+
+const SmartFailedTestsTable: React.FC<SmartFailedTestsTableProps> = ({ onViewError }) => {
   const navigate = useNavigate();
   const { failedTests, isLoading, error, refresh, rerunTest, rerunningTests } = useFailedTestsData();
-  
-  const [errorDialog, setErrorDialog] = useState<{
-    open: boolean;
-    testId: string;
-    errorMessage: string;
-  }>({
-    open: false,
-    testId: '',
-    errorMessage: ''
-  });
+  const { showError } = useErrorDialog();
   
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -124,19 +120,20 @@ const SmartFailedTestsTable: React.FC = () => {
 
   // Hata mesajını görüntüleme
   const handleViewError = (id: string, errorMessage: string) => {
-    setErrorDialog({
-      open: true,
-      testId: id,
-      errorMessage
-    });
-  };
-
-  // Hata dialog'unu kapatma
-  const handleCloseErrorDialog = () => {
-    setErrorDialog({
-      ...errorDialog,
-      open: false
-    });
+    if (onViewError) {
+      // Prop olarak gelen fonksiyonu kullan
+      onViewError(errorMessage);
+    } else {
+      // Global error dialog'u kullan
+      showError(errorMessage, 'Hata Detayları');
+    }
+    
+    // Eski dialog kodunu kaldıralım veya yorum satırına alalım
+    // setErrorDialog({
+    //   open: true,
+    //   testId: id,
+    //   errorMessage
+    // });
   };
 
   // Snackbar'ı kapatma
@@ -298,38 +295,6 @@ const SmartFailedTestsTable: React.FC = () => {
           </Table>
         </TableContainer>
       </Paper>
-
-      {/* Hata Mesajı Dialog */}
-      <Dialog
-        open={errorDialog.open}
-        onClose={handleCloseErrorDialog}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          Hata Detayları
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ mt: 1 }}>
-            <Typography variant="body2" color="error" sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap', p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-              {errorDialog.errorMessage}
-            </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseErrorDialog}>Kapat</Button>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={() => {
-              handleCloseErrorDialog();
-              handleViewDetails(errorDialog.testId);
-            }}
-          >
-            Test Detaylarına Git
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Bildirim Snackbar */}
       <Snackbar
