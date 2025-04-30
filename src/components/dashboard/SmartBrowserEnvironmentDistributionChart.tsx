@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Typography, Box, Grid, Divider, CircularProgress, Button } from '@mui/material';
+import { Paper, Typography, Box, Grid, CircularProgress, Button } from '@mui/material';
 import {
   PieChart,
   Pie,
@@ -212,7 +212,7 @@ const SmartBrowserEnvironmentDistributionChart: React.FC = () => {
                   nameKey="environment"
                   labelLine={false}
                 >
-                  {environmentData.map((entry, index) => (
+                  {environmentData.map((_entry, index) => (
                     <Cell 
                       key={`env-cell-${index}`} 
                       fill={ENVIRONMENT_COLORS[index % ENVIRONMENT_COLORS.length]} 

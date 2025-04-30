@@ -23,7 +23,6 @@ const AgentStatusCard: React.FC<AgentStatusProps> = ({
   busy,
   offline,
   error,
-  maintenance,
   limit = 10
 }) => {
   const theme = useTheme();

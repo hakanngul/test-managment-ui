@@ -15,10 +15,6 @@ import {
   Tooltip,
   CircularProgress,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Snackbar,
   Alert
 } from '@mui/material';
@@ -119,7 +115,7 @@ const SmartFailedTestsTable: React.FC<SmartFailedTestsTableProps> = ({ onViewErr
   };
 
   // Hata mesajını görüntüleme
-  const handleViewError = (id: string, errorMessage: string) => {
+  const handleViewError = (_id: string, errorMessage: string) => {
     if (onViewError) {
       // Prop olarak gelen fonksiyonu kullan
       onViewError(errorMessage);

@@ -7,7 +7,6 @@ import {
   Divider, 
   Chip 
 } from '@mui/material';
-import { SvgIconComponent } from '@mui/icons-material';
 
 // Alt kısımdaki satırlar için tip tanımı
 export interface SummaryCardItem {
