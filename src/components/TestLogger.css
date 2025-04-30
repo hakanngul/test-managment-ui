@@ -1,0 +1,265 @@
+.test-logger {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logger-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #2c3e50;
+  color: white;
+}
+
+.logger-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.connection-status {
+  font-size: 0.85rem;
+}
+
+.connection-status .connected {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.connection-status .disconnected {
+  color: #f44336;
+  font-weight: bold;
+}
+
+.clear-all-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.clear-all-btn:hover {
+  background-color: #c0392b;
+}
+
+.logger-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.tests-sidebar {
+  width: 250px;
+  border-right: 1px solid #ddd;
+  background-color: #f9f9f9;
+  overflow-y: auto;
+}
+
+.tests-sidebar h3 {
+  margin: 0;
+  padding: 10px;
+  font-size: 1rem;
+  background-color: #ecf0f1;
+  border-bottom: 1px solid #ddd;
+}
+
+.tests-list {
+  padding: 10px;
+}
+
+.test-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.test-item:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.test-item.selected {
+  border-left: 4px solid #3498db;
+}
+
+.test-item.running {
+  border-left: 4px solid #f39c12;
+}
+
+.test-item.completed {
+  border-left: 4px solid #2ecc71;
+}
+
+.test-item.failed {
+  border-left: 4px solid #e74c3c;
+}
+
+.test-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.test-status {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-bottom: 5px;
+}
+
+.test-progress {
+  margin-top: 5px;
+}
+
+.progress-bar {
+  height: 6px;
+  background-color: #ecf0f1;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+
+.progress {
+  height: 100%;
+  background-color: #3498db;
+  transition: width 0.3s ease;
+}
+
+.step-info {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  display: flex;
+  justify-content: space-between;
+}
+
+.clear-logs-btn {
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 3px 8px;
+  margin-top: 5px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.clear-logs-btn:hover {
+  background-color: #7f8c8d;
+}
+
+.logs-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.selected-test-info {
+  padding: 10px 15px;
+  background-color: #ecf0f1;
+  border-bottom: 1px solid #ddd;
+}
+
+.selected-test-info h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.1rem;
+}
+
+.test-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-bottom: 10px;
+}
+
+.step-details {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #ddd;
+}
+
+.step-details h3 {
+  font-size: 0.9rem;
+  margin: 0 0 5px 0;
+}
+
+.step-description {
+  font-weight: bold;
+}
+
+.logs-container {
+  flex: 1;
+  padding: 10px 15px;
+  overflow-y: auto;
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.log-entry {
+  padding: 3px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  line-height: 1.4;
+}
+
+.log-time {
+  color: #95a5a6;
+  margin-right: 8px;
+}
+
+.log-level {
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.log-info .log-level {
+  color: #3498db;
+}
+
+.log-warning .log-level {
+  color: #f39c12;
+}
+
+.log-error .log-level {
+  color: #e74c3c;
+}
+
+.log-debug .log-level {
+  color: #9b59b6;
+}
+
+.no-logs, .no-tests {
+  padding: 20px;
+  text-align: center;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+  .logger-content {
+    flex-direction: column;
+  }
+  
+  .tests-sidebar {
+    width: 100%;
+    max-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+}

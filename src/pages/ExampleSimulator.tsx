@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Box,
@@ -33,6 +33,12 @@ import {
 } from '../mock/exampleSimulatorMock';
 import { ExecutionStatus } from '../models/enums/TestEnums';
 import ExampleSimulatorService from '../services/ExampleSimulatorService';
+import TestLogger from '../components/TestLogger';
+import { useWebSocketData } from '../services/websocket';
+import TestsSummary from '../components/TestsSummary';
+import TestList from '../components/TestList';
+import TestDetails from '../components/TestDetails';
+import TestLogs from '../components/TestLogs';
 
 // Test adımı bileşeni
 const TestStep: React.FC<{ step: TestStepExecution }> = ({ step }) => {
@@ -141,48 +147,30 @@ const TestExecutionResults: React.FC<{ execution: TestExecution | null }> = ({ e
   );
 };
 
-// Test logları bileşeni
-const TestExecutionLogs: React.FC<{ logs: string[]; onClearLogs: () => void }> = ({ logs, onClearLogs }) => {
-  return (
-    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-        <Typography variant="h6">Execution Logs</Typography>
-        <Button size="small" onClick={onClearLogs}>Clear</Button>
-      </Box>
-      <Box
-        sx={{
-          overflow: 'auto',
-          height: '200px', // Yatay görünüm için sabit yükseklik
-          bgcolor: 'grey.900',
-          color: 'grey.300',
-          p: 1,
-          fontFamily: 'monospace',
-          fontSize: '0.875rem',
-          borderRadius: 1
-        }}
-      >
-        {logs.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 1 }}>
-            No logs available
-          </Typography>
-        ) : (
-          logs.map((log, index) => (
-            <Box key={index} sx={{
-              py: 0.5,
-              borderBottom: index < logs.length - 1 ? '1px dashed rgba(255,255,255,0.1)' : 'none',
-              color: log.includes('[ERROR]') ? 'error.light' : 'inherit'
-            }}>
-              {log}
-            </Box>
-          ))
-        )}
-      </Box>
-    </Paper>
-  );
-};
+// Not: Eski TestExecutionLogs bileşeni kaldırıldı, yerine TestLogger bileşeni kullanılıyor
 
 // Ana sayfa bileşeni
 const ExampleSimulator: React.FC = () => {
+  // WebSocket hook'unu kullan
+  const {
+    tests,
+    testLogs,
+    testSteps,
+    simulateTestData,
+    clearTestLogs,
+    clearAllLogs
+  } = useWebSocketData();
+
+  // Seçili test ID'si
+  const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
+
+  // Yeni test geldiğinde otomatik olarak seç
+  useEffect(() => {
+    if (!selectedTestId && Object.keys(tests).length > 0) {
+      setSelectedTestId(Object.keys(tests)[0]);
+    }
+  }, [tests, selectedTestId]);
+
   const [test, setTest] = useState<ExampleTest>({
     name: "Example.com Test",
     description: "Navigate to Example.com and check elements",
@@ -336,9 +324,40 @@ const ExampleSimulator: React.FC = () => {
     }
   };
 
-  // Logları temizle
-  const handleClearLogs = () => {
-    setExecutionLogs([]);
+  // Seçili testin loglarını temizle
+  const handleClearSelectedTestLogs = () => {
+    if (selectedTestId) {
+      clearTestLogs(selectedTestId);
+    }
+  };
+
+  // Yeni test oluştur
+  const handleCreateTestExample = () => {
+    const testId = `test-${Date.now()}`;
+    const testName = `Test ${testId.substring(0, 8)}`;
+
+    // Test adımları
+    const steps = [
+      { order: 1, description: 'Tarayıcı başlatılıyor', status: 'COMPLETED' },
+      { order: 2, description: 'URL açılıyor', status: 'COMPLETED' },
+      { order: 3, description: 'Element bulunuyor', status: 'RUNNING' },
+      { order: 4, description: 'Tıklama yapılıyor', status: 'PENDING' },
+      { order: 5, description: 'Doğrulama yapılıyor', status: 'PENDING' }
+    ];
+
+    // Test logları
+    const logs = [
+      '[INFO] Test başlatılıyor: ' + testName,
+      '[INFO] Tarayıcı: Chrome, Headless: Evet',
+      '[INFO] Tarayıcı başlatıldı',
+      '[INFO] URL açılıyor: https://example.com',
+      '[INFO] Sayfa yüklendi',
+      '[INFO] Element aranıyor: #button'
+    ];
+
+    // Test verilerini simüle et
+    simulateTestData(testId, testName, steps, logs);
+    setSelectedTestId(testId);
   };
 
   // Testi yeniden çalıştır
@@ -454,161 +473,163 @@ const ExampleSimulator: React.FC = () => {
 
         <Divider sx={{ mb: 3 }} />
 
+        {/* Test Özeti */}
+        <Box sx={{ mb: 3 }}>
+          <TestsSummary tests={tests} />
+        </Box>
+
         {/* Ana İçerik */}
         <Grid container spacing={3}>
-          {/* Sol Panel - Test Ayarları */}
-          <Grid item xs={12} md={4} lg={3}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                Test Settings
-              </Typography>
-              <Box component="form" noValidate autoComplete="off">
-                <TextField
-                  label="Test Name"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  value={test.name}
-                  onChange={(e) => handleUpdateTestSettings('name', e.target.value)}
-                  disabled={isRunning}
+          {/* Sol Panel - Test Listesi ve Ayarlar */}
+          <Grid item xs={12} md={4}>
+            <Grid container spacing={3} direction="column">
+              {/* Test Listesi */}
+              <Grid item xs={12}>
+                <TestList
+                  tests={tests}
+                  selectedTestId={selectedTestId}
+                  onSelectTest={setSelectedTestId}
                 />
-                <TextField
-                  label="Description"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  multiline
-                  rows={2}
-                  value={test.description}
-                  onChange={(e) => handleUpdateTestSettings('description', e.target.value)}
-                  disabled={isRunning}
-                />
-                <TextField
-                  label="Browser"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  value={test.browserPreference}
-                  onChange={(e) => handleUpdateTestSettings('browserPreference', e.target.value)}
-                  disabled={isRunning}
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={test.headless}
-                      onChange={(e) => handleUpdateTestSettings('headless', e.target.checked)}
-                      disabled={isRunning}
-                    />
-                  }
-                  label="Headless Mode"
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={test.takeScreenshots}
-                      onChange={(e) => handleUpdateTestSettings('takeScreenshots', e.target.checked)}
-                      disabled={isRunning}
-                    />
-                  }
-                  label="Take Screenshots"
-                />
-              </Box>
-              <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<PlayArrow />}
-                  onClick={handleRunTest}
-                  disabled={isRunning}
-                  fullWidth
-                >
-                  Run Test
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  startIcon={<Stop />}
-                  onClick={handleStopTest}
-                  disabled={!isRunning}
-                  fullWidth
-                >
-                  Stop
-                </Button>
-              </Box>
-              <Button
-                variant="contained"
-                color="success"
-                startIcon={<Send />}
-                onClick={handleSendToAPI}
-                disabled={isRunning}
-                fullWidth
-                sx={{ mt: 1 }}
-              >
-                Send to API
-              </Button>
-            </Paper>
-          </Grid>
+              </Grid>
 
-          {/* Orta Panel - Test Adımları ve Sonuçlar */}
-          <Grid item xs={12} md={8} lg={9}>
-            <Paper sx={{ p: 2 }}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">
-                  Test Steps
-                </Typography>
-                <Box display="flex" alignItems="center">
-                  <Chip
-                    label={executionStatus}
-                    color={
-                      executionStatus === ExecutionStatus.COMPLETED ? 'success' :
-                      executionStatus === ExecutionStatus.FAILED ? 'error' :
-                      executionStatus === ExecutionStatus.RUNNING ? 'info' :
-                      executionStatus === ExecutionStatus.ABORTED ? 'warning' : 'default'
-                    }
-                    size="small"
-                    sx={{ mr: 1 }}
-                  />
-                  <Typography variant="body2" color="text.secondary">
-                    {isRunning ? 'Running test...' : executionResult ? 'Test completed' : 'Ready to run'}
+              {/* Test Ayarları */}
+              <Grid item xs={12}>
+                <Paper sx={{ p: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Test Settings
                   </Typography>
-                </Box>
-              </Box>
-
-              {executionError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  {executionError}
-                </Alert>
-              )}
-
-              <Box sx={{ maxHeight: '500px', overflow: 'auto' }}>
-                <List>
-                  {executionSteps.map((step) => (
-                    <TestStep key={step.id} step={step} />
-                  ))}
-                </List>
-              </Box>
-              <TestExecutionResults execution={executionResult} />
-              {executionResult && (
-                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<Refresh />}
-                    onClick={handleRerunTest}
-                    disabled={isRunning}
-                  >
-                    Run Again
-                  </Button>
-                </Box>
-              )}
-            </Paper>
+                  <Box component="form" noValidate autoComplete="off">
+                    <TextField
+                      label="Test Name"
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      value={test.name}
+                      onChange={(e) => handleUpdateTestSettings('name', e.target.value)}
+                      disabled={isRunning}
+                    />
+                    <TextField
+                      label="Browser"
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      value={test.browserPreference}
+                      onChange={(e) => handleUpdateTestSettings('browserPreference', e.target.value)}
+                      disabled={isRunning}
+                    />
+                    <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={test.headless}
+                            onChange={(e) => handleUpdateTestSettings('headless', e.target.checked)}
+                            disabled={isRunning}
+                          />
+                        }
+                        label="Headless Mode"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={test.takeScreenshots}
+                            onChange={(e) => handleUpdateTestSettings('takeScreenshots', e.target.checked)}
+                            disabled={isRunning}
+                          />
+                        }
+                        label="Take Screenshots"
+                      />
+                    </Box>
+                  </Box>
+                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      startIcon={<PlayArrow />}
+                      onClick={handleRunTest}
+                      disabled={isRunning}
+                      fullWidth
+                    >
+                      Run Test
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      startIcon={<Stop />}
+                      onClick={handleStopTest}
+                      disabled={!isRunning}
+                      fullWidth
+                    >
+                      Stop
+                    </Button>
+                  </Box>
+                  <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      startIcon={<Send />}
+                      onClick={handleSendToAPI}
+                      disabled={isRunning}
+                      fullWidth
+                    >
+                      Send to API
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="info"
+                      onClick={handleCreateTestExample}
+                      fullWidth
+                    >
+                      Create Example
+                    </Button>
+                  </Box>
+                </Paper>
+              </Grid>
+            </Grid>
           </Grid>
 
-          {/* Alt Panel - Loglar (Yatay) */}
-          <Grid item xs={12} sx={{ mt: 2 }}>
-            <TestExecutionLogs
-              logs={executionLogs}
-              onClearLogs={handleClearLogs}
-            />
+          {/* Sağ Panel - Test Detayları ve Loglar */}
+          <Grid item xs={12} md={8}>
+            <Grid container spacing={3} direction="column">
+              {/* Test Detayları */}
+              <Grid item xs={12}>
+                {selectedTestId && tests[selectedTestId] ? (
+                  <TestDetails
+                    test={tests[selectedTestId]}
+                    step={testSteps[selectedTestId]}
+                  />
+                ) : (
+                  <Paper sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography variant="h6" color="text.secondary">
+                      Lütfen bir test seçin veya yeni bir test oluşturun
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleCreateTestExample}
+                      sx={{ mt: 2 }}
+                    >
+                      Örnek Test Oluştur
+                    </Button>
+                  </Paper>
+                )}
+              </Grid>
+
+              {/* Test Logları */}
+              <Grid item xs={12}>
+                {selectedTestId && testLogs[selectedTestId] ? (
+                  <TestLogs
+                    logs={testLogs[selectedTestId] || []}
+                    onClearLogs={handleClearSelectedTestLogs}
+                  />
+                ) : (
+                  <Paper sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography variant="body1" color="text.secondary">
+                      Seçili test için log bulunamadı
+                    </Typography>
+                  </Paper>
+                )}
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </Box>
