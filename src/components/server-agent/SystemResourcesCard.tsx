@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Card, CardContent, Typography, LinearProgress, Grid, Divider, useTheme } from '@mui/material';
 import {
   Memory as MemoryIcon,
   Storage as StorageIcon,
   NetworkCheck as NetworkCheckIcon,
-  Timer as TimerIcon
+  Timer as TimerIcon,
+  Speed as SpeedIcon
 } from '@mui/icons-material';
+import { io, Socket } from 'socket.io-client';
+import { ConnectionStatusChip } from '../common';
 
 interface SystemResourcesCardProps {
   lastUpdated: string;
@@ -27,20 +30,125 @@ interface SystemResourcesCardProps {
       idle?: number;
     };
   };
+  connected?: boolean; // WebSocket bağlantı durumu
 }
 
 const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
   lastUpdated,
-  cpuUsage,
-  memoryUsage,
-  diskUsage,
-  networkUsage,
-  loadAverage,
-  processes,
-  uptime,
-  cpuDetails
+  cpuUsage: initialCpuUsage,
+  memoryUsage: initialMemoryUsage,
+  diskUsage: initialDiskUsage,
+  networkUsage: initialNetworkUsage,
+  loadAverage: initialLoadAverage,
+  processes: initialProcesses,
+  uptime: initialUptime,
+  cpuDetails: initialCpuDetails,
+  connected: initialConnected = false
 }) => {
   const theme = useTheme();
+
+  // WebSocket bağlantı durumu
+  const [connected, setConnected] = useState(initialConnected);
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  // Sistem metrikleri state'leri
+  const [cpuUsage, setCpuUsage] = useState(initialCpuUsage);
+  const [memoryUsage, setMemoryUsage] = useState(initialMemoryUsage);
+  const [diskUsage, setDiskUsage] = useState(initialDiskUsage);
+  const [networkUsage, setNetworkUsage] = useState(initialNetworkUsage);
+  const [loadAverage, setLoadAverage] = useState(initialLoadAverage);
+  const [processes, setProcesses] = useState(initialProcesses);
+  const [uptime, setUptime] = useState(initialUptime);
+  const [cpuDetails, setCpuDetails] = useState(initialCpuDetails);
+  const [lastUpdatedTime, setLastUpdatedTime] = useState(lastUpdated);
+
+  // WebSocket bağlantısı
+  useEffect(() => {
+    // Eğer connected prop'u verilmişse, onu kullan
+    if (initialConnected !== undefined) {
+      setConnected(initialConnected);
+      return;
+    }
+
+    // WebSocket sunucusuna bağlan (3001 portu)
+    const socketInstance = io('http://localhost:3001', {
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
+    });
+
+    // Bağlantı durumunu izle
+    socketInstance.on('connect', () => {
+      console.log('WebSocket sunucusuna bağlandı (SystemResourcesCard)');
+      setConnected(true);
+    });
+
+    socketInstance.on('disconnect', () => {
+      console.log('WebSocket sunucusu ile bağlantı kesildi (SystemResourcesCard)');
+      setConnected(false);
+    });
+
+    // Sistem kaynaklarını dinle
+    socketInstance.on('systemResources', (data) => {
+      console.log('Sistem kaynakları alındı (SystemResourcesCard):', data);
+
+      // Gelen verileri güncelle
+      if (data.cpuUsage !== undefined) setCpuUsage(data.cpuUsage);
+      if (data.memoryUsage !== undefined) setMemoryUsage(data.memoryUsage);
+      if (data.diskUsage !== undefined) setDiskUsage(data.diskUsage);
+      if (data.networkUsage !== undefined) setNetworkUsage(data.networkUsage);
+      if (data.loadAverage !== undefined) setLoadAverage(data.loadAverage);
+      if (data.processes !== undefined) setProcesses(data.processes);
+      if (data.uptime !== undefined) setUptime(data.uptime);
+      if (data.cpuDetails !== undefined) setCpuDetails(data.cpuDetails);
+
+      // Son güncelleme zamanını güncelle
+      setLastUpdatedTime(new Date().toLocaleString('tr-TR'));
+    });
+
+    // Agent performans metriklerini dinle
+    socketInstance.on('agentPerformance', (data) => {
+      console.log('Agent performans metrikleri alındı (SystemResourcesCard):', data);
+
+      // Gelen verileri güncelle
+      if (data.metrics) {
+        if (data.metrics.cpuUsage !== undefined) setCpuUsage(data.metrics.cpuUsage);
+        if (data.metrics.memoryUsage !== undefined) setMemoryUsage(data.metrics.memoryUsage);
+        if (data.metrics.diskUsage !== undefined) setDiskUsage(data.metrics.diskUsage);
+        if (data.metrics.networkUsage !== undefined) setNetworkUsage(data.metrics.networkUsage);
+        if (data.metrics.loadAverage !== undefined) setLoadAverage([
+          data.metrics.loadAverage.oneMin,
+          data.metrics.loadAverage.fiveMin,
+          data.metrics.loadAverage.fifteenMin
+        ]);
+        if (data.metrics.processes !== undefined) setProcesses(data.metrics.processes);
+        if (data.metrics.uptime !== undefined) setUptime(data.metrics.uptime);
+        if (data.metrics.cpuDetails !== undefined) setCpuDetails(data.metrics.cpuDetails);
+      } else {
+        // Doğrudan veri gönderilmişse
+        if (data.cpuUsage !== undefined) setCpuUsage(data.cpuUsage);
+        if (data.memoryUsage !== undefined) setMemoryUsage(data.memoryUsage);
+        if (data.diskUsage !== undefined) setDiskUsage(data.diskUsage);
+        if (data.networkUsage !== undefined) setNetworkUsage(data.networkUsage);
+      }
+
+      // Son güncelleme zamanını güncelle
+      setLastUpdatedTime(new Date().toLocaleString('tr-TR'));
+    });
+
+    setSocket(socketInstance);
+
+    // Cleanup function
+    return () => {
+      if (socketInstance) {
+        socketInstance.off('connect');
+        socketInstance.off('disconnect');
+        socketInstance.off('systemResources');
+        socketInstance.off('agentPerformance');
+        socketInstance.disconnect();
+      }
+    };
+  }, [initialConnected]);
 
   // Saniyeyi okunabilir formata dönüştür
   const formatUptime = (seconds?: number): string => {
@@ -65,11 +173,14 @@ const SystemResourcesCard: React.FC<SystemResourcesCardProps> = ({
   return (
     <Card sx={{ height: '100%', borderRadius: 2 }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Sistem Kaynakları
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+          <Typography variant="h6">
+            Sistem Kaynakları
+          </Typography>
+          <ConnectionStatusChip connected={connected} />
+        </Box>
         <Typography variant="body2" color="text.secondary" gutterBottom>
-          Güncelleme: {lastUpdated}
+          Güncelleme: {lastUpdatedTime}
         </Typography>
 
         <Box sx={{ mt: 2 }}>

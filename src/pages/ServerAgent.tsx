@@ -61,7 +61,7 @@ const ServerAgentContent: React.FC = () => {
           <ServerAgentOverview />
 
           {/* Detaylı Bilgiler Bölümü */}
-          <ServerAgentDetails />
+        {/* <ServerAgentDetails />  */}
         </Box>
       )}
     </Container>

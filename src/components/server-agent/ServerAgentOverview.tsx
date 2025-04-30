@@ -69,7 +69,7 @@ const ServerAgentOverview: React.FC = () => {
           />
         </Grid>
 
-        {/* İkinci Satır: System Resources, Server Version */}
+        {/* İkinci Satır: System Resources, Server Version 
         <Grid item xs={12} md={6}>
           <SystemResourcesCard
             lastUpdated={lastUpdated}
@@ -81,6 +81,7 @@ const ServerAgentOverview: React.FC = () => {
             processes={serverAgent.systemResources?.processes}
             uptime={serverAgent.systemResources?.uptime}
             cpuDetails={serverAgent.systemResources?.cpuDetails}
+            connected={connected}
           />
         </Grid>
 
@@ -90,7 +91,7 @@ const ServerAgentOverview: React.FC = () => {
             tags={serverAgent.tags}
             metadata={serverAgent.metadata}
           />
-        </Grid>
+        </Grid>*/}
       </Grid>
     </>
   );

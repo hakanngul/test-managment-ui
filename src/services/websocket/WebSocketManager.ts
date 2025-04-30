@@ -18,6 +18,7 @@ import {
   stepHandlers
 } from './handlers/index';
 import { agentHandlers } from './handlers/agentHandlers';
+import WebSocketLogger from './WebSocketLogger';
 
 /**
  * WebSocket bağlantısını yöneten sınıf
@@ -78,8 +79,9 @@ export class WebSocketManager {
     }
   };
   private listeners: WebSocketListener[] = [];
-  private pingInterval: number | null = null;
-  private cleanupInterval: number | null = null;
+  private pingInterval: NodeJS.Timeout | null = null;
+  private cleanupInterval: NodeJS.Timeout | null = null;
+  private logger: WebSocketLogger;
 
   /**
    * WebSocketManager sınıfını oluşturur
@@ -87,6 +89,14 @@ export class WebSocketManager {
    */
   constructor(config: WebSocketConfig) {
     this.config = config;
+
+    // WebSocketLogger'ı başlat
+    this.logger = new WebSocketLogger({
+      maxEvents: 1000,
+      logToConsole: true,
+      saveToLocalStorage: true,
+      localStorageKey: 'websocket_logs'
+    });
   }
 
   /**
@@ -191,9 +201,12 @@ export class WebSocketManager {
       this.addNotification('success', 'WebSocket sunucusuna yeniden bağlandı');
     });
 
-    // Tüm olayları konsola yazdır (debug için)
+    // Tüm olayları konsola yazdır ve kaydet (debug için)
     this.socket.onAny((event, ...args) => {
       console.log(`WebSocket olayı alındı: ${event}`, args);
+
+      // Logger'a kaydet
+      this.logger.logEvent(event, args);
 
       // İstatistikleri güncelle
       this.updateState((state) => ({
@@ -205,6 +218,10 @@ export class WebSocketManager {
         }
       }));
     });
+
+    // Logger'a socket'i ayarla ve kayıt işlemini başlat
+    this.logger.setSocket(this.socket);
+    this.logger.startRecording();
 
     // Test olaylarını dinle
     this.socket.on('testStarted', (data) => {
@@ -397,6 +414,9 @@ export class WebSocketManager {
     // Ping ve temizleme aralıklarını durdur
     this.stopPingTimer();
     this.stopCleanupInterval();
+
+    // Logger'ı durdur
+    this.logger.stopRecording();
   }
 
   /**
@@ -856,5 +876,13 @@ export class WebSocketManager {
       logs: {},
       steps: {}
     }));
+  }
+
+  /**
+   * WebSocketLogger'ı döndürür
+   * @returns WebSocketLogger örneği
+   */
+  public getLogger(): WebSocketLogger {
+    return this.logger;
   }
 }
