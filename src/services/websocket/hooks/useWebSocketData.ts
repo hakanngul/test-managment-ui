@@ -20,7 +20,7 @@ export const useWebSocketData = () => {
   const [error, setError] = useState<Error | undefined>(undefined);
   
   useEffect(() => {
-    // WebSocketService'i al
+    // WebSocketService singleton'ını kullan
     const service = WebSocketService.getInstance();
     
     try {
