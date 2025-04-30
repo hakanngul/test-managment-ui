@@ -70,7 +70,7 @@ const QueueComponent: React.FC = () => {
           Kuyruktaki Testler
         </Typography>
         
-        <Box sx={{ maxHeight: 300, overflow: 'auto', bgcolor: 'background.default', borderRadius: 1 }}>
+        <Box sx={{ maxHeight: 500, overflow: 'auto', bgcolor: 'background.default', borderRadius: 1 }}>
           {queuedRequests.length === 0 ? (
             <Box sx={{ p: 2, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
