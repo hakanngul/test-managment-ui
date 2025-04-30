@@ -1,14 +1,12 @@
 import React from 'react';
-import { Paper, Typography, Box } from '@mui/material';
+import { Paper, Typography, Box, CircularProgress } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { TestStatusDistribution } from '../../mock/dashboardMock';
 import { TestCaseResult } from '../../models/interfaces/ITestCase';
+import { useTestStatusDistributionData } from '../../hooks/cardsHooks/useTestStatusDistributionData';
 
-interface TestStatusDistributionChartProps {
-  data: TestStatusDistribution[];
-}
+const SmartTestStatusDistributionChart: React.FC = () => {
+  const { distributionData, isLoading, error } = useTestStatusDistributionData();
 
-const TestStatusDistributionChart: React.FC<TestStatusDistributionChartProps> = ({ data }) => {
   // Renk paleti
   const COLORS = {
     [TestCaseResult.PASSED]: '#4caf50',
@@ -27,8 +25,46 @@ const TestStatusDistributionChart: React.FC<TestStatusDistributionChartProps> = 
     [TestCaseResult.NOT_RUN]: 'Çalıştırılmayan'
   };
 
+  if (isLoading) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          height: '100%',
+          borderRadius: 2,
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <CircularProgress />
+      </Paper>
+    );
+  }
+
+  if (error) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          height: '100%',
+          borderRadius: 2,
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <Typography color="error">Error: {error}</Typography>
+      </Paper>
+    );
+  }
+
   // Grafik verilerini hazırla
-  const chartData = data.map(item => ({
+  const chartData = distributionData.map(item => ({
     name: STATUS_NAMES[item.status],
     value: item.count,
     percentage: item.percentage,
@@ -139,4 +175,4 @@ const TestStatusDistributionChart: React.FC<TestStatusDistributionChartProps> = 
   );
 };
 
-export default TestStatusDistributionChart;
+export default SmartTestStatusDistributionChart;

@@ -19,17 +19,16 @@ import {
   Refresh as RefreshIcon,
   DateRange as DateRangeIcon
 } from '@mui/icons-material';
-import TestStatusDistributionChart from '../components/dashboard/TestStatusDistributionChart';
-import TestResultsOverTimeChart from '../components/dashboard/TestResultsOverTimeChart';
-import TestCategoryDistributionChart from '../components/dashboard/TestCategoryDistributionChart';
-import RecentTestRunsTable from '../components/dashboard/RecentTestRunsTable';
-import FailedTestsTable from '../components/dashboard/FailedTestsTable';
-import BrowserEnvironmentDistributionChart from '../components/dashboard/BrowserEnvironmentDistributionChart';
-import RecentActivitiesCard from '../components/dashboard/RecentActivitiesCard';
-import SlowestTestsCard from '../components/dashboard/SlowestTestsCard';
-import { mockDashboardData } from '../mock/dashboardMock';
 import SmartTestStatusCard from '../components/cards/smarts/SmartTestStatusCard';
 import { SmartAutomationCoverageCard, SmartLastRunCard, SmartTestRunCard } from '../components/cards/smarts';
+import SmartTestStatusDistributionChart from '../components/dashboard/SmartTestStatusDistributionChart';
+import SmartTestResultsOverTimeChart from '../components/dashboard/SmartTestResultsOverTimeChart';
+import SmartRecentTestRunsTable from '../components/dashboard/SmartRecentTestRunsTable';
+import SmartFailedTestsTable from '../components/dashboard/SmartFailedTestsTable';
+import SmartBrowserEnvironmentDistributionChart from '../components/dashboard/SmartBrowserEnvironmentDistributionChart';
+import SmartRecentActivitiesCard from '../components/dashboard/SmartRecentActivitiesCard';
+import SmartSlowestTestsCard from '../components/dashboard/SmartSlowestTestsCard';
+import SmartTestCategoryDistributionChart from '../components/dashboard/SmartTestCategoryDistributionChart';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -45,28 +44,12 @@ const Dashboard: React.FC = () => {
   };
 
   // Test detaylarını görüntüleme
-  const handleViewTestDetails = (testId: string) => {
-    navigate(`/test-cases/${testId}`);
-  };
 
   // Testi yeniden çalıştırma
-  const handleRerunTest = (testId: string) => {
-    // Test çalıştırma işlemi burada yapılacak
-    console.log(`Test yeniden çalıştırılıyor: ${testId}`);
-  };
 
   // Hata mesajını görüntüleme
-  const handleViewError = (_testId: string, errorMessage: string) => {
-    setSelectedErrorMessage(errorMessage);
-    setErrorDialogOpen(true);
-  };
 
   // Aktivite detaylarını görüntüleme
-  const handleViewActivity = (relatedId: string, type: string) => {
-    if (type.startsWith('test_')) {
-      navigate(`/test-cases/${relatedId}`);
-    }
-  };
 
 
 
@@ -103,24 +86,6 @@ const Dashboard: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Sistem Bilgisi */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: 2,
-          mb: 3,
-          borderRadius: 2,
-          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
-          bgcolor: 'primary.lighter'
-        }}
-      >
-        <Typography variant="subtitle1" fontWeight="medium">
-          Test Otomasyon Sistemi
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Tüm test otomasyon süreçlerinizi yönetmek için merkezi kontrol paneli
-        </Typography>
-      </Paper>
 
       {/* Özet Kartları */}
 
@@ -137,58 +102,45 @@ const Dashboard: React.FC = () => {
       {/* Test Sonuçları Grafikleri */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} md={4}>
-          <TestStatusDistributionChart data={mockDashboardData.testStatusDistribution} />
+        <SmartTestStatusDistributionChart />
         </Grid>
+      
         <Grid item xs={12} md={8}>
-          <TestResultsOverTimeChart data={mockDashboardData.testResultsOverTime} />
+          <SmartTestResultsOverTimeChart/>
         </Grid>
       </Grid>
 
       {/* Son Çalıştırılan Testler ve Başarısız Testler */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} lg={7}>
-          <RecentTestRunsTable
-            data={mockDashboardData.recentTestRuns}
-            onViewDetails={handleViewTestDetails}
-            onRerun={handleRerunTest}
-          />
+          <SmartRecentTestRunsTable />
         </Grid>
         <Grid item xs={12} lg={5}>
-          <FailedTestsTable
-            data={mockDashboardData.failedTests}
-            onViewDetails={handleViewTestDetails}
-            onRerun={handleRerunTest}
-            onViewError={handleViewError}
-          />
+          <SmartTestCategoryDistributionChart />
         </Grid>
       </Grid>
 
       {/* Test Kategorisi Dağılımı ve Tarayıcı/Ortam Dağılımı */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={5}>
-          <TestCategoryDistributionChart data={mockDashboardData.testCategoryDistribution} />
+        <Grid item xs={12} md={12}>
+         <SmartFailedTestsTable />
         </Grid>
-        <Grid item xs={12} md={7}>
-          <BrowserEnvironmentDistributionChart
-            browserData={mockDashboardData.browserDistribution}
-            environmentData={mockDashboardData.environmentDistribution}
-          />
+      </Grid>
+      <Divider sx={{ my: 4 }} />
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={12}>
+          <SmartBrowserEnvironmentDistributionChart />
         </Grid>
+    
       </Grid>
 
       {/* Son Aktiviteler ve En Yavaş Testler */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} md={6}>
-          <RecentActivitiesCard
-            data={mockDashboardData.recentActivities}
-            onViewActivity={handleViewActivity}
-          />
+          <SmartRecentActivitiesCard />
         </Grid>
         <Grid item xs={12} md={6}>
-          <SlowestTestsCard
-            data={mockDashboardData.slowestTests}
-            onViewTest={handleViewTestDetails}
-          />
+          <SmartSlowestTestsCard />
         </Grid>
       </Grid>
 

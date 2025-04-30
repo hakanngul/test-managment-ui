@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Typography, Box } from '@mui/material';
+import { Paper, Typography, Box, CircularProgress } from '@mui/material';
 import {
   LineChart,
   Line,
@@ -10,13 +10,11 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import { TestResultsOverTime } from '../../mock/dashboardMock';
+import { useTestResultsOverTimeData } from '../../hooks/cardsHooks/useTestResultsOverTimeData';
 
-interface TestResultsOverTimeChartProps {
-  data: TestResultsOverTime[];
-}
+const SmartTestResultsOverTimeChart: React.FC = () => {
+  const { timeData, isLoading, error } = useTestResultsOverTimeData();
 
-const TestResultsOverTimeChart: React.FC<TestResultsOverTimeChartProps> = ({ data }) => {
   // Tarih formatı
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -61,6 +59,44 @@ const TestResultsOverTimeChart: React.FC<TestResultsOverTimeChartProps> = ({ dat
     return null;
   };
 
+  if (isLoading) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          height: '100%',
+          borderRadius: 2,
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <CircularProgress />
+      </Paper>
+    );
+  }
+
+  if (error) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          height: '100%',
+          borderRadius: 2,
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <Typography color="error">Error: {error}</Typography>
+      </Paper>
+    );
+  }
+
   return (
     <Paper
       elevation={0}
@@ -80,7 +116,7 @@ const TestResultsOverTimeChart: React.FC<TestResultsOverTimeChartProps> = ({ dat
       <Box sx={{ flex: 1, minHeight: 300 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={data}
+            data={timeData}
             margin={{
               top: 5,
               right: 30,
@@ -140,4 +176,4 @@ const TestResultsOverTimeChart: React.FC<TestResultsOverTimeChartProps> = ({ dat
   );
 };
 
-export default TestResultsOverTimeChart;
+export default SmartTestResultsOverTimeChart;

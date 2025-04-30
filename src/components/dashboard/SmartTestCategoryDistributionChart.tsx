@@ -1,22 +1,21 @@
 import React from 'react';
-import { Paper, Typography, Box } from '@mui/material';
+import { Paper, Typography, Box, CircularProgress, Button, Tooltip, IconButton } from '@mui/material';
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer
 } from 'recharts';
-import { TestCategoryDistribution } from '../../mock/dashboardMock';
+import { Refresh as RefreshIcon } from '@mui/icons-material';
 import { TestCaseCategory } from '../../models/interfaces/ITestCase';
+import { useTestCategoryDistributionData } from '../../hooks/cardsHooks/useTestCategoryDistributionData';
 
-interface TestCategoryDistributionChartProps {
-  data: TestCategoryDistribution[];
-}
+const SmartTestCategoryDistributionChart: React.FC = () => {
+  const { distributionData, isLoading, error, refresh } = useTestCategoryDistributionData();
 
-const TestCategoryDistributionChart: React.FC<TestCategoryDistributionChartProps> = ({ data }) => {
   // Kategori adları
   const CATEGORY_NAMES = {
     [TestCaseCategory.FUNCTIONAL]: 'Fonksiyonel',
@@ -31,7 +30,7 @@ const TestCategoryDistributionChart: React.FC<TestCategoryDistributionChartProps
   };
 
   // Grafik verilerini hazırla
-  const chartData = data.map(item => ({
+  const chartData = distributionData.map(item => ({
     name: CATEGORY_NAMES[item.category],
     count: item.count,
     percentage: item.percentage
@@ -65,6 +64,54 @@ const TestCategoryDistributionChart: React.FC<TestCategoryDistributionChartProps
     return null;
   };
 
+  if (isLoading && distributionData.length === 0) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          height: '100%',
+          borderRadius: 2,
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <CircularProgress />
+      </Paper>
+    );
+  }
+
+  if (error) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          height: '100%',
+          borderRadius: 2,
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <Typography color="error" gutterBottom>
+          Veri yüklenirken hata oluştu: {error}
+        </Typography>
+        <Button 
+          variant="outlined" 
+          startIcon={<RefreshIcon />}
+          onClick={refresh}
+        >
+          Yeniden Dene
+        </Button>
+      </Paper>
+    );
+  }
+
   return (
     <Paper
       elevation={0}
@@ -77,9 +124,26 @@ const TestCategoryDistributionChart: React.FC<TestCategoryDistributionChartProps
         flexDirection: 'column'
       }}
     >
-      <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
-        Test Kategorisi Dağılımı
-      </Typography>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 1
+      }}>
+        <Typography variant="subtitle1" fontWeight="medium">
+          Test Kategorisi Dağılımı
+        </Typography>
+        
+        {isLoading && (
+          <CircularProgress size={20} sx={{ ml: 1 }} />
+        )}
+        
+        <Tooltip title="Yenile">
+          <IconButton size="small" onClick={refresh}>
+            <RefreshIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
       
       <Box sx={{ flex: 1, minHeight: 300 }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -101,7 +165,7 @@ const TestCategoryDistributionChart: React.FC<TestCategoryDistributionChartProps
               tick={{ fontSize: 12 }}
               width={100}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <RechartsTooltip content={<CustomTooltip />} />
             <Bar 
               dataKey="count" 
               fill="#3f51b5" 
@@ -115,4 +179,4 @@ const TestCategoryDistributionChart: React.FC<TestCategoryDistributionChartProps
   );
 };
 
-export default TestCategoryDistributionChart;
+export default SmartTestCategoryDistributionChart;

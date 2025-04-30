@@ -69,9 +69,9 @@ export interface RecentTestRun {
   testCaseId: string;
   testCaseName: string;
   status: TestRunStatus;
-  result: TestCaseResult;
+  result?: TestCaseResult; // Opsiyonel olarak işaretlendi
   startTime: Date;
-  endTime: Date;
+  endTime?: Date; // Opsiyonel olarak işaretlendi
   duration: number; // Milisaniye cinsinden
   executedBy: string;
 }

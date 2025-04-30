@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Typography, Box, Grid, Divider } from '@mui/material';
+import { Paper, Typography, Box, Grid, Divider, CircularProgress, Button } from '@mui/material';
 import {
   PieChart,
   Pie,
@@ -8,17 +8,12 @@ import {
   Legend,
   Tooltip
 } from 'recharts';
-import { BrowserDistribution, EnvironmentDistribution } from '../../mock/dashboardMock';
+import { Refresh as RefreshIcon } from '@mui/icons-material';
+import { useBrowserEnvironmentDistributionData } from '../../hooks/cardsHooks/useBrowserEnvironmentDistributionData';
 
-interface BrowserEnvironmentDistributionChartProps {
-  browserData: BrowserDistribution[];
-  environmentData: EnvironmentDistribution[];
-}
+const SmartBrowserEnvironmentDistributionChart: React.FC = () => {
+  const { browserData, environmentData, isLoading, error, refresh } = useBrowserEnvironmentDistributionData();
 
-const BrowserEnvironmentDistributionChart: React.FC<BrowserEnvironmentDistributionChartProps> = ({
-  browserData,
-  environmentData
-}) => {
   // Tarayıcı renkleri
   const BROWSER_COLORS = {
     'Chrome': '#4285F4',
@@ -93,6 +88,54 @@ const BrowserEnvironmentDistributionChart: React.FC<BrowserEnvironmentDistributi
     );
   };
 
+  if (isLoading && browserData.length === 0 && environmentData.length === 0) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          height: '100%',
+          borderRadius: 2,
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <CircularProgress />
+      </Paper>
+    );
+  }
+
+  if (error) {
+    return (
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          height: '100%',
+          borderRadius: 2,
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <Typography color="error" gutterBottom>
+          Veri yüklenirken hata oluştu: {error}
+        </Typography>
+        <Button 
+          variant="outlined" 
+          startIcon={<RefreshIcon />}
+          onClick={refresh}
+        >
+          Yeniden Dene
+        </Button>
+      </Paper>
+    );
+  }
+
   return (
     <Paper
       elevation={0}
@@ -105,9 +148,20 @@ const BrowserEnvironmentDistributionChart: React.FC<BrowserEnvironmentDistributi
         flexDirection: 'column'
       }}
     >
-      <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
-        Tarayıcı ve Ortam Dağılımı
-      </Typography>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 1
+      }}>
+        <Typography variant="subtitle1" fontWeight="medium">
+          Tarayıcı ve Ortam Dağılımı
+        </Typography>
+        
+        {isLoading && (
+          <CircularProgress size={20} />
+        )}
+      </Box>
       
       <Grid container spacing={2} sx={{ flex: 1 }}>
         {/* Tarayıcı Dağılımı */}
@@ -176,4 +230,4 @@ const BrowserEnvironmentDistributionChart: React.FC<BrowserEnvironmentDistributi
   );
 };
 
-export default BrowserEnvironmentDistributionChart;
+export default SmartBrowserEnvironmentDistributionChart;
