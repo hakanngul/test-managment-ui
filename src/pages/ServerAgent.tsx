@@ -8,7 +8,6 @@ import {
   LoadingIndicator,
   ErrorDisplay,
   ServerAgentOverview,
-  ServerAgentDetails,
   useServerAgentData
 } from '../components/server-agent';
 

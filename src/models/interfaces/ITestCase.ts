@@ -1,3 +1,5 @@
+import { TestStepActionType } from "../../components/test-cases";
+
 export interface TestCase {
   id: string;
   name: string;
@@ -23,6 +25,9 @@ export interface TestCase {
 }
 
 export interface TestStep {
+  action: TestStepActionType;
+  selector: any;
+  value: any;
   id: string;
   order: number;
   description: string;
@@ -36,7 +41,9 @@ export enum TestCaseStatus {
   DRAFT = 'draft',
   ACTIVE = 'active',
   DEPRECATED = 'deprecated',
-  ARCHIVED = 'archived'
+  ARCHIVED = 'archived',
+  RUNNING = "RUNNING",
+  COMPLETED = "COMPLETED"
 }
 
 export enum TestCasePriority {

@@ -47,7 +47,7 @@ import {
   TestStepActionType,
   BrowserSettings
 } from '../components/test-cases';
-import { testRunnerService, TestRunRequest, TestRunResponse } from '../services/TestRunnerService';
+import { testRunnerService, TestRunRequest } from '../services/TestRunnerService';
 import { BrowserType } from '../models/enums/TestEnums';
 import { mockTestCases } from '../mock/testCasesMock';
 
@@ -190,21 +190,22 @@ const NewTestCase: React.FC = () => {
         priority,
         category,
         tags,
-        createdBy: 'Hakan Gül', // Gerçek uygulamada oturum açmış kullanıcıdan alınacak
-        createdAt: new Date(), // Gerçek uygulamada mevcut createdAt değeri korunacak
+        createdBy: 'Hakan Gül',
+        createdAt: new Date(),
         updatedAt: new Date(),
         browser: browserSettings.browser,
         environment,
         automated,
         prerequisites,
-        projectId: 'proj-001', // Gerçek uygulamada mevcut projectId değeri korunacak
+        projectId: 'proj-001',
         steps: testSteps.map(step => ({
           id: step.id,
           description: step.description,
           action: step.action,
           selector: step.selector,
           value: step.value,
-          order: step.order
+          order: step.order,
+          expectedResult: step.description || ''
         }))
       };
 
@@ -243,7 +244,8 @@ const NewTestCase: React.FC = () => {
           action: step.action,
           selector: step.selector,
           value: step.value,
-          order: step.order
+          order: step.order,
+          expectedResult: step.description || '' // Adding the required expectedResult property
         }))
       };
 

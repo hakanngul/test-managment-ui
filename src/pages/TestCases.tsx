@@ -5,6 +5,7 @@ import TestCasesList from '../components/test-cases/TestCasesList';
 import { mockTestCases, filterTestCases } from '../mock/testCasesMock';
 import { TestCase, TestCaseStatus, TestCasePriority, TestCaseCategory } from '../models/interfaces/ITestCase';
 import { testRunnerService } from '../services/TestRunnerService';
+import { BrowserType } from '../models/enums/TestEnums';
 
 const TestCases: React.FC = () => {
   const [testCases, setTestCases] = useState<TestCase[]>([]);
@@ -144,7 +145,13 @@ const TestCases: React.FC = () => {
       };
 
       // Test çalıştırma isteği gönder
-      const response = await testRunnerService.runTest(testRunRequest);
+      const response = await testRunnerService.runTest({
+        ...testRunRequest,
+        browserSettings: {
+          ...testRunRequest.browserSettings,
+          browser: BrowserType.CHROME
+        }
+      });
 
       // Başarılı yanıt
       setSnackbar({

@@ -1,18 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import {
   Box,
   Typography,
   Grid,
-  Paper,
   Breadcrumbs,
   Link,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   Divider
 } from '@mui/material';
 import {
@@ -33,7 +26,6 @@ import { useErrorDialog } from '../context/ErrorDialogContext';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 
 const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
   const { showError } = useErrorDialog();
   const { handleError } = useErrorHandler();
 
@@ -56,21 +48,10 @@ const Dashboard: React.FC = () => {
   };
 
   // Test detaylarını görüntüleme
-  const handleViewTestDetails = (testId: string) => {
-    navigate(`/test-cases/${testId}`);
-  };
 
   // Testi yeniden çalıştırma
-  const handleRerunTest = (testId: string) => {
-    console.log(`Test yeniden çalıştırılıyor: ${testId}`);
-    // API çağrısı burada yapılacak
-  };
 
   // Aktivite detaylarını görüntüleme
-  const handleViewActivity = (activityId: string) => {
-    console.log(`Aktivite detayları görüntüleniyor: ${activityId}`);
-    // İlgili sayfaya yönlendirme veya detay gösterme
-  };
 
   return (
     <Box>
