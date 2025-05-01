@@ -178,3 +178,5 @@ export const mockTestRunsSummary: TestRunsSummary = {
   lastDayRuns: 24,
   lastWeekRuns: 78
 };
+export { TestRunStatus };
+
