@@ -1,20 +1,8 @@
 import { TestCaseResult } from '../models/interfaces/ITestCase';
+import { TestRun } from '../models/interfaces/ITestRunHistory';
 
 // Test çalıştırma geçmişi için arayüz
-export interface TestRun {
-  id: string;
-  testCaseId: string;
-  result: TestCaseResult;
-  startTime: Date;
-  endTime: Date;
-  duration: number; // milisaniye cinsinden
-  browser: string;
-  environment: string;
-  executedBy: string;
-  errorMessage?: string;
-  logs?: string[];
-  screenshots?: string[];
-}
+
 
 // Test çalıştırma geçmişi mock verileri
 export const mockTestRuns: Record<string, TestRun[]> = {

@@ -131,7 +131,8 @@ export enum TestRunStatus {
   ABORTED = 'aborted',
   TIMEOUT = 'timeout',
   ERROR = 'error',
-  PARTIAL = 'partial'
+  PARTIAL = 'partial',
+  CANCELLED = "CANCELLED"
 }
 
 export enum TriggerType {

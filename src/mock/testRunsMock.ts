@@ -1,33 +1,8 @@
+import { TestRunStatus } from '../models/enums/TestEnums';
 import { TestCaseResult } from '../models/interfaces/ITestCase';
+import { TestRun } from '../models/interfaces/ITestRun';
 
-// Test çalıştırma durumu
-export enum TestRunStatus {
-  QUEUED = 'queued',
-  RUNNING = 'running',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  CANCELLED = 'cancelled',
-  ERROR = 'error'
-}
 
-// Test çalıştırma arayüzü
-export interface TestRun {
-  id: string;
-  testCaseId: string;
-  testCaseName: string;
-  status: TestRunStatus;
-  result?: TestCaseResult;
-  startTime?: Date;
-  endTime?: Date;
-  duration?: number; // milisaniye cinsinden
-  browser: string;
-  environment: string;
-  executedBy: string;
-  errorMessage?: string;
-  progress?: number; // 0-100 arası
-  priority: string;
-  tags?: string[];
-}
 
 // Aktif çalışan testler için mock veri
 export const mockActiveTestRuns: TestRun[] = [

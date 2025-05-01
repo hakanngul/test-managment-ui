@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TestStatusSummary } from '../../mock/dashboardMock';
+import { TestStatusSummary } from '../../models/interfaces/IDashboard';
 
 export const useTestStatusData = () => {
   const [statusData, setStatusData] = useState<TestStatusSummary>({
