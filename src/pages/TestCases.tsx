@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Container, Box, Typography, Paper, Snackbar, Alert } from '@mui/material';
 import TestCasesToolbar from '../components/test-cases/TestCasesToolbar';
 import TestCasesList from '../components/test-cases/TestCasesList';
-import { mockTestCases, filterTestCases } from '../mock/testCasesMock';
 import { TestCase, TestCaseStatus, TestCasePriority, TestCaseCategory } from '../models/interfaces/ITestCase';
-import { testRunnerService } from '../services/TestRunnerService';
-import { BrowserType } from '../models/enums/TestEnums';
+import { testRunService } from '../services/TestRunService';
+
+import testCaseService from '../services/TestCaseService';
 
 const TestCases: React.FC = () => {
   const [testCases, setTestCases] = useState<TestCase[]>([]);
@@ -39,16 +39,14 @@ const TestCases: React.FC = () => {
 
   // Test case'leri yükle
   useEffect(() => {
-    // API'den veri çekme simülasyonu
     const fetchTestCases = async () => {
       setIsLoading(true);
       try {
-        // Gerçek uygulamada burada API çağrısı yapılacak
-        setTimeout(() => {
-          setTestCases(mockTestCases);
-          setFilteredTestCases(mockTestCases);
-          setIsLoading(false);
-        }, 500);
+        // TestCaseService'den test case'leri getir
+        const fetchedTestCases = await testCaseService.getAllTestCases();
+        setTestCases(fetchedTestCases);
+        setFilteredTestCases(fetchedTestCases);
+        setIsLoading(false);
       } catch (error) {
         console.error('Test case\'leri yüklerken hata oluştu:', error);
         setIsLoading(false);
@@ -60,15 +58,49 @@ const TestCases: React.FC = () => {
 
   // Filtreleme işlemi
   useEffect(() => {
-    const filtered = filterTestCases(testCases, {
-      search: searchTerm,
-      status: filters.status.length > 0 ? filters.status : undefined,
-      priority: filters.priority.length > 0 ? filters.priority : undefined,
-      category: filters.category.length > 0 ? filters.category : undefined,
-      automated: filters.automated,
-      tags: filters.tags.length > 0 ? filters.tags : undefined
-    });
-    setFilteredTestCases(filtered);
+    const applyFilters = async () => {
+      try {
+        // Arama terimi için manuel filtreleme
+        let filtered = testCases;
+
+        if (searchTerm) {
+          filtered = filtered.filter(tc =>
+            tc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tc.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+          );
+        }
+
+        // Diğer filtreler için servis kullan
+        if (filters.status.length > 0 ||
+            filters.priority.length > 0 ||
+            filters.category.length > 0 ||
+            filters.automated !== undefined ||
+            filters.tags.length > 0) {
+
+          const serviceFiltered = await testCaseService.filterTestCases({
+            status: filters.status.length > 0 ? filters.status : undefined,
+            priority: filters.priority.length > 0 ? filters.priority : undefined,
+            category: filters.category.length > 0 ? filters.category : undefined,
+            automated: filters.automated,
+            tags: filters.tags.length > 0 ? filters.tags : undefined
+          });
+
+          // Arama terimi filtrelemesi yapıldıysa, iki filtreleme sonucunu birleştir
+          if (searchTerm) {
+            filtered = serviceFiltered.filter(tc => filtered.some(f => f.id === tc.id));
+          } else {
+            filtered = serviceFiltered;
+          }
+        }
+
+        setFilteredTestCases(filtered);
+      } catch (error) {
+        console.error('Test case\'leri filtrelerken hata oluştu:', error);
+      }
+    };
+
+    applyFilters();
   }, [testCases, searchTerm, filters]);
 
   // Test case seçme işlemi
@@ -98,10 +130,33 @@ const TestCases: React.FC = () => {
   };
 
   // Test case'i sil
-  const handleDeleteTestCases = () => {
-    // Gerçek uygulamada burada API çağrısı yapılacak
-    setTestCases(prev => prev.filter(tc => !selectedTestCases.includes(tc.id)));
-    setSelectedTestCases([]);
+  const handleDeleteTestCases = async () => {
+    try {
+      // Seçili test case'leri sil
+      for (const id of selectedTestCases) {
+        await testCaseService.deleteTestCase(id);
+      }
+
+      // Başarılı silme işlemi sonrası UI'ı güncelle
+      setTestCases(prev => prev.filter(tc => !selectedTestCases.includes(tc.id)));
+      setSelectedTestCases([]);
+
+      // Başarı mesajı göster
+      setSnackbar({
+        open: true,
+        message: `${selectedTestCases.length} test case başarıyla silindi.`,
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Test case silme hatası:', error);
+
+      // Hata mesajı göster
+      setSnackbar({
+        open: true,
+        message: `Test case silinirken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,
+        severity: 'error'
+      });
+    }
   };
 
   // Test case'i çalıştır
@@ -126,32 +181,8 @@ const TestCases: React.FC = () => {
         throw new Error('Test case bulunamadı');
       }
 
-      // Test çalıştırma isteği oluştur
-      const testRunRequest = {
-        id: `run-${Date.now()}-${id}`,
-        name: testCase.name,
-        description: testCase.description || '',
-        browserSettings: {
-          browser: 'chrome',
-          headless: true,
-          width: 1280,
-          height: 720,
-          timeout: 30000
-        },
-        steps: testCase.steps || [],
-        testCaseId: id,
-        priority: testCase.priority || 'medium',
-        tags: testCase.tags || []
-      };
-
-      // Test çalıştırma isteği gönder
-      const response = await testRunnerService.runTest({
-        ...testRunRequest,
-        browserSettings: {
-          ...testRunRequest.browserSettings,
-          browser: BrowserType.CHROME
-        }
-      });
+      // Test çalıştırma servisi ile testi çalıştır
+      const response = await testRunService.runTestById(id);
 
       // Başarılı yanıt
       setSnackbar({

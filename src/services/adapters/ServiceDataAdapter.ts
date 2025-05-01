@@ -59,7 +59,9 @@ export class ServiceDataAdapter implements DataAdapter {
           highPriority: data.queueStatus?.highPriority || 0,
           mediumPriority: data.queueStatus?.mediumPriority || 0,
           lowPriority: data.queueStatus?.lowPriority || 0,
-          estimatedWaitTime: data.queueStatus?.estimatedWaitTime || 0
+          estimatedWaitTime: data.queueStatus?.estimatedWaitTime || 0,
+          scheduled: 0,
+          assigned: 0
         },
         performanceMetrics: data.performanceMetrics || {
           testExecutionTime: {

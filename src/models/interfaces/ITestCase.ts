@@ -15,6 +15,8 @@ export interface TestCase {
   lastResult?: TestCaseResult;
   browser?: string;
   environment?: string;
+  headless?: boolean;
+  takeScreenshots?: boolean;
   estimatedDuration?: number; // saniye cinsinden
   actualDuration?: number; // saniye cinsinden
   steps?: TestStep[];

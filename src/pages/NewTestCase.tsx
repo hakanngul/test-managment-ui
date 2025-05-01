@@ -47,9 +47,9 @@ import {
   TestStepActionType,
   BrowserSettings
 } from '../components/test-cases';
-import { testRunnerService, TestRunRequest } from '../services/TestRunnerService';
+import { testRunService, TestRunRequest } from '../services/TestRunService';
 import { BrowserType } from '../models/enums/TestEnums';
-import { mockTestCases } from '../mock/testCasesMock';
+import testCaseService from '../services/TestCaseService';
 
 const NewTestCase: React.FC = () => {
   const navigate = useNavigate();
@@ -125,7 +125,7 @@ const NewTestCase: React.FC = () => {
       }
     } else if (activeStep === 1) {
       // Test adımlarını doğrula
-      const validation = testRunnerService.validateTestSteps(testSteps);
+      const validation = testRunService.validateTestSteps(testSteps);
       if (!validation.isValid) {
         setErrors(prev => ({ ...prev, steps: validation.errors }));
         setSnackbarMessage('Lütfen test adımlarını düzeltin');
@@ -134,7 +134,7 @@ const NewTestCase: React.FC = () => {
       }
     } else if (activeStep === 2) {
       // Tarayıcı ayarlarını doğrula
-      const validation = testRunnerService.validateBrowserSettings(browserSettings);
+      const validation = testRunService.validateBrowserSettings(browserSettings);
       if (!validation.isValid) {
         setErrors(prev => ({ ...prev, browserSettings: validation.errors }));
         setSnackbarMessage('Lütfen tarayıcı ayarlarını düzeltin');
@@ -163,12 +163,12 @@ const NewTestCase: React.FC = () => {
       newErrors.description = 'Açıklama gereklidir';
     }
 
-    const stepsValidation = testRunnerService.validateTestSteps(testSteps);
+    const stepsValidation = testRunService.validateTestSteps(testSteps);
     if (!stepsValidation.isValid) {
       newErrors.steps = stepsValidation.errors;
     }
 
-    const browserValidation = testRunnerService.validateBrowserSettings(browserSettings);
+    const browserValidation = testRunService.validateBrowserSettings(browserSettings);
     if (!browserValidation.isValid) {
       newErrors.browserSettings = browserValidation.errors;
     }
@@ -209,18 +209,28 @@ const NewTestCase: React.FC = () => {
         }))
       };
 
-      // Gerçek uygulamada burada API çağrısı yapılacak
-      console.log('Test case güncelleniyor:', updatedTestCase);
+      try {
+        // TestCaseService ile test case'i güncelle
+        const result = await testCaseService.updateTestCase(id!, updatedTestCase);
 
-      // Başarı mesajını göster
-      setSnackbarMessage('Test case başarıyla güncellendi!');
-      setShowSnackbar(true);
-      setShowSuccessAlert(true);
+        if (result) {
+          // Başarı mesajını göster
+          setSnackbarMessage('Test case başarıyla güncellendi!');
+          setShowSnackbar(true);
+          setShowSuccessAlert(true);
 
-      // 2 saniye sonra test case detay sayfasına yönlendir
-      setTimeout(() => {
-        navigate(`/test-cases/${id}`);
-      }, 2000);
+          // 2 saniye sonra test case detay sayfasına yönlendir
+          setTimeout(() => {
+            navigate(`/test-cases/${id}`);
+          }, 2000);
+        } else {
+          throw new Error('Test case güncellenemedi');
+        }
+      } catch (error) {
+        console.error('Test case güncelleme hatası:', error);
+        setSnackbarMessage(`Test case güncellenirken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+        setShowSnackbar(true);
+      }
     } else {
       // Yeni test case oluştur
       const newTestCase: Omit<TestCase, 'id'> = {
@@ -249,18 +259,28 @@ const NewTestCase: React.FC = () => {
         }))
       };
 
-      // Gerçek uygulamada burada API çağrısı yapılacak
-      console.log('Yeni test case oluşturuluyor:', newTestCase);
+      try {
+        // TestCaseService ile yeni test case oluştur
+        const result = await testCaseService.createTestCase(newTestCase);
 
-      // Başarı mesajını göster
-      setSnackbarMessage('Test case başarıyla oluşturuldu!');
-      setShowSnackbar(true);
-      setShowSuccessAlert(true);
+        if (result) {
+          // Başarı mesajını göster
+          setSnackbarMessage('Test case başarıyla oluşturuldu!');
+          setShowSnackbar(true);
+          setShowSuccessAlert(true);
 
-      // 2 saniye sonra test cases sayfasına yönlendir
-      setTimeout(() => {
-        navigate('/test-cases');
-      }, 2000);
+          // 2 saniye sonra test case detay sayfasına yönlendir
+          setTimeout(() => {
+            navigate(`/test-cases/${result.id}`);
+          }, 2000);
+        } else {
+          throw new Error('Test case oluşturulamadı');
+        }
+      } catch (error) {
+        console.error('Test case oluşturma hatası:', error);
+        setSnackbarMessage(`Test case oluşturulurken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+        setShowSnackbar(true);
+      }
     }
   };
 
@@ -284,7 +304,7 @@ const NewTestCase: React.FC = () => {
       };
 
       // İsteği doğrula
-      const validation = testRunnerService.validateTestRunRequest(testRunRequest);
+      const validation = testRunService.validateTestRunRequest(testRunRequest);
       if (!validation.isValid) {
         setSnackbarMessage('Test çalıştırma isteği geçersiz: ' + validation.errors.join(', '));
         setShowSnackbar(true);
@@ -293,7 +313,7 @@ const NewTestCase: React.FC = () => {
       }
 
       // Test çalıştırma isteği gönder
-      const response = await testRunnerService.runTest(testRunRequest);
+      const response = await testRunService.runTest(testRunRequest);
 
       setTestRunId(response.id);
       setTestRunStatus(response.status);
@@ -301,7 +321,7 @@ const NewTestCase: React.FC = () => {
       // Test durumunu periyodik olarak kontrol et
       const statusCheckInterval = setInterval(async () => {
         try {
-          const statusResponse = await testRunnerService.checkTestStatus(response.id);
+          const statusResponse = await testRunService.checkTestStatus(response.id);
           setTestRunStatus(statusResponse.status);
 
           // Test tamamlandıysa interval'i temizle
@@ -351,48 +371,56 @@ const NewTestCase: React.FC = () => {
       setIsEditMode(true);
       setIsLoading(true);
 
-      // Gerçek uygulamada burada API çağrısı yapılacak
-      setTimeout(() => {
-        const testCase = mockTestCases.find(tc => tc.id === id);
+      const fetchTestCase = async () => {
+        try {
+          // TestCaseService'den test case'i getir
+          const testCase = await testCaseService.getTestCaseById(id);
 
-        if (testCase) {
-          // Temel bilgileri doldur
-          setName(testCase.name);
-          setDescription(testCase.description);
-          setStatus(testCase.status);
-          setPriority(testCase.priority);
-          setCategory(testCase.category);
-          setTags(testCase.tags || []);
-          setEnvironment(testCase.environment || 'Development');
-          setAutomated(testCase.automated);
-          setPrerequisites(testCase.prerequisites || []);
+          if (testCase) {
+            // Temel bilgileri doldur
+            setName(testCase.name);
+            setDescription(testCase.description);
+            setStatus(testCase.status);
+            setPriority(testCase.priority);
+            setCategory(testCase.category);
+            setTags(testCase.tags || []);
+            setEnvironment(testCase.environment || 'Development');
+            setAutomated(testCase.automated);
+            setPrerequisites(testCase.prerequisites || []);
 
-          // Test adımlarını doldur
-          if (testCase.steps && testCase.steps.length > 0) {
-            // Test adımlarını TestStep formatına dönüştür
-            const formattedSteps: TestStep[] = testCase.steps.map((step, index) => ({
-              id: step.id || `step-${index}`,
-              action: step.action as TestStepActionType || TestStepActionType.NAVIGATE,
-              description: step.description,
-              selector: step.selector,
-              value: step.value,
-              order: step.order || index + 1
-            }));
+            // Test adımlarını doldur
+            if (testCase.steps && testCase.steps.length > 0) {
+              // Test adımlarını TestStep formatına dönüştür
+              const formattedSteps: TestStep[] = testCase.steps.map((step, index) => ({
+                id: step.id || `step-${index}`,
+                action: step.action as TestStepActionType || TestStepActionType.NAVIGATE,
+                description: step.description,
+                selector: step.selector,
+                value: step.value,
+                order: step.order || index + 1
+              }));
 
-            setTestSteps(formattedSteps);
+              setTestSteps(formattedSteps);
+            }
+
+            // Tarayıcı ayarlarını doldur
+            if (testCase.browser) {
+              setBrowserSettings(prev => ({
+                ...prev,
+                browser: testCase.browser as BrowserType
+              }));
+            }
           }
-
-          // Tarayıcı ayarlarını doldur
-          if (testCase.browser) {
-            setBrowserSettings(prev => ({
-              ...prev,
-              browser: testCase.browser as BrowserType
-            }));
-          }
+        } catch (error) {
+          console.error('Test case yüklenirken hata oluştu:', error);
+          setSnackbarMessage('Test case yüklenirken bir hata oluştu');
+          setShowSnackbar(true);
+        } finally {
+          setIsLoading(false);
         }
+      };
 
-        setIsLoading(false);
-      }, 500);
+      fetchTestCase();
     }
   }, [id]);
 

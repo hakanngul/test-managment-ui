@@ -18,8 +18,8 @@ import {
   ArrowBack as ArrowBackIcon,
   Edit as EditIcon
 } from '@mui/icons-material';
-import { mockTestCases } from '../mock/testCasesMock';
 import { TestCase } from '../models/interfaces/ITestCase';
+import testCaseService from '../services/TestCaseService';
 import TestCaseHeader from '../components/test-case-details/TestCaseHeader';
 import TestCaseInfo from '../components/test-case-details/TestCaseInfo';
 import TestStepsList from '../components/test-case-details/TestStepsList';
@@ -59,18 +59,15 @@ const TestCaseDetails: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
-    // API'den veri çekme simülasyonu
     const fetchTestCase = async () => {
       setIsLoading(true);
       try {
-        // Gerçek uygulamada burada API çağrısı yapılacak
-        setTimeout(() => {
-          const foundTestCase = mockTestCases.find(tc => tc.id === id);
-          if (foundTestCase) {
-            setTestCase(foundTestCase);
-          }
-          setIsLoading(false);
-        }, 500);
+        if (id) {
+          // TestCaseService'den test case'i getir
+          const foundTestCase = await testCaseService.getTestCaseById(id);
+          setTestCase(foundTestCase);
+        }
+        setIsLoading(false);
       } catch (error) {
         console.error('Test case yüklenirken hata oluştu:', error);
         setIsLoading(false);

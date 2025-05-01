@@ -13,6 +13,8 @@ export interface ITestCase {
   preconditions: string[];
   expectedResults: string;
   automationStatus: AutomationStatus;
+  headless?: boolean;
+  takeScreenshots?: boolean;
   estimatedDuration: number; // Saniye cinsinden
   actualDuration?: number; // Saniye cinsinden
   tags: string[];
@@ -35,6 +37,8 @@ export class TestCase implements ITestCase {
   preconditions: string[];
   expectedResults: string;
   automationStatus: AutomationStatus;
+  headless?: boolean;
+  takeScreenshots?: boolean;
   estimatedDuration: number;
   actualDuration?: number;
   tags: string[];
@@ -56,6 +60,8 @@ export class TestCase implements ITestCase {
     this.preconditions = data.preconditions || [];
     this.expectedResults = data.expectedResults || '';
     this.automationStatus = data.automationStatus || AutomationStatus.NOT_AUTOMATED;
+    this.headless = data.headless !== undefined ? data.headless : false;
+    this.takeScreenshots = data.takeScreenshots !== undefined ? data.takeScreenshots : true;
     this.estimatedDuration = data.estimatedDuration || 0;
     this.actualDuration = data.actualDuration;
     this.tags = data.tags || [];
@@ -175,6 +181,8 @@ export class TestCase implements ITestCase {
       preconditions: this.preconditions,
       expectedResults: this.expectedResults,
       automationStatus: this.automationStatus,
+      headless: this.headless,
+      takeScreenshots: this.takeScreenshots,
       estimatedDuration: this.estimatedDuration,
       actualDuration: this.actualDuration,
       tags: this.tags,

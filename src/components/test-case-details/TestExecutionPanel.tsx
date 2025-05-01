@@ -29,6 +29,8 @@ import {
   Close as CloseIcon
 } from '@mui/icons-material';
 import { TestCase } from '../../models/interfaces/ITestCase';
+import { testRunService } from '../../services/TestRunService';
+import { BrowserType } from '../../models/enums/TestEnums';
 
 interface TestExecutionPanelProps {
   testCase: TestCase;
@@ -56,45 +58,64 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
   ];
 
   // Test çalıştırma işlemi
-  const handleRunTest = () => {
+  const handleRunTest = async () => {
     setIsRunning(true);
     setActiveStep(0);
     setShowAlert(false);
-    
-    // Test çalıştırma simülasyonu
-    const runTest = async () => {
-      try {
-        // Adım 1: Hazırlanıyor
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setActiveStep(1);
-        
-        // Adım 2: Test Ortamı Kuruluyor
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setActiveStep(2);
-        
-        // Adım 3: Test Çalıştırılıyor
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        setActiveStep(3);
-        
-        // Adım 4: Sonuçlar Toplanıyor
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setActiveStep(4);
-        
-        // Tamamlandı
-        setAlertSeverity('success');
-        setAlertMessage('Test başarıyla tamamlandı!');
-        setShowAlert(true);
-      } catch (error) {
-        console.error('Test çalıştırma hatası:', error);
-        setAlertSeverity('error');
-        setAlertMessage('Test çalıştırılırken bir hata oluştu.');
-        setShowAlert(true);
-      } finally {
-        setIsRunning(false);
-      }
-    };
-    
-    runTest();
+
+    try {
+      // Adım 1: Hazırlanıyor
+      setActiveStep(0);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Adım 2: Test Ortamı Kuruluyor
+      setActiveStep(1);
+
+      // Tarayıcı ayarlarını oluştur
+      const browserSettings = {
+        browser: browser as BrowserType,
+        headless,
+        width: 1280,
+        height: 720,
+        timeout: 30000
+      };
+
+      // Test çalıştırma isteği oluştur
+      const testRunRequest = testRunService.createTestRunRequestFromTestCase({
+        ...testCase,
+        browser: browser as string,
+        environment
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Adım 3: Test Çalıştırılıyor
+      setActiveStep(2);
+
+      // Test çalıştırma servisi ile testi çalıştır
+      const response = await testRunService.runTestById(testCase.id);
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Adım 4: Sonuçlar Toplanıyor
+      setActiveStep(3);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Adım 5: Tamamlandı
+      setActiveStep(4);
+
+      // Başarılı mesajı göster
+      setAlertSeverity('success');
+      setAlertMessage(`Test "${testCase.name}" başarıyla çalıştırıldı!`);
+      setShowAlert(true);
+    } catch (error) {
+      console.error('Test çalıştırma hatası:', error);
+      setAlertSeverity('error');
+      setAlertMessage(`Test çalıştırılırken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
+      setShowAlert(true);
+    } finally {
+      setIsRunning(false);
+    }
   };
 
   // Test çalıştırmayı durdur
@@ -111,9 +132,9 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
   };
 
   return (
-    <Paper 
-      elevation={2} 
-      sx={{ 
+    <Paper
+      elevation={2}
+      sx={{
         borderRadius: 2,
         overflow: 'hidden',
         boxShadow: '0 4px 20px 0 rgba(0,0,0,0.05)',
@@ -128,11 +149,11 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
           Test Çalıştırma
         </Typography>
       </Box>
-      
+
       <Box sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Uyarı Mesajı */}
         {showAlert && (
-          <Alert 
+          <Alert
             severity={alertSeverity}
             sx={{ mb: 2 }}
             action={
@@ -149,7 +170,7 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
             {alertMessage}
           </Alert>
         )}
-        
+
         {/* Test Çalıştırma Durumu */}
         {isRunning && (
           <Box sx={{ width: '100%', mb: 3 }}>
@@ -167,7 +188,7 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
             </Stepper>
           </Box>
         )}
-        
+
         {/* Ayarlar Butonu */}
         <Button
           variant="text"
@@ -178,14 +199,14 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
         >
           Çalıştırma Ayarları
         </Button>
-        
+
         {/* Ayarlar */}
         <Collapse in={showSettings}>
           <Box sx={{ mb: 3 }}>
             <Typography variant="subtitle2" gutterBottom>
               Tarayıcı Ayarları
             </Typography>
-            
+
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Tarayıcı</InputLabel>
               <Select
@@ -200,7 +221,7 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
                 <MenuItem value="Edge">Edge</MenuItem>
               </Select>
             </FormControl>
-            
+
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Ortam</InputLabel>
               <Select
@@ -215,7 +236,7 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
                 <MenuItem value="Production">Üretim</MenuItem>
               </Select>
             </FormControl>
-            
+
             <FormControlLabel
               control={
                 <Switch
@@ -226,7 +247,7 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
               }
               label="Headless Mod"
             />
-            
+
             <FormControlLabel
               control={
                 <Switch
@@ -239,9 +260,9 @@ const TestExecutionPanel: React.FC<TestExecutionPanelProps> = ({ testCase }) => 
             />
           </Box>
         </Collapse>
-        
+
         <Box sx={{ flexGrow: 1 }} />
-        
+
         {/* Çalıştırma Butonu */}
         <Box sx={{ mt: 2 }}>
           {isRunning ? (
